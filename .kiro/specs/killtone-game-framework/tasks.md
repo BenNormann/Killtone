@@ -63,7 +63,12 @@
     - _Requirements: 3.1, 3.3_
 -
 
-  - [-] 2.5 Create leaderboard system (TAB menu)
+  - [x] 2.5 Create leaderboard system (TAB menu)
+
+
+
+
+
 
 
     - Implement leaderboard UI with player rankings
@@ -72,7 +77,10 @@
     - Integrate with right-panel design pattern
     - _Requirements: 3.1, 7.4_
 
-- [ ] 3. Enhance existing asset management
+- [-] 3. Enhance existing asset management
+
+
+
   - [ ] 3.1 Upgrade AssetManager with progress tracking
     - Add loading progress callbacks and reporting
     - Implement asset dependency resolution

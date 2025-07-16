@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>KILLtONE Leaderboard Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            width: 100%;
+            height: 100vh;
+            display: block;
+        }
+        #instructions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">
+        <h3>Leaderboard Test</h3>
+        <p>Press TAB to show/hide leaderboard</p>
+        <p>Press ESC for settings</p>
+        <p>Click LEADERBOARD button in main menu</p>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Babylon.js CDN -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+    <script type="module">
+        import { GameConfig } from './src/mainConfig.js';
+        import { UIManager } from './src/engine/UIManager.js';
+        import { InputManager } from './src/engine/InputManager.js';
+
+        // Mock game object for testing
+        class MockGame {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.engine = new BABYLON.Engine(canvas, true);
+                this.scene = new BABYLON.Scene(this.engine);
+                this.config = GameConfig;
+                
+                // Mock state manager
+                this.stateManager = {
+                    getCurrentState: () => 'IN_GAME',
+                    transitionTo: (state) => console.log(`Transitioning to: ${state}`)
+                };
+                
+                // Initialize managers
+                this.uiManager = new UIManager(this);
+                this.inputManager = new InputManager(this);
+                
+                // Setup basic scene
+                this.setupScene();
+                
+                // Start render loop
+                this.engine.runRenderLoop(() => {
+                    this.scene.render();
+                });
+                
+                // Handle resize
+                window.addEventListener('resize', () => {
+                    this.engine.resize();
+                    this.uiManager.onResize();
+                });
+            }
+            
+            setupScene() {
+                // Create basic camera and light
+                const camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 5, -10), this.scene);
+                camera.setTarget(BABYLON.Vector3.Zero());
+                
+                const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), this.scene);
+                
+                // Create a simple ground
+                const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 10, height: 10}, this.scene);
+                
+                // Show main menu initially
+                this.uiManager.showMainMenu();
+            }
+        }
+
+        // Initialize the test
+        const canvas = document.getElementById('gameCanvas');
+        const game = new MockGame(canvas);
+        
+        console.log('Leaderboard test initialized');
+        console.log('- Press TAB to toggle leaderboard');
+        console.log('- Press ESC for settings');
+        console.log('- Click LEADERBOARD button in main menu');
+    </script>
+</body>
+</html>

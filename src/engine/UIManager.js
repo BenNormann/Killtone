@@ -423,44 +423,37 @@ export class UIManager {
         contentContainer.addControl(headerContainer);
 
         const rankHeader = new BABYLON.GUI.TextBlock("rankHeader");
-        rankHeader.text = "RANK";
+        rankHeader.text = "#";
         rankHeader.color = GameConfig.theme.colors.textPrimary;
-        rankHeader.fontSize = 16;
+        rankHeader.fontSize = 14;
         rankHeader.fontFamily = GameConfig.theme.fonts.primary;
         rankHeader.fontWeight = "bold";
         rankHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        rankHeader.left = "-80px";
+        rankHeader.left = "-110px";
         headerContainer.addControl(rankHeader);
 
         const nameHeader = new BABYLON.GUI.TextBlock("nameHeader");
         nameHeader.text = "PLAYER";
         nameHeader.color = GameConfig.theme.colors.textPrimary;
-        nameHeader.fontSize = 16;
+        nameHeader.fontSize = 14;
         nameHeader.fontFamily = GameConfig.theme.fonts.primary;
         nameHeader.fontWeight = "bold";
-        nameHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        nameHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        nameHeader.left = "-60px";
         headerContainer.addControl(nameHeader);
 
-        const scoreHeader = new BABYLON.GUI.TextBlock("scoreHeader");
-        scoreHeader.text = "KILLS";
-        scoreHeader.color = GameConfig.theme.colors.textPrimary;
-        scoreHeader.fontSize = 16;
-        scoreHeader.fontFamily = GameConfig.theme.fonts.primary;
-        scoreHeader.fontWeight = "bold";
-        scoreHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        scoreHeader.left = "80px";
-        headerContainer.addControl(scoreHeader);
+        const killsHeader = new BABYLON.GUI.TextBlock("killsHeader");
+        killsHeader.text = "KILLS";
+        killsHeader.color = GameConfig.theme.colors.textPrimary;
+        killsHeader.fontSize = 14;
+        killsHeader.fontFamily = GameConfig.theme.fonts.primary;
+        killsHeader.fontWeight = "bold";
+        killsHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        killsHeader.left = "100px";
+        headerContainer.addControl(killsHeader);
 
-        // Sample leaderboard data (in real game, this would come from server)
-        const sampleData = [
-            { rank: 1, name: "Player1", kills: 15, deaths: 3 },
-            { rank: 2, name: "Player2", kills: 12, deaths: 5 },
-            { rank: 3, name: "Player3", kills: 10, deaths: 7 },
-            { rank: 4, name: "Player4", kills: 8, deaths: 9 },
-            { rank: 5, name: "Player5", kills: 6, deaths: 11 },
-            { rank: 6, name: "Player6", kills: 4, deaths: 13 },
-            { rank: 7, name: "Player7", kills: 2, deaths: 15 }
-        ];
+        // Get leaderboard data (sample data for now, in real game this would come from server)
+        const sampleData = this._getLeaderboardData();
 
         // Create leaderboard entries
         sampleData.forEach((player, index) => {
@@ -724,7 +717,84 @@ export class UIManager {
     }
 
     /**
-     * Create settings section header
+     * Create clean settings section header
+     * @param {BABYLON.GUI.Container} container - Parent container
+     * @param {string} title - Section title
+     */
+    _createCleanSettingsSection(container, title) {
+        const sectionTitle = new BABYLON.GUI.TextBlock(`section_${title.toLowerCase()}`);
+        sectionTitle.text = title;
+        sectionTitle.color = GameConfig.theme.colors.primary;
+        sectionTitle.fontSize = 18;
+        sectionTitle.fontFamily = GameConfig.theme.fonts.primary;
+        sectionTitle.fontWeight = "bold";
+        sectionTitle.heightInPixels = 35;
+        sectionTitle.paddingTop = "10px";
+        sectionTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        container.addControl(sectionTitle);
+    }
+
+    /**
+     * Create clean slider setting
+     * @param {BABYLON.GUI.Container} container - Parent container
+     * @param {string} label - Setting label
+     * @param {number} defaultValue - Default value
+     * @param {Function} onChange - Change handler
+     * @param {number} min - Minimum value
+     * @param {number} max - Maximum value
+     */
+    _createCleanSliderSetting(container, label, defaultValue, onChange, min = 0, max = 1) {
+        const settingContainer = new BABYLON.GUI.Rectangle(`setting_${label.toLowerCase().replace(' ', '_')}`);
+        settingContainer.heightInPixels = 40;
+        settingContainer.color = "transparent";
+        settingContainer.background = "transparent";
+        container.addControl(settingContainer);
+
+        const labelText = new BABYLON.GUI.TextBlock(`label_${label.toLowerCase().replace(' ', '_')}`);
+        labelText.text = label;
+        labelText.color = GameConfig.theme.colors.textPrimary;
+        labelText.fontSize = 14;
+        labelText.fontFamily = GameConfig.theme.fonts.primary;
+        labelText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        labelText.left = "-100px";
+        labelText.top = "-10px";
+        settingContainer.addControl(labelText);
+
+        const valueText = new BABYLON.GUI.TextBlock(`value_${label.toLowerCase().replace(' ', '_')}`);
+        valueText.text = defaultValue.toString();
+        valueText.color = GameConfig.theme.colors.primary;
+        valueText.fontSize = 14;
+        valueText.fontFamily = GameConfig.theme.fonts.primary;
+        valueText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        valueText.left = "100px";
+        valueText.top = "-10px";
+        settingContainer.addControl(valueText);
+
+        // Simple slider representation (Babylon.js GUI doesn't have built-in sliders)
+        const sliderBg = new BABYLON.GUI.Rectangle(`slider_bg_${label.toLowerCase().replace(' ', '_')}`);
+        sliderBg.widthInPixels = 150;
+        sliderBg.heightInPixels = 4;
+        sliderBg.color = GameConfig.theme.colors.border;
+        sliderBg.background = GameConfig.theme.colors.progressBackground;
+        sliderBg.top = "10px";
+        settingContainer.addControl(sliderBg);
+
+        const sliderFill = new BABYLON.GUI.Rectangle(`slider_fill_${label.toLowerCase().replace(' ', '_')}`);
+        const fillWidth = ((defaultValue - min) / (max - min)) * 150;
+        sliderFill.widthInPixels = fillWidth;
+        sliderFill.heightInPixels = 4;
+        sliderFill.color = "transparent";
+        sliderFill.background = GameConfig.theme.colors.primary;
+        sliderFill.left = `-${(150 - fillWidth) / 2}px`;
+        sliderFill.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        sliderBg.addControl(sliderFill);
+
+        // Note: In a full implementation, you'd add mouse interaction for the slider
+        // For now, this is a visual representation
+    }
+
+    /**
+     * Create settings section header (legacy)
      * @param {BABYLON.GUI.Container} container - Parent container
      * @param {string} title - Section title
      */
@@ -834,46 +904,198 @@ export class UIManager {
     }
 
     /**
-     * Create leaderboard entry with theme colors
+     * Update leaderboard with new data (for real-time updates)
+     * @param {Array} playerData - Array of player data objects
+     */
+    updateLeaderboardData(playerData) {
+        if (!this.leaderboard || !this.leaderboard.isVisible) return;
+        
+        // In a real implementation, this would update the existing leaderboard entries
+        // For now, we'll hide and recreate the leaderboard
+        this.hideLeaderboard();
+        this.showLeaderboard();
+    }
+
+    /**
+     * Get leaderboard data with comprehensive player statistics
+     * @returns {Array} Array of player data objects
+     */
+    _getLeaderboardData() {
+        // Sample multiplayer leaderboard data structure
+        // In a real game, this would come from the server/NetworkManager
+        const players = [
+            { 
+                id: 'player1', 
+                name: "CyberKiller", 
+                kills: 24, 
+                deaths: 8, 
+                assists: 12, 
+                score: 360,
+                ping: 45,
+                isLocal: false
+            },
+            { 
+                id: 'player2', 
+                name: "NeonAssassin", 
+                kills: 21, 
+                deaths: 12, 
+                assists: 8, 
+                score: 315,
+                ping: 32,
+                isLocal: false
+            },
+            { 
+                id: 'player3', 
+                name: "RedPhantom", 
+                kills: 18, 
+                deaths: 9, 
+                assists: 15, 
+                score: 285,
+                ping: 67,
+                isLocal: false
+            },
+            { 
+                id: 'player4', 
+                name: "YOU", 
+                kills: 16, 
+                deaths: 11, 
+                assists: 9, 
+                score: 255,
+                ping: 0,
+                isLocal: true
+            },
+            { 
+                id: 'player5', 
+                name: "PurpleStorm", 
+                kills: 14, 
+                deaths: 13, 
+                assists: 7, 
+                score: 225,
+                ping: 89,
+                isLocal: false
+            },
+            { 
+                id: 'player6', 
+                name: "PinkViper", 
+                kills: 12, 
+                deaths: 15, 
+                assists: 11, 
+                score: 195,
+                ping: 54,
+                isLocal: false
+            },
+            { 
+                id: 'player7', 
+                name: "ElectroHunter", 
+                kills: 9, 
+                deaths: 18, 
+                assists: 6, 
+                score: 150,
+                ping: 123,
+                isLocal: false
+            },
+            { 
+                id: 'player8', 
+                name: "NightRider", 
+                kills: 7, 
+                deaths: 20, 
+                assists: 4, 
+                score: 115,
+                ping: 76,
+                isLocal: false
+            }
+        ];
+
+        // Sort by score (kills * 15 + assists * 5 - deaths * 5)
+        players.sort((a, b) => b.score - a.score);
+        
+        // Add rank based on sorted position
+        players.forEach((player, index) => {
+            player.rank = index + 1;
+            player.kdr = player.deaths > 0 ? (player.kills / player.deaths).toFixed(2) : player.kills.toFixed(2);
+        });
+
+        return players;
+    }
+
+    /**
+     * Create enhanced leaderboard entry with kill/death statistics
      * @param {BABYLON.GUI.Container} container - Parent container
      * @param {Object} player - Player data
      * @param {boolean} isFirst - Whether this is first place
      */
     _createLeaderboardEntry(container, player, isFirst = false) {
         const entryContainer = new BABYLON.GUI.Rectangle(`entry_${player.rank}`);
-        entryContainer.heightInPixels = 30;
+        entryContainer.heightInPixels = 45;
         entryContainer.color = "transparent";
-        entryContainer.background = isFirst ? GameConfig.theme.colors.backgroundButtonHover : "transparent";
+        entryContainer.background = isFirst ? GameConfig.theme.colors.backgroundButtonHover : 
+                                   player.isLocal ? 'rgba(253, 52, 43, 0.2)' : "transparent";
+        entryContainer.cornerRadius = GameConfig.theme.borderRadius.small;
         container.addControl(entryContainer);
 
+        // Rank
         const rankText = new BABYLON.GUI.TextBlock(`rank_${player.rank}`);
         rankText.text = `#${player.rank}`;
-        rankText.color = isFirst ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
-        rankText.fontSize = 14;
+        rankText.color = isFirst ? GameConfig.theme.colors.primary : 
+                        player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
+        rankText.fontSize = 16;
         rankText.fontFamily = GameConfig.theme.fonts.primary;
-        rankText.fontWeight = isFirst ? "bold" : "normal";
+        rankText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
         rankText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        rankText.left = "-80px";
+        rankText.left = "-110px";
+        rankText.top = "-8px";
         entryContainer.addControl(rankText);
 
+        // Player name
         const nameText = new BABYLON.GUI.TextBlock(`name_${player.rank}`);
         nameText.text = player.name;
-        nameText.color = isFirst ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textPrimary;
-        nameText.fontSize = 14;
+        nameText.color = isFirst ? GameConfig.theme.colors.primary : 
+                        player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textPrimary;
+        nameText.fontSize = 15;
         nameText.fontFamily = GameConfig.theme.fonts.primary;
-        nameText.fontWeight = isFirst ? "bold" : "normal";
-        nameText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        nameText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
+        nameText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        nameText.left = "-60px";
+        nameText.top = "-8px";
         entryContainer.addControl(nameText);
 
+        // Kills
         const killsText = new BABYLON.GUI.TextBlock(`kills_${player.rank}`);
         killsText.text = player.kills.toString();
-        killsText.color = isFirst ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
-        killsText.fontSize = 14;
+        killsText.color = isFirst ? GameConfig.theme.colors.primary : 
+                         player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
+        killsText.fontSize = 15;
         killsText.fontFamily = GameConfig.theme.fonts.primary;
-        killsText.fontWeight = isFirst ? "bold" : "normal";
+        killsText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
         killsText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        killsText.left = "80px";
+        killsText.left = "100px";
+        killsText.top = "-8px";
         entryContainer.addControl(killsText);
+
+        // K/D Ratio and Deaths (smaller text below main info)
+        const statsText = new BABYLON.GUI.TextBlock(`stats_${player.rank}`);
+        statsText.text = `${player.deaths}D • ${player.kdr} K/D • ${player.assists}A`;
+        statsText.color = GameConfig.theme.colors.textSecondary;
+        statsText.fontSize = 11;
+        statsText.fontFamily = GameConfig.theme.fonts.primary;
+        statsText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        statsText.left = "-60px";
+        statsText.top = "8px";
+        entryContainer.addControl(statsText);
+
+        // Ping (for multiplayer)
+        if (!player.isLocal) {
+            const pingText = new BABYLON.GUI.TextBlock(`ping_${player.rank}`);
+            pingText.text = `${player.ping}ms`;
+            pingText.color = player.ping < 50 ? GameConfig.theme.colors.textSuccess : 
+                           player.ping < 100 ? GameConfig.theme.colors.textWarning : GameConfig.theme.colors.textDanger;
+            pingText.fontSize = 11;
+            pingText.fontFamily = GameConfig.theme.fonts.primary;
+            pingText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            pingText.left = "100px";
+            pingText.top = "8px";
+            entryContainer.addControl(pingText);
+        }
     }
 
     /**
@@ -903,6 +1125,12 @@ export class UIManager {
                 this.settingsOverlay.heightInPixels = height;
             }
             
+            // Update leaderboard
+            if (this.leaderboard) {
+                this.leaderboard.widthInPixels = width;
+                this.leaderboard.heightInPixels = height;
+            }
+            
             // Update game HUD
             if (this.gameHUD) {
                 this.gameHUD.widthInPixels = width;
@@ -928,6 +1156,7 @@ export class UIManager {
         this.loadingScreen = null;
         this.mainMenu = null;
         this.settingsOverlay = null;
+        this.leaderboard = null;
         this.gameHUD = null;
         this.mapEditor = null;
         this.fullscreenUI = null;
