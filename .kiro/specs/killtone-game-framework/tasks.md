@@ -19,27 +19,47 @@
   - Implement mainConfig.js with all game settings
   - Create basic Game.js orchestrator with Babylon.js initialization
   - _Requirements: 1.1, 6.5, 6.6_
-- [-] 2. Implement core engine systems
+- [x] 2. Implement core engine systems
+
+
 
 
 - [ ] 2. Implement core engine systems
 
-  - [-] 2.1 Create StateManager for game state transitions
+  - [x] 2.1 Create StateManager for game state transitions
+
 
     - Implement LOADING, MAIN_MENU, IN_GAME, PAUSED, MAP_EDITOR states
     - Add state transition validation and cleanup
     - _Requirements: 1.1, 1.2_
   
-  - [ ] 2.2 Create InputManager for centralized input handling
+  - [x] 2.2 Create InputManager for centralized input handling
+
+
     - Implement key binding system with ESC key handling
     - Add context-sensitive input (menu vs game modes)
     - _Requirements: 3.2, 7.1_
   
-  - [ ] 2.3 Create UIManager with loading screen and main menu
+  - [x] 2.3 Create UIManager with loading screen and main menu
+
+
     - Implement loading screen with progress display using LOADINGIMAGE.png
     - Create main menu with LOADINGIMAGE.png background
     - Add ESC settings overlay functionality
     - _Requirements: 2.1, 2.2, 2.3, 3.1, 3.3, 3.4, 3.5_
+
+  - [ ] 2.4 Implement theme colors and visual consistency
+    - Define red/pink/purple color scheme throughout UI
+    - Apply consistent styling to all menu buttons and panels
+    - Update loading screen and HUD with theme colors
+    - _Requirements: 3.1, 3.3_
+
+  - [ ] 2.5 Create leaderboard system (TAB menu)
+    - Implement leaderboard UI with player rankings
+    - Add kill/death statistics display
+    - Create sample data structure for multiplayer scores
+    - Integrate with right-panel design pattern
+    - _Requirements: 3.1, 7.4_
 
 - [ ] 3. Enhance existing asset management
   - [ ] 3.1 Upgrade AssetManager with progress tracking
