@@ -3,22 +3,17 @@
 ## Phase 1: Core Foundation (Essential Systems)
 
 - [-] 1. Set up project structure and core configuration
-
-
-
-
-
-
-
-
-
-
-
-
   - Create the complete src/ directory structure
   - Implement mainConfig.js with all game settings
   - Create basic Game.js orchestrator with Babylon.js initialization
   - _Requirements: 1.1, 6.5, 6.6_
+
+- [ ] 1.5 Create index.html with proper game initialization
+  - Implement HTML entry point with Babylon.js CDN loading
+  - Add professional loading screen with KILLtONE branding
+  - Create error handling and game initialization flow
+  - Integrate with Game.js module loading system
+  - _Requirements: 2.1, 2.2, 1.1_
 - [x] 2. Implement core engine systems
 
 
@@ -43,18 +38,34 @@
   - [x] 2.3 Create UIManager with loading screen and main menu
 
 
-    - Implement loading screen with progress display using LOADINGIMAGE.png
-    - Create main menu with LOADINGIMAGE.png background
+    - Implement loading screen with progress display using LoadingImage.png
+    - Create main menu with LoadingImage.png background
     - Add ESC settings overlay functionality
     - _Requirements: 2.1, 2.2, 2.3, 3.1, 3.3, 3.4, 3.5_
 
-  - [ ] 2.4 Implement theme colors and visual consistency
+  - [x] 2.4 Implement theme colors and visual consistency
+
+
+
+
+
+
+
+
+
+
+
+
+
     - Define red/pink/purple color scheme throughout UI
     - Apply consistent styling to all menu buttons and panels
     - Update loading screen and HUD with theme colors
     - _Requirements: 3.1, 3.3_
+-
 
-  - [ ] 2.5 Create leaderboard system (TAB menu)
+  - [-] 2.5 Create leaderboard system (TAB menu)
+
+
     - Implement leaderboard UI with player rankings
     - Add kill/death statistics display
     - Create sample data structure for multiplayer scores

@@ -1,31 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KILLtONE - FPS Game</title>
-    
+    <title>KILL𖥠ONE</title>
+
     <!-- Babylon.js Core -->
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
     <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-    
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             background-color: #000;
             color: #fff;
             overflow: hidden;
-            cursor: none; /* Hide cursor during gameplay */
+            cursor: none;
+            /* Hide cursor during gameplay */
         }
-        
+
         #gameCanvas {
             width: 100vw;
             height: 100vh;
@@ -33,7 +35,7 @@
             outline: none;
             touch-action: none;
         }
-        
+
         /* Loading screen styles */
         #initialLoading {
             position: fixed;
@@ -49,41 +51,41 @@
             z-index: 1000;
             transition: opacity 0.5s ease-out;
         }
-        
+
         #initialLoading.hidden {
             opacity: 0;
             pointer-events: none;
         }
-        
+
         .loading-logo {
             font-size: 48px;
             font-weight: bold;
-            color: #ff0000;
+            color: #FD342B;
             margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
-        
+
         .loading-text {
             font-size: 18px;
             color: #fff;
             margin-bottom: 20px;
         }
-        
+
         .loading-bar {
             width: 300px;
             height: 4px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 2px;
             overflow: hidden;
         }
-        
+
         .loading-progress {
             height: 100%;
-            background: linear-gradient(90deg, #ff0000, #ff4444);
+            background: linear-gradient(90deg, #FD342B, #ff4444);
             width: 0%;
             transition: width 0.3s ease;
         }
-        
+
         /* Error screen styles */
         #errorScreen {
             position: fixed;
@@ -98,13 +100,13 @@
             align-items: center;
             z-index: 1001;
         }
-        
+
         .error-title {
             font-size: 32px;
-            color: #ff0000;
+            color: #FD342B;
             margin-bottom: 20px;
         }
-        
+
         .error-message {
             font-size: 16px;
             color: #fff;
@@ -113,10 +115,10 @@
             line-height: 1.5;
             margin-bottom: 30px;
         }
-        
+
         .error-button {
             padding: 12px 24px;
-            background: #ff0000;
+            background: #FD342B;
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -124,42 +126,43 @@
             cursor: pointer;
             transition: background 0.3s ease;
         }
-        
+
         .error-button:hover {
             background: #cc0000;
         }
-        
+
         /* Responsive design */
         @media (max-width: 768px) {
             .loading-logo {
                 font-size: 36px;
             }
-            
+
             .loading-bar {
                 width: 250px;
             }
-            
+
             .error-title {
                 font-size: 24px;
             }
-            
+
             .error-message {
                 font-size: 14px;
                 padding: 0 20px;
             }
         }
-        
+
         /* Hide scrollbars */
         ::-webkit-scrollbar {
             display: none;
         }
-        
+
         html {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
     </style>
 </head>
+
 <body>
     <!-- Initial Loading Screen -->
     <div id="initialLoading">
@@ -169,7 +172,7 @@
             <div class="loading-progress" id="loadingProgress"></div>
         </div>
     </div>
-    
+
     <!-- Error Screen -->
     <div id="errorScreen">
         <div class="error-title">Error Loading Game</div>
@@ -178,10 +181,10 @@
         </div>
         <button class="error-button" onclick="location.reload()">Retry</button>
     </div>
-    
+
     <!-- Game Canvas -->
     <canvas id="gameCanvas"></canvas>
-    
+
     <!-- Game Scripts -->
     <script type="module">
         // Global error handling
@@ -189,12 +192,12 @@
             console.error('Global error:', event.error);
             showErrorScreen('JavaScript Error: ' + event.error.message);
         });
-        
+
         window.addEventListener('unhandledrejection', (event) => {
             console.error('Unhandled promise rejection:', event.reason);
             showErrorScreen('Promise Error: ' + event.reason);
         });
-        
+
         // Loading progress tracking
         let loadingProgress = 0;
         const loadingSteps = [
@@ -205,65 +208,65 @@
             'Finalizing...'
         ];
         let currentStep = 0;
-        
+
         function updateLoadingProgress(progress, step = null) {
             loadingProgress = Math.min(100, Math.max(0, progress));
-            
+
             const progressBar = document.getElementById('loadingProgress');
             const loadingText = document.querySelector('.loading-text');
-            
+
             if (progressBar) {
                 progressBar.style.width = loadingProgress + '%';
             }
-            
+
             if (step !== null && loadingText) {
                 loadingText.textContent = loadingSteps[step] || 'Loading...';
                 currentStep = step;
             }
         }
-        
+
         function hideInitialLoading() {
             const loadingScreen = document.getElementById('initialLoading');
             loadingScreen.classList.add('hidden');
-            
+
             setTimeout(() => {
                 loadingScreen.style.display = 'none';
             }, 500);
         }
-        
+
         function showErrorScreen(message) {
             const errorScreen = document.getElementById('errorScreen');
             const errorMessage = document.getElementById('errorMessage');
-            
+
             if (errorMessage) {
                 errorMessage.textContent = message;
             }
-            
+
             errorScreen.style.display = 'flex';
-            
+
             // Hide loading screen
             const loadingScreen = document.getElementById('initialLoading');
             loadingScreen.style.display = 'none';
         }
-        
+
         // Initialize game
         async function initializeGame() {
             try {
                 updateLoadingProgress(10, 0);
-                
+
                 // Check if Babylon.js loaded
                 if (typeof BABYLON === 'undefined') {
                     throw new Error('Babylon.js failed to load. Please check your internet connection.');
                 }
-                
+
                 updateLoadingProgress(20, 1);
-                
+
                 // Get canvas
                 const canvas = document.getElementById('gameCanvas');
                 if (!canvas) {
                     throw new Error('Game canvas not found');
                 }
-                
+
                 // Create Babylon.js engine
                 const engine = new BABYLON.Engine(canvas, true, {
                     preserveDrawingBuffer: true,
@@ -273,65 +276,65 @@
                     premultipliedAlpha: false,
                     powerPreference: "high-performance"
                 });
-                
+
                 updateLoadingProgress(30, 2);
-                
+
                 // Handle canvas/window resize
                 window.addEventListener('resize', () => {
                     engine.resize();
                 });
-                
+
                 // Import and initialize game
                 const { Game } = await import('./src/Game.js');
-                
+
                 updateLoadingProgress(50, 3);
-                
+
                 // Create game instance
                 const game = new Game(canvas, engine);
-                
+
                 // Initialize game
                 await game.initialize();
-                
+
                 updateLoadingProgress(80, 4);
-                
+
                 // Start game loop
                 engine.runRenderLoop(() => {
                     game.update();
                     game.render();
                 });
-                
+
                 updateLoadingProgress(100, 4);
-                
+
                 // Hide loading screen after a brief delay
                 setTimeout(() => {
                     hideInitialLoading();
                 }, 500);
-                
+
                 console.log('KILLtONE game initialized successfully');
-                
+
             } catch (error) {
                 console.error('Failed to initialize game:', error);
                 showErrorScreen(error.message || 'Unknown error occurred during game initialization');
             }
         }
-        
+
         // Start initialization when DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeGame);
         } else {
             initializeGame();
         }
-        
+
         // Prevent context menu on right click
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
-        
+
         // Prevent default drag behavior
         document.addEventListener('dragstart', (e) => {
             e.preventDefault();
         });
-        
+
         // Handle visibility change (tab switching)
         document.addEventListener('visibilitychange', () => {
             if (window.game) {
@@ -343,7 +346,7 @@
                 }
             }
         });
-        
+
         // Expose game instance globally for debugging
         window.addEventListener('load', () => {
             // This will be set by the Game class when it initializes
@@ -353,4 +356,5 @@
         });
     </script>
 </body>
+
 </html>

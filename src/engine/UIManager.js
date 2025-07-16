@@ -3,6 +3,8 @@
  * Handles loading screen, main menu, settings overlay, and game HUD
  */
 
+import { GameConfig } from '../mainConfig.js';
+
 export class UIManager {
     constructor(game) {
         this.game = game;
@@ -72,9 +74,9 @@ export class UIManager {
         // Create loading text
         const loadingText = new BABYLON.GUI.TextBlock("loadingText");
         loadingText.text = this.loadingText;
-        loadingText.color = "white";
+        loadingText.color = GameConfig.theme.colors.textPrimary;
         loadingText.fontSize = 24;
-        loadingText.fontFamily = "Arial";
+        loadingText.fontFamily = GameConfig.theme.fonts.primary;
         loadingText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         loadingText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
         loadingText.top = "100px";
@@ -84,8 +86,9 @@ export class UIManager {
         const progressBg = new BABYLON.GUI.Rectangle("progressBg");
         progressBg.widthInPixels = 400;
         progressBg.heightInPixels = 20;
-        progressBg.color = "white";
-        progressBg.background = "rgba(0, 0, 0, 0.5)";
+        progressBg.color = GameConfig.theme.colors.border;
+        progressBg.background = GameConfig.theme.colors.progressBackground;
+        progressBg.cornerRadius = GameConfig.theme.borderRadius.small;
         progressBg.top = "150px";
         this.loadingScreen.addControl(progressBg);
 
@@ -94,7 +97,8 @@ export class UIManager {
         progressFill.widthInPixels = 0;
         progressFill.heightInPixels = 18;
         progressFill.color = "transparent";
-        progressFill.background = "#00ff00";
+        progressFill.background = GameConfig.theme.colors.progressBar;
+        progressFill.cornerRadius = GameConfig.theme.borderRadius.small;
         progressFill.left = "-200px";
         progressFill.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         progressBg.addControl(progressFill);
@@ -102,9 +106,9 @@ export class UIManager {
         // Create progress text
         const progressText = new BABYLON.GUI.TextBlock("progressText");
         progressText.text = "0%";
-        progressText.color = "white";
+        progressText.color = GameConfig.theme.colors.textPrimary;
         progressText.fontSize = 16;
-        progressText.fontFamily = "Arial";
+        progressText.fontFamily = GameConfig.theme.fonts.primary;
         progressText.top = "180px";
         this.loadingScreen.addControl(progressText);
 
@@ -157,7 +161,7 @@ export class UIManager {
     }
 
     /**
-     * Show main menu with LOADINGIMAGE.png background
+     * Show main menu with LoadingImage.png background
      */
     async showMainMenu() {
         if (this.mainMenu) {
@@ -191,17 +195,18 @@ export class UIManager {
         const panelWidth = Math.floor(this.engine.getRenderWidth() / 3);
         menuPanel.widthInPixels = panelWidth;
         menuPanel.heightInPixels = this.engine.getRenderHeight();
-        menuPanel.color = "transparent";
-        menuPanel.background = "rgba(0, 0, 0, 0.85)";
+        menuPanel.color = GameConfig.theme.colors.border;
+        menuPanel.background = GameConfig.theme.colors.backgroundPanel;
+        menuPanel.thickness = 2;
         menuPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
         this.mainMenu.addControl(menuPanel);
 
         // Create title
         const title = new BABYLON.GUI.TextBlock("gameTitle");
         title.text = "KILLtONE";
-        title.color = "#ff0000";
+        title.color = GameConfig.theme.colors.primary;
         title.fontSize = 42;
-        title.fontFamily = "Arial";
+        title.fontFamily = GameConfig.theme.fonts.primary;
         title.fontWeight = "bold";
         title.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         title.top = "-250px";
@@ -274,7 +279,7 @@ export class UIManager {
         this.settingsOverlay.widthInPixels = this.engine.getRenderWidth();
         this.settingsOverlay.heightInPixels = this.engine.getRenderHeight();
         this.settingsOverlay.color = "transparent";
-        this.settingsOverlay.background = "rgba(0, 0, 0, 0.8)";
+        this.settingsOverlay.background = GameConfig.theme.colors.backgroundOverlay;
         this.fullscreenUI.addControl(this.settingsOverlay);
 
         // Create right-side settings panel (1/3 of screen width)
@@ -282,17 +287,18 @@ export class UIManager {
         const panelWidth = Math.floor(this.engine.getRenderWidth() / 3);
         settingsPanel.widthInPixels = panelWidth;
         settingsPanel.heightInPixels = this.engine.getRenderHeight();
-        settingsPanel.color = "transparent";
-        settingsPanel.background = "rgba(0, 0, 0, 0.95)";
+        settingsPanel.color = GameConfig.theme.colors.border;
+        settingsPanel.background = GameConfig.theme.colors.backgroundPanel;
+        settingsPanel.thickness = 2;
         settingsPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
         this.settingsOverlay.addControl(settingsPanel);
 
         // Settings title
         const title = new BABYLON.GUI.TextBlock("settingsTitle");
         title.text = "SETTINGS";
-        title.color = "#ff0000";
+        title.color = GameConfig.theme.colors.primary;
         title.fontSize = 32;
-        title.fontFamily = "Arial";
+        title.fontFamily = GameConfig.theme.fonts.primary;
         title.fontWeight = "bold";
         title.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         title.top = "-300px";
@@ -376,7 +382,7 @@ export class UIManager {
         this.leaderboard.widthInPixels = this.engine.getRenderWidth();
         this.leaderboard.heightInPixels = this.engine.getRenderHeight();
         this.leaderboard.color = "transparent";
-        this.leaderboard.background = "rgba(0, 0, 0, 0.8)";
+        this.leaderboard.background = GameConfig.theme.colors.backgroundOverlay;
         this.fullscreenUI.addControl(this.leaderboard);
 
         // Create right-side leaderboard panel (1/3 of screen width)
@@ -384,17 +390,18 @@ export class UIManager {
         const panelWidth = Math.floor(this.engine.getRenderWidth() / 3);
         leaderboardPanel.widthInPixels = panelWidth;
         leaderboardPanel.heightInPixels = this.engine.getRenderHeight();
-        leaderboardPanel.color = "transparent";
-        leaderboardPanel.background = "rgba(0, 0, 0, 0.95)";
+        leaderboardPanel.color = GameConfig.theme.colors.border;
+        leaderboardPanel.background = GameConfig.theme.colors.backgroundPanel;
+        leaderboardPanel.thickness = 2;
         leaderboardPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
         this.leaderboard.addControl(leaderboardPanel);
 
         // Leaderboard title
         const title = new BABYLON.GUI.TextBlock("leaderboardTitle");
         title.text = "LEADERBOARD";
-        title.color = "#ff0000";
+        title.color = GameConfig.theme.colors.primary;
         title.fontSize = 28;
-        title.fontFamily = "Arial";
+        title.fontFamily = GameConfig.theme.fonts.primary;
         title.fontWeight = "bold";
         title.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         title.top = "-300px";
@@ -412,14 +419,14 @@ export class UIManager {
         const headerContainer = new BABYLON.GUI.Rectangle("headerContainer");
         headerContainer.heightInPixels = 35;
         headerContainer.color = "transparent";
-        headerContainer.background = "rgba(255, 0, 0, 0.3)";
+        headerContainer.background = GameConfig.theme.colors.backgroundButtonHover;
         contentContainer.addControl(headerContainer);
 
         const rankHeader = new BABYLON.GUI.TextBlock("rankHeader");
         rankHeader.text = "RANK";
-        rankHeader.color = "#ffffff";
+        rankHeader.color = GameConfig.theme.colors.textPrimary;
         rankHeader.fontSize = 16;
-        rankHeader.fontFamily = "Arial";
+        rankHeader.fontFamily = GameConfig.theme.fonts.primary;
         rankHeader.fontWeight = "bold";
         rankHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         rankHeader.left = "-80px";
@@ -427,18 +434,18 @@ export class UIManager {
 
         const nameHeader = new BABYLON.GUI.TextBlock("nameHeader");
         nameHeader.text = "PLAYER";
-        nameHeader.color = "#ffffff";
+        nameHeader.color = GameConfig.theme.colors.textPrimary;
         nameHeader.fontSize = 16;
-        nameHeader.fontFamily = "Arial";
+        nameHeader.fontFamily = GameConfig.theme.fonts.primary;
         nameHeader.fontWeight = "bold";
         nameHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         headerContainer.addControl(nameHeader);
 
         const scoreHeader = new BABYLON.GUI.TextBlock("scoreHeader");
         scoreHeader.text = "KILLS";
-        scoreHeader.color = "#ffffff";
+        scoreHeader.color = GameConfig.theme.colors.textPrimary;
         scoreHeader.fontSize = 16;
-        scoreHeader.fontFamily = "Arial";
+        scoreHeader.fontFamily = GameConfig.theme.fonts.primary;
         scoreHeader.fontWeight = "bold";
         scoreHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
         scoreHeader.left = "80px";
@@ -501,16 +508,16 @@ export class UIManager {
         const crosshair = new BABYLON.GUI.Ellipse("crosshair");
         crosshair.widthInPixels = 4;
         crosshair.heightInPixels = 4;
-        crosshair.color = "white";
-        crosshair.background = "white";
+        crosshair.color = GameConfig.theme.colors.primary;
+        crosshair.background = GameConfig.theme.colors.primary;
         this.gameHUD.addControl(crosshair);
 
         // Health display
         const healthText = new BABYLON.GUI.TextBlock("healthText");
         healthText.text = "Health: 100";
-        healthText.color = "red";
+        healthText.color = GameConfig.theme.colors.healthHigh;
         healthText.fontSize = 18;
-        healthText.fontFamily = "Arial";
+        healthText.fontFamily = GameConfig.theme.fonts.primary;
         healthText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         healthText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
         healthText.left = "20px";
@@ -520,9 +527,9 @@ export class UIManager {
         // Ammo display
         const ammoText = new BABYLON.GUI.TextBlock("ammoText");
         ammoText.text = "Ammo: 30/90";
-        ammoText.color = "white";
+        ammoText.color = GameConfig.theme.colors.textPrimary;
         ammoText.fontSize = 18;
-        ammoText.fontFamily = "Arial";
+        ammoText.fontFamily = GameConfig.theme.fonts.primary;
         ammoText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
         ammoText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
         ammoText.left = "-20px";
@@ -567,8 +574,8 @@ export class UIManager {
         const leftToolbar = new BABYLON.GUI.Rectangle("leftToolbar");
         leftToolbar.widthInPixels = 200;
         leftToolbar.heightInPixels = this.engine.getRenderHeight();
-        leftToolbar.color = "white";
-        leftToolbar.background = "rgba(0, 0, 0, 0.7)";
+        leftToolbar.color = GameConfig.theme.colors.border;
+        leftToolbar.background = GameConfig.theme.colors.backgroundPanel;
         leftToolbar.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         this.mapEditor.addControl(leftToolbar);
 
@@ -576,17 +583,17 @@ export class UIManager {
         const rightPanel = new BABYLON.GUI.Rectangle("rightPanel");
         rightPanel.widthInPixels = 250;
         rightPanel.heightInPixels = this.engine.getRenderHeight();
-        rightPanel.color = "white";
-        rightPanel.background = "rgba(0, 0, 0, 0.7)";
+        rightPanel.color = GameConfig.theme.colors.border;
+        rightPanel.background = GameConfig.theme.colors.backgroundPanel;
         rightPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
         this.mapEditor.addControl(rightPanel);
 
         // Editor title
         const title = new BABYLON.GUI.TextBlock("editorTitle");
         title.text = "MAP EDITOR";
-        title.color = "white";
+        title.color = GameConfig.theme.colors.primary;
         title.fontSize = 20;
-        title.fontFamily = "Arial";
+        title.fontFamily = GameConfig.theme.fonts.primary;
         title.top = "20px";
         leftToolbar.addControl(title);
 
@@ -613,8 +620,8 @@ export class UIManager {
         // Update health
         if (this.gameHUD.healthText && gameState.health !== undefined) {
             this.gameHUD.healthText.text = `Health: ${gameState.health}`;
-            this.gameHUD.healthText.color = gameState.health > 50 ? "green" : 
-                                           gameState.health > 25 ? "yellow" : "red";
+            this.gameHUD.healthText.color = gameState.health > 50 ? GameConfig.theme.colors.healthHigh : 
+                                           gameState.health > 25 ? GameConfig.theme.colors.healthMedium : GameConfig.theme.colors.healthLow;
         }
 
         // Update ammo
@@ -632,9 +639,9 @@ export class UIManager {
         // Create temporary message
         const messageText = new BABYLON.GUI.TextBlock("flowstateMessage");
         messageText.text = message;
-        messageText.color = "#ff0000";
+        messageText.color = GameConfig.theme.colors.primary;
         messageText.fontSize = 32;
-        messageText.fontFamily = "Arial";
+        messageText.fontFamily = GameConfig.theme.fonts.primary;
         messageText.fontWeight = "bold";
         messageText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         messageText.top = "-100px";
@@ -657,24 +664,24 @@ export class UIManager {
         const button = BABYLON.GUI.Button.CreateSimpleButton(`btn_${text.toLowerCase().replace(' ', '_')}`, text);
         button.widthInPixels = 280;
         button.heightInPixels = 55;
-        button.color = "#ffffff";
-        button.background = "rgba(255, 255, 255, 0.1)";
-        button.cornerRadius = 8;
+        button.color = GameConfig.theme.colors.textPrimary;
+        button.background = GameConfig.theme.colors.backgroundButton;
+        button.cornerRadius = GameConfig.theme.borderRadius.medium;
         button.fontSize = 20;
-        button.fontFamily = "Arial";
+        button.fontFamily = GameConfig.theme.fonts.primary;
         button.fontWeight = "bold";
         button.thickness = 2;
         
         // Hover effects
         button.onPointerEnterObservable.add(() => {
-            button.background = "rgba(255, 0, 0, 0.4)";
-            button.color = "#ffffff";
+            button.background = GameConfig.theme.colors.backgroundButtonHover;
+            button.color = GameConfig.theme.colors.textPrimary;
             button.thickness = 3;
         });
         
         button.onPointerOutObservable.add(() => {
-            button.background = "rgba(255, 255, 255, 0.1)";
-            button.color = "#ffffff";
+            button.background = GameConfig.theme.colors.backgroundButton;
+            button.color = GameConfig.theme.colors.textPrimary;
             button.thickness = 2;
         });
         
@@ -694,20 +701,20 @@ export class UIManager {
         const button = BABYLON.GUI.Button.CreateSimpleButton(`btn_${text.toLowerCase()}`, text);
         button.widthInPixels = 200;
         button.heightInPixels = 45;
-        button.color = "white";
-        button.background = "rgba(255, 0, 0, 0.6)";
-        button.cornerRadius = 5;
+        button.color = GameConfig.theme.colors.textPrimary;
+        button.background = GameConfig.theme.colors.backgroundButtonHover;
+        button.cornerRadius = GameConfig.theme.borderRadius.small;
         button.fontSize = 18;
-        button.fontFamily = "Arial";
+        button.fontFamily = GameConfig.theme.fonts.primary;
         button.fontWeight = "bold";
         
         // Hover effects
         button.onPointerEnterObservable.add(() => {
-            button.background = "rgba(255, 0, 0, 0.8)";
+            button.background = GameConfig.theme.colors.primary;
         });
         
         button.onPointerOutObservable.add(() => {
-            button.background = "rgba(255, 0, 0, 0.6)";
+            button.background = GameConfig.theme.colors.backgroundButtonHover;
         });
         
         // Click handler
@@ -724,9 +731,9 @@ export class UIManager {
     _createSettingsSection(container, title) {
         const sectionTitle = new BABYLON.GUI.TextBlock(`section_${title.toLowerCase()}`);
         sectionTitle.text = title;
-        sectionTitle.color = "#ffff00";
+        sectionTitle.color = GameConfig.theme.colors.secondary;
         sectionTitle.fontSize = 20;
-        sectionTitle.fontFamily = "Arial";
+        sectionTitle.fontFamily = GameConfig.theme.fonts.primary;
         sectionTitle.fontWeight = "bold";
         sectionTitle.heightInPixels = 30;
         sectionTitle.paddingTop = "10px";
@@ -751,24 +758,122 @@ export class UIManager {
 
         const labelText = new BABYLON.GUI.TextBlock(`label_${label.toLowerCase()}`);
         labelText.text = label;
-        labelText.color = "white";
+        labelText.color = GameConfig.theme.colors.textPrimary;
         labelText.fontSize = 16;
-        labelText.fontFamily = "Arial";
+        labelText.fontFamily = GameConfig.theme.fonts.primary;
         labelText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         labelText.left = "-200px";
         settingContainer.addControl(labelText);
 
         const valueText = new BABYLON.GUI.TextBlock(`value_${label.toLowerCase()}`);
         valueText.text = defaultValue.toString();
-        valueText.color = "white";
+        valueText.color = GameConfig.theme.colors.textAccent;
         valueText.fontSize = 16;
-        valueText.fontFamily = "Arial";
+        valueText.fontFamily = GameConfig.theme.fonts.primary;
         valueText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
         valueText.left = "200px";
         settingContainer.addControl(valueText);
 
         // Note: Babylon.js GUI doesn't have a built-in slider, so we'll use a simple implementation
         // In a full implementation, you'd create a custom slider or use a third-party solution
+    }
+
+    /**
+     * Create clean settings section header with theme colors
+     * @param {BABYLON.GUI.Container} container - Parent container
+     * @param {string} title - Section title
+     */
+    _createCleanSettingsSection(container, title) {
+        const sectionTitle = new BABYLON.GUI.TextBlock(`section_${title.toLowerCase()}`);
+        sectionTitle.text = title;
+        sectionTitle.color = GameConfig.theme.colors.secondary;
+        sectionTitle.fontSize = 20;
+        sectionTitle.fontFamily = GameConfig.theme.fonts.primary;
+        sectionTitle.fontWeight = "bold";
+        sectionTitle.heightInPixels = 30;
+        sectionTitle.paddingTop = "10px";
+        container.addControl(sectionTitle);
+    }
+
+    /**
+     * Create clean slider setting with theme colors
+     * @param {BABYLON.GUI.Container} container - Parent container
+     * @param {string} label - Setting label
+     * @param {number} defaultValue - Default value
+     * @param {Function} onChange - Change handler
+     * @param {number} min - Minimum value
+     * @param {number} max - Maximum value
+     */
+    _createCleanSliderSetting(container, label, defaultValue, onChange, min = 0, max = 1) {
+        const settingContainer = new BABYLON.GUI.Rectangle(`setting_${label.toLowerCase().replace(' ', '_')}`);
+        settingContainer.heightInPixels = 40;
+        settingContainer.color = "transparent";
+        settingContainer.background = "transparent";
+        container.addControl(settingContainer);
+
+        const labelText = new BABYLON.GUI.TextBlock(`label_${label.toLowerCase().replace(' ', '_')}`);
+        labelText.text = label;
+        labelText.color = GameConfig.theme.colors.textPrimary;
+        labelText.fontSize = 16;
+        labelText.fontFamily = GameConfig.theme.fonts.primary;
+        labelText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        labelText.left = "-100px";
+        settingContainer.addControl(labelText);
+
+        const valueText = new BABYLON.GUI.TextBlock(`value_${label.toLowerCase().replace(' ', '_')}`);
+        valueText.text = defaultValue.toString();
+        valueText.color = GameConfig.theme.colors.textAccent;
+        valueText.fontSize = 16;
+        valueText.fontFamily = GameConfig.theme.fonts.primary;
+        valueText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        valueText.left = "100px";
+        settingContainer.addControl(valueText);
+
+        // Note: Babylon.js GUI doesn't have a built-in slider, so we'll use a simple implementation
+        // In a full implementation, you'd create a custom slider or use a third-party solution
+    }
+
+    /**
+     * Create leaderboard entry with theme colors
+     * @param {BABYLON.GUI.Container} container - Parent container
+     * @param {Object} player - Player data
+     * @param {boolean} isFirst - Whether this is first place
+     */
+    _createLeaderboardEntry(container, player, isFirst = false) {
+        const entryContainer = new BABYLON.GUI.Rectangle(`entry_${player.rank}`);
+        entryContainer.heightInPixels = 30;
+        entryContainer.color = "transparent";
+        entryContainer.background = isFirst ? GameConfig.theme.colors.backgroundButtonHover : "transparent";
+        container.addControl(entryContainer);
+
+        const rankText = new BABYLON.GUI.TextBlock(`rank_${player.rank}`);
+        rankText.text = `#${player.rank}`;
+        rankText.color = isFirst ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
+        rankText.fontSize = 14;
+        rankText.fontFamily = GameConfig.theme.fonts.primary;
+        rankText.fontWeight = isFirst ? "bold" : "normal";
+        rankText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        rankText.left = "-80px";
+        entryContainer.addControl(rankText);
+
+        const nameText = new BABYLON.GUI.TextBlock(`name_${player.rank}`);
+        nameText.text = player.name;
+        nameText.color = isFirst ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textPrimary;
+        nameText.fontSize = 14;
+        nameText.fontFamily = GameConfig.theme.fonts.primary;
+        nameText.fontWeight = isFirst ? "bold" : "normal";
+        nameText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        entryContainer.addControl(nameText);
+
+        const killsText = new BABYLON.GUI.TextBlock(`kills_${player.rank}`);
+        killsText.text = player.kills.toString();
+        killsText.color = isFirst ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
+        killsText.fontSize = 14;
+        killsText.fontFamily = GameConfig.theme.fonts.primary;
+        killsText.fontWeight = isFirst ? "bold" : "normal";
+        killsText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        killsText.left = "80px";
+        entryContainer.addControl(killsText);
     }
 
     /**

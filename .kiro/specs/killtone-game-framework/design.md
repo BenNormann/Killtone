@@ -400,7 +400,7 @@ src/
 **Responsibility:** User interface management and menu systems
 **Contains:**
 - Loading screen with progress display
-- Main menu with LOADINGIMAGE.png background
+- Main menu with LoadingImage.png background
 - ESC settings overlay system
 - HUD and game UI elements
 **Interactions:**
@@ -635,8 +635,8 @@ class UIManager {
         this.gameHUD = null;
     }
     
-    createLoadingScreen() { /* Loading screen with LOADINGIMAGE.png */ }
-    createMainMenu() { /* Main menu with LOADINGIMAGE.png background */ }
+    createLoadingScreen() { /* Loading screen with LoadingImage.png */ }
+    createMainMenu() { /* Main menu with LoadingImage.png background */ }
     createSettingsOverlay() { /* ESC settings menu */ }
     showFlowstateMessage(message, duration) { /* Kill-streak notifications */ }
 }

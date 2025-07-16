@@ -1003,7 +1003,7 @@ class FlowstateManager {
             right: 50%;
             width: 0px;
             height: 30px;
-            background: linear-gradient(90deg, #ff0000, #ff4444);
+            background: linear-gradient(90deg, #FD342B, #ff4444);
             z-index: 1001;
             transform-origin: right;
             transition: width 0.1s linear;
@@ -1020,7 +1020,7 @@ class FlowstateManager {
             left: 50%;
             width: 0px;
             height: 30px;
-            background: linear-gradient(90deg, #ff4444, #ff0000);
+            background: linear-gradient(90deg, #ff4444, #FD342B);
             z-index: 1001;
             transform-origin: left;
             transition: width 0.1s linear;

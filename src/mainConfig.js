@@ -78,7 +78,7 @@ export const GameConfig = {
         maps: './assets/maps/',
         characters: './assets/characters/',
         weapons: './assets/weapons/',
-        loadingImage: './assets/Images/LOADINGIMAGE.png'
+        loadingImage: './assets/Images/LoadingImage.png'
     },
 
     // Game Settings
@@ -126,9 +126,85 @@ export const GameConfig = {
         enabled: true,
         musicVolumeMultiplier: 1.5,
         effectIntensity: 1.0,
-        highlightColor: '#ff0000',
+        highlightColor: '#FD342B',
         fadeTime: 2000,
         maxIntensity: 2.0
+    },
+
+    // Theme Colors (Red/Pink/Purple Cyber Aesthetic)
+    theme: {
+        colors: {
+            // Primary colors
+            primary: '#fd342B',        // Bright red-pink
+            primaryDark: '#cc0033',    // Darker red
+            primaryLight: '#ff3366',   // Lighter red-pink
+            
+            // Secondary colors
+            secondary: '#8800ff',      // Purple
+            secondaryDark: '#6600cc',  // Darker purple
+            secondaryLight: '#aa33ff', // Lighter purple
+            
+            // Accent colors
+            accent: '#ff0080',         // Hot pink
+            accentDark: '#cc0066',     // Darker pink
+            accentLight: '#ff33aa',    // Lighter pink
+            
+            // UI colors
+            background: '#000000',     // Pure black
+            backgroundPanel: 'rgba(0, 0, 0, 0.85)',     // Semi-transparent black
+            backgroundOverlay: 'rgba(0, 0, 0, 0.8)',    // Overlay background
+            backgroundButton: 'rgba(255, 255, 255, 0.1)', // Button background
+            backgroundButtonHover: 'rgba(255, 0, 64, 0.4)', // Button hover
+            
+            // Text colors
+            textPrimary: '#ffffff',    // White text
+            textSecondary: '#cccccc',  // Light gray text
+            textAccent: '#ff0040',     // Red-pink accent text
+            textSuccess: '#00ff88',    // Green for success/health
+            textWarning: '#ffaa00',    // Orange for warnings
+            textDanger: '#ff0040',     // Red for danger/low health
+            
+            // Progress and status colors
+            progressBar: '#FD342B',    // Red-pink progress
+            progressBackground: 'rgba(255, 255, 255, 0.2)', // Progress bg
+            healthHigh: '#FD342B',     // High health (green)
+            healthMedium: '#FD342B',   // Medium health (orange)
+            healthLow: '#FD342B',      // Low health (red)
+            
+            // Border and outline colors
+            border: '#ff0040',         // Primary border color
+            borderSecondary: '#8800ff', // Secondary border color
+            borderHover: '#ff3366',    // Hover border color
+        },
+        
+        // Typography
+        fonts: {
+            primary: 'Arial, sans-serif',
+            secondary: 'Arial, sans-serif',
+            monospace: 'Courier New, monospace'
+        },
+        
+        // Sizing and spacing
+        spacing: {
+            small: 8,
+            medium: 15,
+            large: 20,
+            xlarge: 40
+        },
+        
+        // Border radius
+        borderRadius: {
+            small: 4,
+            medium: 8,
+            large: 12
+        },
+        
+        // Animation durations
+        animation: {
+            fast: 150,
+            normal: 300,
+            slow: 500
+        }
     }
 };
 

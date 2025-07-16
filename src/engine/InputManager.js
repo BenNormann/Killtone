@@ -235,6 +235,13 @@ export class InputManager {
             return;
         }
         
+        // Handle TAB key specially - show/hide leaderboard
+        if (key === 'Tab') {
+            this._handleTABKey();
+            event.preventDefault();
+            return;
+        }
+        
         // Get bound action
         const action = this.keyBindings.get(key);
         if (!action) return;
@@ -387,6 +394,25 @@ export class InputManager {
             case 'MAIN_MENU':
                 // Could close game or do nothing
                 break;
+        }
+    }
+
+    /**
+     * Handle TAB key - show/hide leaderboard
+     */
+    _handleTABKey() {
+        const uiManager = this.game.uiManager;
+        if (!uiManager) return;
+        
+        const currentState = this.game.stateManager?.getCurrentState();
+        
+        // Only show leaderboard in game states
+        if (currentState === 'IN_GAME' || currentState === 'PAUSED') {
+            if (uiManager.leaderboard && uiManager.leaderboard.isVisible) {
+                uiManager.hideLeaderboard();
+            } else {
+                uiManager.showLeaderboard();
+            }
         }
     }
 

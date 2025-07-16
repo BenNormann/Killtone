@@ -19,7 +19,7 @@ KILLtONE is a futuristic cyber city FPS game built with Babylon.js that features
 
 ### Requirement 2
 
-**User Story:** As a player, I want a loading screen that shows game initialization progress, so that I understand what's happening during startup and feel engaged while waiting.
+**User Story:** As a player, I want a loading screen that shows game initialization progress, and the loading image, so that I understand what's happening during startup and feel engaged while waiting.
 
 #### Acceptance Criteria
 
@@ -30,7 +30,7 @@ KILLtONE is a futuristic cyber city FPS game built with Babylon.js that features
 
 ### Requirement 3
 
-**User Story:** As a player, I want a main menu that also serves as an in-game settings menu accessible via ESC, so that I can configure game settings both before and during gameplay.
+**User Story:** As a player, I want a main menu that also serves as an in-game settings menu accessible via ESC, so that I can configure game settings both before and during gameplay. The background of this menu should be the LoadingImage.png
 
 #### Acceptance Criteria
 
@@ -42,7 +42,7 @@ KILLtONE is a futuristic cyber city FPS game built with Babylon.js that features
 
 ### Requirement 4
 
-**User Story:** As a player, I want the kill-streak audio-visual system to work seamlessly with the game framework, so that I get immediate feedback when eliminating opponents.
+**User Story:** As a player, I want the kill-streak audio-visual system to work seamlessly with the game framework, so that I get immediate feedback when eliminating opponents. THIS SYSTEM IS IMPLEMENTED BUT NEEDS TO BE INCORPERATED. this system can be found in src/effects/flowstateeffects.js
 
 #### Acceptance Criteria
 
@@ -73,6 +73,8 @@ KILLtONE is a futuristic cyber city FPS game built with Babylon.js that features
 2. WHEN adding new features THEN the system SHALL follow established patterns and interfaces
 3. WHEN the game scales THEN the architecture SHALL support additional maps, weapons, and game modes
 4. IF performance issues arise THEN the modular design SHALL allow optimization of individual systems
+5. WHEN reviewing code THEN the architecture SHALL be modern, compact, and easily readable by developers
+6. WHEN implementing features THEN the code SHALL follow contemporary JavaScript/ES6+ patterns and best practices
 
 ### Requirement 7
 
