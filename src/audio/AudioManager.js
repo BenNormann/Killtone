@@ -495,9 +495,9 @@ class AudioManager {
     async preloadSounds() {
         const soundsToPreload = [
             // Weapon sounds
-            'src/assets/sounds/Bulldog.m4a',
-            'src/assets/sounds/Sniper.m4a',
-            'src/assets/sounds/Reload.m4a',
+            'src/assets/sounds/Bulldog.wav',
+            'src/assets/sounds/Sniper.wav',
+            'src/assets/sounds/Reload.wav',
             'src/assets/sounds/OOF.m4a',
             
             // Step sounds

@@ -1096,8 +1096,12 @@ class FlowstateManager {
 }
 
 // Export for use in other files
+export { FlowstateManager };
+export default FlowstateManager;
+
+// Legacy exports for compatibility
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = FlowstateManager;
-} else {
+} else if (typeof window !== 'undefined') {
     window.FlowstateManager = FlowstateManager;
 } 

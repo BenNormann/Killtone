@@ -3,8 +3,10 @@
  * Entry point and central coordinator for all game systems
  */
 
-import * as BABYLON from '@babylonjs/core';
+// BABYLON is loaded globally from CDN in index.html
 import GameConfig from './mainConfig.js';
+// import FlowstateAdapter from './effects/FlowstateAdapter.js';
+// import FlowstateManager from './effects/FlowstateEffects.js';
 
 export class Game {
     constructor(canvas) {
@@ -27,7 +29,8 @@ export class Game {
         this.inputManager = null;
         this.playerManager = null;
         this.mapManager = null;
-        this.flowstateManager = null; // Existing system
+        // this.flowstateManager = null; // Existing system - commented out until implemented
+        // this.flowstateAdapter = null; // Integration adapter for flowstate system - commented out until implemented
         this.networkManager = null;
         this.performanceMonitor = null;
         
@@ -249,6 +252,11 @@ export class Game {
             this.flowstateManager.update(deltaTime);
         }
 
+        // Flowstate adapter updates
+        if (this.flowstateAdapter) {
+            this.flowstateAdapter.update(deltaTime);
+        }
+
         // Network updates
         if (this.networkManager) {
             this.networkManager.update(deltaTime);
@@ -313,6 +321,7 @@ export class Game {
     disposeManagers() {
         const managers = [
             'networkManager',
+            'flowstateAdapter',
             'flowstateManager', 
             'audioManager',
             'playerManager',
@@ -406,6 +415,53 @@ export class Game {
             case 'high': return 1.0;
             case 'ultra': return 0.8;
             default: return 1.0;
+        }
+    }
+
+    /**
+     * Initialize FlowstateAdapter with existing FlowstateManager
+     * This method should be called after both systems are available
+     */
+    async initializeFlowstateIntegration() {
+        if (!this.flowstateManager) {
+            console.warn('FlowstateAdapter: FlowstateManager not available for integration');
+            return false;
+        }
+
+        try {
+            console.log('Initializing FlowstateAdapter integration...');
+            
+            // Create the adapter
+            this.flowstateAdapter = new FlowstateAdapter(this, this.flowstateManager);
+            
+            // Initialize the adapter
+            await this.flowstateAdapter.initialize();
+            
+            console.log('FlowstateAdapter integration complete');
+            return true;
+            
+        } catch (error) {
+            console.error('Failed to initialize FlowstateAdapter:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Initialize the existing FlowstateManager
+     * This method should be called when the game systems are ready
+     */
+    initializeFlowstateManager() {
+        if (this.flowstateManager) {
+            console.warn('FlowstateManager already initialized');
+            return;
+        }
+
+        try {
+            // Create the existing FlowstateManager
+            this.flowstateManager = new FlowstateManager(this);
+            console.log('FlowstateManager initialized');
+        } catch (error) {
+            console.error('Failed to initialize FlowstateManager:', error);
         }
     }
 

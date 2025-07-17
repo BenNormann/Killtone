@@ -1,35 +1,37 @@
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const path = require('path');
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import os from 'os';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
+const server = createServer(app);
+const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"]
   }
 });
 
-const PORT = process.env.PORT || 3000;
-
-// Serve static files from client directory
-app.use(express.static(path.join(__dirname, '../client')));
-// Serve static files from src directory for modular JS
-app.use('/src', express.static(path.join(__dirname, '../src')));
-
 // Game state
 const players = new Map();
 const gameConfig = {
   maxHealth: 100,
-  respawnTime: 3000, // 3 seconds
-  mapBounds: {
-    x: { min: -50, max: 50 },
-    y: { min: 0, max: 20 },
-    z: { min: -50, max: 50 }
-  }
+  respawnTime: 3000
 };
+
+const PORT = process.env.PORT || 3000;
+
+// Serve static files from root directory (where index.html is located)
+app.use(express.static(join(__dirname, '..')));
+// Serve static files from src directory for modular JS
+app.use('/src', express.static(join(__dirname, '../src')));
+// Serve static files from assets directory
+app.use('/assets', express.static(join(__dirname, '../assets')));
 
 // Helper function to generate spawn position
 // This will be replaced by client-side map configuration
@@ -242,7 +244,6 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Connect from other devices on your network using your local IP:${PORT}`);
   
   // Try to display local IP addresses
-  const os = require('os');
   const interfaces = os.networkInterfaces();
   console.log('\nLocal IP addresses:');
   Object.keys(interfaces).forEach(interfaceName => {

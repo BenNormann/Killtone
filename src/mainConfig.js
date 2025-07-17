@@ -100,6 +100,22 @@ export const GameConfig = {
         interpolationDelay: 100
     },
 
+    // Physics Settings
+    physics: {
+        engine: 'cannon', // 'cannon' or 'ammo'
+        gravity: -9.81,
+        timeStep: 1/60,
+        maxSubSteps: 3,
+        collisionLayers: {
+            PLAYER: 1,
+            PROJECTILE: 2,
+            ENVIRONMENT: 4,
+            PICKUP: 8,
+            TRIGGER: 16
+        },
+        enableDebugRenderer: false
+    },
+
     // Debug Settings
     debug: {
         enabled: false,
