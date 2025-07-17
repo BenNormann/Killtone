@@ -15,5 +15,14 @@ export {
 // Export base weapon class
 export { WeaponBase } from './WeaponBase.js';
 
+// Export weapon implementations
+export { Carbine } from './Carbine.js';
+
 // Export accuracy system
 export { AccuracySystem } from './AccuracySystem.js';
+
+// Export projectile system
+export { Projectile, ProjectileManager } from './Projectile.js';
+
+// Export weapon effects
+export { WeaponEffects } from './WeaponEffects.js';

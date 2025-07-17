@@ -68,6 +68,16 @@ export class MapManager {
     registerDefaultMaps() {
         this.defaultMaps = [
             {
+                id: 'default',
+                name: 'Default Map',
+                description: 'Basic default map with ground plane and some obstacles',
+                version: '1.0.0',
+                author: 'KILLtONE Team',
+                thumbnail: GameConfig.assets.maps + 'default_thumb.jpg',
+                mapFile: GameConfig.assets.maps + 'default.json',
+                isDefault: true
+            },
+            {
                 id: 'cyber_city',
                 name: 'Cyber City',
                 description: 'A futuristic cityscape with neon lights and towering buildings',
@@ -336,7 +346,14 @@ export class MapManager {
     async spawnMapObjects(mapData) {
         console.log('Spawning map objects...');
         
-        // Spawn props
+        // Spawn basic objects from our default map format
+        if (mapData.objects && mapData.objects.length > 0) {
+            for (const obj of mapData.objects) {
+                await this.spawnBasicObject(obj);
+            }
+        }
+        
+        // Spawn props (legacy format)
         if (mapData.props && mapData.props.length > 0) {
             for (const prop of mapData.props) {
                 await this.spawnProp(prop);
@@ -356,6 +373,113 @@ export class MapManager {
         }
 
         console.log('Map objects spawned successfully');
+    }
+
+    /**
+     * Spawn a basic object (box, wall, ground, etc.)
+     * @param {Object} objData - Object data
+     * @returns {Promise} - Promise resolving when object is spawned
+     */
+    async spawnBasicObject(objData) {
+        try {
+            let mesh;
+            const objName = `${objData.type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            // Create mesh based on type
+            switch (objData.type) {
+                case 'ground':
+                    // Skip ground as it's already created by Game.js
+                    console.log('Skipping ground object - already exists');
+                    return;
+                    
+                case 'box':
+                    mesh = BABYLON.MeshBuilder.CreateBox(objName, {
+                        width: objData.scale?.x || 1,
+                        height: objData.scale?.y || 1,
+                        depth: objData.scale?.z || 1
+                    }, this.scene);
+                    break;
+                    
+                case 'wall':
+                    mesh = BABYLON.MeshBuilder.CreateBox(objName, {
+                        width: objData.scale?.x || 1,
+                        height: objData.scale?.y || 1,
+                        depth: objData.scale?.z || 1
+                    }, this.scene);
+                    break;
+                    
+                case 'cylinder':
+                    mesh = BABYLON.MeshBuilder.CreateCylinder(objName, {
+                        height: objData.scale?.y || 1,
+                        diameter: objData.scale?.x || 1
+                    }, this.scene);
+                    break;
+                    
+                case 'sphere':
+                    mesh = BABYLON.MeshBuilder.CreateSphere(objName, {
+                        diameter: objData.scale?.x || 1
+                    }, this.scene);
+                    break;
+                    
+                default:
+                    console.warn(`Unknown object type: ${objData.type}`);
+                    return;
+            }
+
+            // Position the object
+            if (objData.position) {
+                mesh.position.set(
+                    objData.position.x || 0,
+                    objData.position.y || 0,
+                    objData.position.z || 0
+                );
+            }
+
+            // Create material based on material type
+            const material = new BABYLON.StandardMaterial(`${objName}_material`, this.scene);
+            
+            switch (objData.material) {
+                case 'metal':
+                    material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.8);
+                    material.specularColor = new BABYLON.Color3(0.9, 0.9, 1.0);
+                    material.roughness = 0.3;
+                    break;
+                    
+                case 'concrete':
+                    material.diffuseColor = new BABYLON.Color3(0.6, 0.6, 0.6);
+                    material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+                    material.roughness = 0.8;
+                    break;
+                    
+                case 'wood':
+                    material.diffuseColor = new BABYLON.Color3(0.6, 0.4, 0.2);
+                    material.specularColor = new BABYLON.Color3(0.2, 0.1, 0.05);
+                    material.roughness = 0.7;
+                    break;
+                    
+                default:
+                    material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+                    material.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+                    break;
+            }
+            
+            mesh.material = material;
+
+            // Enable collisions
+            mesh.checkCollisions = true;
+
+            // Tag as map object for cleanup
+            mesh.metadata = {
+                isMapObject: true,
+                objectType: objData.type,
+                mapId: this.currentMap
+            };
+
+            console.log(`Spawned ${objData.type} object at`, objData.position);
+
+        } catch (error) {
+            console.error(`Failed to spawn object ${objData.type}:`, error);
+        }
     }
 
     /**

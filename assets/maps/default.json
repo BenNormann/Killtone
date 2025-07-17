@@ -1,0 +1,74 @@
+{
+  "id": "default",
+  "name": "Default Map",
+  "version": "1.0.0",
+  "description": "Basic default map with ground plane and some obstacles",
+  "spawnPoints": [
+    { "position": { "x": 0, "y": 2, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 } },
+    { "position": { "x": 10, "y": 2, "z": 10 }, "rotation": { "x": 0, "y": 0, "z": 0 } },
+    { "position": { "x": -10, "y": 2, "z": -10 }, "rotation": { "x": 0, "y": 0, "z": 0 } },
+    { "position": { "x": 10, "y": 2, "z": -10 }, "rotation": { "x": 0, "y": 0, "z": 0 } },
+    { "position": { "x": -10, "y": 2, "z": 10 }, "rotation": { "x": 0, "y": 0, "z": 0 } }
+  ],
+  "objects": [
+    {
+      "type": "ground",
+      "position": { "x": 0, "y": 0, "z": 0 },
+      "scale": { "x": 100, "y": 1, "z": 100 },
+      "material": "concrete"
+    },
+    {
+      "type": "box",
+      "position": { "x": 15, "y": 1, "z": 0 },
+      "scale": { "x": 2, "y": 2, "z": 2 },
+      "material": "metal"
+    },
+    {
+      "type": "box",
+      "position": { "x": -15, "y": 1, "z": 0 },
+      "scale": { "x": 2, "y": 2, "z": 2 },
+      "material": "metal"
+    },
+    {
+      "type": "box",
+      "position": { "x": 0, "y": 1, "z": 15 },
+      "scale": { "x": 2, "y": 2, "z": 2 },
+      "material": "metal"
+    },
+    {
+      "type": "box",
+      "position": { "x": 0, "y": 1, "z": -15 },
+      "scale": { "x": 2, "y": 2, "z": 2 },
+      "material": "metal"
+    },
+    {
+      "type": "wall",
+      "position": { "x": 25, "y": 2.5, "z": 0 },
+      "scale": { "x": 1, "y": 5, "z": 10 },
+      "material": "concrete"
+    },
+    {
+      "type": "wall",
+      "position": { "x": -25, "y": 2.5, "z": 0 },
+      "scale": { "x": 1, "y": 5, "z": 10 },
+      "material": "concrete"
+    }
+  ],
+  "lighting": {
+    "ambient": { "r": 0.3, "g": 0.3, "b": 0.3 },
+    "directional": {
+      "direction": { "x": -1, "y": -1, "z": -1 },
+      "color": { "r": 1, "g": 1, "b": 1 },
+      "intensity": 0.8
+    }
+  },
+  "settings": {
+    "gravity": -9.81,
+    "skybox": "default",
+    "fog": {
+      "enabled": false,
+      "color": { "r": 0.5, "g": 0.5, "b": 0.5 },
+      "density": 0.01
+    }
+  }
+}

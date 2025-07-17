@@ -10,7 +10,7 @@ export class UIManager {
         this.game = game;
         this.scene = game.scene;
         this.engine = game.engine;
-        
+
         // UI elements
         this.loadingScreen = null;
         this.mainMenu = null;
@@ -18,17 +18,17 @@ export class UIManager {
         this.leaderboard = null;
         this.gameHUD = null;
         this.mapEditor = null;
-        
+
         // GUI textures
         this.fullscreenUI = null;
-        
+
         // Loading state
         this.loadingProgress = 0;
         this.loadingText = 'Loading...';
-        
+
         // Settings state
         this.settingsVisible = false;
-        
+
         // Initialize GUI system
         this._initializeGUI();
     }
@@ -39,7 +39,7 @@ export class UIManager {
     _initializeGUI() {
         // Create fullscreen UI texture
         this.fullscreenUI = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-        
+
         console.log('UIManager initialized');
     }
 
@@ -127,7 +127,7 @@ export class UIManager {
      */
     updateLoadingProgress(progress, text = null) {
         this.loadingProgress = Math.max(0, Math.min(100, progress));
-        
+
         if (text) {
             this.loadingText = text;
         }
@@ -137,12 +137,12 @@ export class UIManager {
             if (this.loadingScreen.progressFill) {
                 this.loadingScreen.progressFill.widthInPixels = (this.loadingProgress / 100) * 400;
             }
-            
+
             // Update progress text
             if (this.loadingScreen.progressText) {
                 this.loadingScreen.progressText.text = `${Math.round(this.loadingProgress)}%`;
             }
-            
+
             // Update loading text
             if (this.loadingScreen.loadingText && text) {
                 this.loadingScreen.loadingText.text = this.loadingText;
@@ -180,6 +180,7 @@ export class UIManager {
         // Load and create background image (full screen)
         try {
             const backgroundImage = new BABYLON.GUI.Image("menuBackground", "assets/Images/LoadingImage.png");
+            backgroundImage.horizontalAlignment = left;
             backgroundImage.stretch = BABYLON.GUI.Image.STRETCH_UNIFORM;
             backgroundImage.widthInPixels = this.engine.getRenderWidth();
             backgroundImage.heightInPixels = this.engine.getRenderHeight();
@@ -345,6 +346,10 @@ export class UIManager {
                 this.game.inputManager.mouseSensitivity = value;
             }
         }, 0.1, 3.0);
+
+        // Weapon settings section
+        this._createCleanSettingsSection(contentContainer, "WEAPONS");
+        this._createWeaponSelector(contentContainer);
 
         // Close button
         const closeButton = this._createCleanMenuButton("CLOSE", () => {
@@ -590,6 +595,66 @@ export class UIManager {
         title.top = "20px";
         leftToolbar.addControl(title);
 
+        // Add keybinds display in bottom right
+        const keybindsPanel = new BABYLON.GUI.Rectangle("keybindsPanel");
+        keybindsPanel.widthInPixels = 300;
+        keybindsPanel.heightInPixels = 200;
+        keybindsPanel.color = GameConfig.theme.colors.border;
+        keybindsPanel.background = GameConfig.theme.colors.backgroundPanel;
+        keybindsPanel.thickness = 1;
+        keybindsPanel.cornerRadius = 5;
+        keybindsPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        keybindsPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+        keybindsPanel.leftInPixels = -20;
+        keybindsPanel.topInPixels = -20;
+        this.mapEditor.addControl(keybindsPanel);
+
+        // Keybinds title
+        const keybindsTitle = new BABYLON.GUI.TextBlock("keybindsTitle");
+        keybindsTitle.text = "CONTROLS";
+        keybindsTitle.color = GameConfig.theme.colors.primary;
+        keybindsTitle.fontSize = 16;
+        keybindsTitle.fontFamily = GameConfig.theme.fonts.primary;
+        keybindsTitle.fontWeight = "bold";
+        keybindsTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        keybindsTitle.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        keybindsTitle.topInPixels = 10;
+        keybindsPanel.addControl(keybindsTitle);
+
+        // Keybinds list
+        const keybindsList = new BABYLON.GUI.StackPanel("keybindsList");
+        keybindsList.widthInPixels = 280;
+        keybindsList.heightInPixels = 160;
+        keybindsList.spacing = 3;
+        keybindsList.topInPixels = 15;
+        keybindsPanel.addControl(keybindsList);
+
+        // Add individual keybinds
+        const keybinds = [
+            "WASD - Move camera",
+            "Mouse - Look around",
+            "E - Place object",
+            "R - Rotate object",
+            "T - Scale object",
+            "G - Move object",
+            "X - Delete object",
+            "Ctrl+S - Save map",
+            "Ctrl+L - Load map",
+            "Ctrl+Z - Undo",
+            "ESC - Exit editor"
+        ];
+
+        keybinds.forEach(keybind => {
+            const keybindText = new BABYLON.GUI.TextBlock();
+            keybindText.text = keybind;
+            keybindText.color = GameConfig.theme.colors.textSecondary;
+            keybindText.fontSize = 12;
+            keybindText.fontFamily = GameConfig.theme.fonts.monospace;
+            keybindText.heightInPixels = 14;
+            keybindText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            keybindsList.addControl(keybindText);
+        });
+
         console.log('Map editor UI created');
     }
 
@@ -613,8 +678,8 @@ export class UIManager {
         // Update health
         if (this.gameHUD.healthText && gameState.health !== undefined) {
             this.gameHUD.healthText.text = `Health: ${gameState.health}`;
-            this.gameHUD.healthText.color = gameState.health > 50 ? GameConfig.theme.colors.healthHigh : 
-                                           gameState.health > 25 ? GameConfig.theme.colors.healthMedium : GameConfig.theme.colors.healthLow;
+            this.gameHUD.healthText.color = gameState.health > 50 ? GameConfig.theme.colors.healthHigh :
+                gameState.health > 25 ? GameConfig.theme.colors.healthMedium : GameConfig.theme.colors.healthLow;
         }
 
         // Update ammo
@@ -638,7 +703,7 @@ export class UIManager {
         messageText.fontWeight = "bold";
         messageText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         messageText.top = "-100px";
-        
+
         this.fullscreenUI.addControl(messageText);
 
         // Animate and remove
@@ -664,23 +729,23 @@ export class UIManager {
         button.fontFamily = GameConfig.theme.fonts.primary;
         button.fontWeight = "bold";
         button.thickness = 2;
-        
+
         // Hover effects
         button.onPointerEnterObservable.add(() => {
             button.background = GameConfig.theme.colors.backgroundButtonHover;
             button.color = GameConfig.theme.colors.textPrimary;
             button.thickness = 3;
         });
-        
+
         button.onPointerOutObservable.add(() => {
             button.background = GameConfig.theme.colors.backgroundButton;
             button.color = GameConfig.theme.colors.textPrimary;
             button.thickness = 2;
         });
-        
+
         // Click handler
         button.onPointerClickObservable.add(onClick);
-        
+
         return button;
     }
 
@@ -700,19 +765,19 @@ export class UIManager {
         button.fontSize = 18;
         button.fontFamily = GameConfig.theme.fonts.primary;
         button.fontWeight = "bold";
-        
+
         // Hover effects
         button.onPointerEnterObservable.add(() => {
             button.background = GameConfig.theme.colors.primary;
         });
-        
+
         button.onPointerOutObservable.add(() => {
             button.background = GameConfig.theme.colors.backgroundButtonHover;
         });
-        
+
         // Click handler
         button.onPointerClickObservable.add(onClick);
-        
+
         return button;
     }
 
@@ -732,6 +797,98 @@ export class UIManager {
         sectionTitle.paddingTop = "10px";
         sectionTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         container.addControl(sectionTitle);
+    }
+
+    /**
+     * Create weapon selector
+     * @param {BABYLON.GUI.Container} container - Parent container
+     */
+    _createWeaponSelector(container) {
+        const weaponContainer = new BABYLON.GUI.Rectangle("weaponSelectorContainer");
+        weaponContainer.heightInPixels = 60;
+        weaponContainer.color = "transparent";
+        weaponContainer.background = "transparent";
+        container.addControl(weaponContainer);
+
+        // Weapon label
+        const weaponLabel = new BABYLON.GUI.TextBlock("weaponLabel");
+        weaponLabel.text = "Primary Weapon";
+        weaponLabel.color = GameConfig.theme.colors.textSecondary;
+        weaponLabel.fontSize = 14;
+        weaponLabel.fontFamily = GameConfig.theme.fonts.primary;
+        weaponLabel.heightInPixels = 20;
+        weaponLabel.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        weaponLabel.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        weaponLabel.topInPixels = 5;
+        weaponContainer.addControl(weaponLabel);
+
+        // Weapon dropdown/selector
+        const weaponSelector = new BABYLON.GUI.Rectangle("weaponSelector");
+        weaponSelector.widthInPixels = 200;
+        weaponSelector.heightInPixels = 30;
+        weaponSelector.color = GameConfig.theme.colors.border;
+        weaponSelector.background = GameConfig.theme.colors.backgroundButton;
+        weaponSelector.cornerRadius = 4;
+        weaponSelector.thickness = 1;
+        weaponSelector.topInPixels = 15;
+        weaponContainer.addControl(weaponSelector);
+
+        // Current weapon text
+        const currentWeaponText = new BABYLON.GUI.TextBlock("currentWeaponText");
+        currentWeaponText.text = "Bulldog Assault Rifle";
+        currentWeaponText.color = GameConfig.theme.colors.textPrimary;
+        currentWeaponText.fontSize = 12;
+        currentWeaponText.fontFamily = GameConfig.theme.fonts.primary;
+        currentWeaponText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        currentWeaponText.leftInPixels = 10;
+        weaponSelector.addControl(currentWeaponText);
+
+        // Dropdown arrow
+        const dropdownArrow = new BABYLON.GUI.TextBlock("dropdownArrow");
+        dropdownArrow.text = "▼";
+        dropdownArrow.color = GameConfig.theme.colors.textSecondary;
+        dropdownArrow.fontSize = 10;
+        dropdownArrow.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        dropdownArrow.rightInPixels = 10;
+        weaponSelector.addControl(dropdownArrow);
+
+        // Available weapons
+        const weapons = [
+            { name: "Bulldog Assault Rifle", id: "bulldog" },
+            { name: "Carbine SMG", id: "carbine" },
+            { name: "Pistol", id: "pistol" }
+        ];
+
+        let currentWeaponIndex = 0;
+
+        // Click handler to cycle through weapons
+        weaponSelector.onPointerClickObservable.add(() => {
+            currentWeaponIndex = (currentWeaponIndex + 1) % weapons.length;
+            const selectedWeapon = weapons[currentWeaponIndex];
+            currentWeaponText.text = selectedWeapon.name;
+
+            // Update player weapon
+            if (this.game.localPlayer) {
+                this.game.localPlayer.setWeapon({
+                    name: selectedWeapon.id,
+                    displayName: selectedWeapon.name,
+                    fireRate: selectedWeapon.id === 'pistol' ? 300 : selectedWeapon.id === 'carbine' ? 150 : 500,
+                    ammo: 30,
+                    reserveAmmo: 90
+                });
+            }
+
+            console.log(`Selected weapon: ${selectedWeapon.name}`);
+        });
+
+        // Hover effects
+        weaponSelector.onPointerEnterObservable.add(() => {
+            weaponSelector.background = GameConfig.theme.colors.backgroundButtonHover;
+        });
+
+        weaponSelector.onPointerOutObservable.add(() => {
+            weaponSelector.background = GameConfig.theme.colors.backgroundButton;
+        });
     }
 
     /**
@@ -909,7 +1066,7 @@ export class UIManager {
      */
     updateLeaderboardData(playerData) {
         if (!this.leaderboard || !this.leaderboard.isVisible) return;
-        
+
         // In a real implementation, this would update the existing leaderboard entries
         // For now, we'll hide and recreate the leaderboard
         this.hideLeaderboard();
@@ -924,82 +1081,82 @@ export class UIManager {
         // Sample multiplayer leaderboard data structure
         // In a real game, this would come from the server/NetworkManager
         const players = [
-            { 
-                id: 'player1', 
-                name: "CyberKiller", 
-                kills: 24, 
-                deaths: 8, 
-                assists: 12, 
+            {
+                id: 'player1',
+                name: "CyberKiller",
+                kills: 24,
+                deaths: 8,
+                assists: 12,
                 score: 360,
                 ping: 45,
                 isLocal: false
             },
-            { 
-                id: 'player2', 
-                name: "NeonAssassin", 
-                kills: 21, 
-                deaths: 12, 
-                assists: 8, 
+            {
+                id: 'player2',
+                name: "NeonAssassin",
+                kills: 21,
+                deaths: 12,
+                assists: 8,
                 score: 315,
                 ping: 32,
                 isLocal: false
             },
-            { 
-                id: 'player3', 
-                name: "RedPhantom", 
-                kills: 18, 
-                deaths: 9, 
-                assists: 15, 
+            {
+                id: 'player3',
+                name: "RedPhantom",
+                kills: 18,
+                deaths: 9,
+                assists: 15,
                 score: 285,
                 ping: 67,
                 isLocal: false
             },
-            { 
-                id: 'player4', 
-                name: "YOU", 
-                kills: 16, 
-                deaths: 11, 
-                assists: 9, 
+            {
+                id: 'player4',
+                name: "YOU",
+                kills: 16,
+                deaths: 11,
+                assists: 9,
                 score: 255,
                 ping: 0,
                 isLocal: true
             },
-            { 
-                id: 'player5', 
-                name: "PurpleStorm", 
-                kills: 14, 
-                deaths: 13, 
-                assists: 7, 
+            {
+                id: 'player5',
+                name: "PurpleStorm",
+                kills: 14,
+                deaths: 13,
+                assists: 7,
                 score: 225,
                 ping: 89,
                 isLocal: false
             },
-            { 
-                id: 'player6', 
-                name: "PinkViper", 
-                kills: 12, 
-                deaths: 15, 
-                assists: 11, 
+            {
+                id: 'player6',
+                name: "PinkViper",
+                kills: 12,
+                deaths: 15,
+                assists: 11,
                 score: 195,
                 ping: 54,
                 isLocal: false
             },
-            { 
-                id: 'player7', 
-                name: "ElectroHunter", 
-                kills: 9, 
-                deaths: 18, 
-                assists: 6, 
+            {
+                id: 'player7',
+                name: "ElectroHunter",
+                kills: 9,
+                deaths: 18,
+                assists: 6,
                 score: 150,
                 ping: 123,
                 isLocal: false
             },
-            { 
-                id: 'player8', 
-                name: "NightRider", 
-                kills: 7, 
-                deaths: 20, 
-                assists: 4, 
+            {
+                id: 'player8',
+                name: "NightRider",
+                kills: 7,
+                deaths: 20,
+                assists: 4,
                 score: 115,
                 ping: 76,
                 isLocal: false
@@ -1008,7 +1165,7 @@ export class UIManager {
 
         // Sort by score (kills * 15 + assists * 5 - deaths * 5)
         players.sort((a, b) => b.score - a.score);
-        
+
         // Add rank based on sorted position
         players.forEach((player, index) => {
             player.rank = index + 1;
@@ -1028,16 +1185,16 @@ export class UIManager {
         const entryContainer = new BABYLON.GUI.Rectangle(`entry_${player.rank}`);
         entryContainer.heightInPixels = 45;
         entryContainer.color = "transparent";
-        entryContainer.background = isFirst ? GameConfig.theme.colors.backgroundButtonHover : 
-                                   player.isLocal ? 'rgba(253, 52, 43, 0.2)' : "transparent";
+        entryContainer.background = isFirst ? GameConfig.theme.colors.backgroundButtonHover :
+            player.isLocal ? 'rgba(253, 52, 43, 0.2)' : "transparent";
         entryContainer.cornerRadius = GameConfig.theme.borderRadius.small;
         container.addControl(entryContainer);
 
         // Rank
         const rankText = new BABYLON.GUI.TextBlock(`rank_${player.rank}`);
         rankText.text = `#${player.rank}`;
-        rankText.color = isFirst ? GameConfig.theme.colors.primary : 
-                        player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
+        rankText.color = isFirst ? GameConfig.theme.colors.primary :
+            player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
         rankText.fontSize = 16;
         rankText.fontFamily = GameConfig.theme.fonts.primary;
         rankText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
@@ -1049,8 +1206,8 @@ export class UIManager {
         // Player name
         const nameText = new BABYLON.GUI.TextBlock(`name_${player.rank}`);
         nameText.text = player.name;
-        nameText.color = isFirst ? GameConfig.theme.colors.primary : 
-                        player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textPrimary;
+        nameText.color = isFirst ? GameConfig.theme.colors.primary :
+            player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textPrimary;
         nameText.fontSize = 15;
         nameText.fontFamily = GameConfig.theme.fonts.primary;
         nameText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
@@ -1062,8 +1219,8 @@ export class UIManager {
         // Kills
         const killsText = new BABYLON.GUI.TextBlock(`kills_${player.rank}`);
         killsText.text = player.kills.toString();
-        killsText.color = isFirst ? GameConfig.theme.colors.primary : 
-                         player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
+        killsText.color = isFirst ? GameConfig.theme.colors.primary :
+            player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
         killsText.fontSize = 15;
         killsText.fontFamily = GameConfig.theme.fonts.primary;
         killsText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
@@ -1087,8 +1244,8 @@ export class UIManager {
         if (!player.isLocal) {
             const pingText = new BABYLON.GUI.TextBlock(`ping_${player.rank}`);
             pingText.text = `${player.ping}ms`;
-            pingText.color = player.ping < 50 ? GameConfig.theme.colors.textSuccess : 
-                           player.ping < 100 ? GameConfig.theme.colors.textWarning : GameConfig.theme.colors.textDanger;
+            pingText.color = player.ping < 50 ? GameConfig.theme.colors.textSuccess :
+                player.ping < 100 ? GameConfig.theme.colors.textWarning : GameConfig.theme.colors.textDanger;
             pingText.fontSize = 11;
             pingText.fontFamily = GameConfig.theme.fonts.primary;
             pingText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
@@ -1106,37 +1263,37 @@ export class UIManager {
             // Update UI elements for new screen size
             const width = this.engine.getRenderWidth();
             const height = this.engine.getRenderHeight();
-            
+
             // Update loading screen
             if (this.loadingScreen) {
                 this.loadingScreen.widthInPixels = width;
                 this.loadingScreen.heightInPixels = height;
             }
-            
+
             // Update main menu
             if (this.mainMenu) {
                 this.mainMenu.widthInPixels = width;
                 this.mainMenu.heightInPixels = height;
             }
-            
+
             // Update settings overlay
             if (this.settingsOverlay) {
                 this.settingsOverlay.widthInPixels = width;
                 this.settingsOverlay.heightInPixels = height;
             }
-            
+
             // Update leaderboard
             if (this.leaderboard) {
                 this.leaderboard.widthInPixels = width;
                 this.leaderboard.heightInPixels = height;
             }
-            
+
             // Update game HUD
             if (this.gameHUD) {
                 this.gameHUD.widthInPixels = width;
                 this.gameHUD.heightInPixels = height;
             }
-            
+
             // Update map editor
             if (this.mapEditor) {
                 this.mapEditor.widthInPixels = width;
@@ -1152,7 +1309,7 @@ export class UIManager {
         if (this.fullscreenUI) {
             this.fullscreenUI.dispose();
         }
-        
+
         this.loadingScreen = null;
         this.mainMenu = null;
         this.settingsOverlay = null;
@@ -1160,7 +1317,7 @@ export class UIManager {
         this.gameHUD = null;
         this.mapEditor = null;
         this.fullscreenUI = null;
-        
+
         this.game = null;
         this.scene = null;
         this.engine = null;

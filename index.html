@@ -290,18 +290,15 @@
                 updateLoadingProgress(50, 3);
 
                 // Create game instance
-                const game = new Game(canvas, engine);
+                const game = new Game(canvas);
 
                 // Initialize game
                 await game.initialize();
 
-                updateLoadingProgress(80, 4);
+                updateLoadingProgress(60, 3);
 
-                // Start game loop
-                engine.runRenderLoop(() => {
-                    game.update();
-                    game.render();
-                });
+                // Start multiplayer game
+                await game.startMultiplayer();
 
                 updateLoadingProgress(100, 4);
 

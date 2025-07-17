@@ -108,7 +108,7 @@ export class MapEditor {
 
         // Configure camera controls
         this.editorCamera.setTarget(BABYLON.Vector3.Zero());
-        this.editorCamera.attachControls(this.canvas);
+        this.editorCamera.attachControl(this.canvas);
 
         // Set camera limits
         this.editorCamera.lowerBetaLimit = 0.1;
@@ -416,7 +416,7 @@ export class MapEditor {
         // Create or switch to game camera (first-person)
         if (!this.gameCamera) {
             this.gameCamera = new BABYLON.FreeCamera('editorPlayCamera', new BABYLON.Vector3(0, 1.8, 0), this.scene);
-            this.gameCamera.attachControls(this.canvas);
+            this.gameCamera.attachControl(this.canvas);
             this.gameCamera.setTarget(new BABYLON.Vector3(0, 1.8, 1));
         }
 

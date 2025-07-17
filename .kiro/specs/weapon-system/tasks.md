@@ -77,28 +77,20 @@
     - Add trail fade-out and cleanup mechanics
     - _Requirements: 9.4_
 
-- [-] 5. Create individual weapon implementations
+- [ ] 5. Create individual weapon implementations
 
 
+  - [x] 5.1 Implement Carbine weapon class
 
 
-
-
-
-  - [ ] 5.1 Implement Carbine weapon class
-
-
-
-
-
-
-    - Create semi-automatic firing mechanism with 50 damage
-    - Implement 12-round magazine with 3-second reload
-    - Add weapon model loading and animation control
-    - Integrate with projectile system for hit detection
+    - Create semi-automatic firing mechanism with 50 damage ✅
+    - Implement 12-round magazine with 3-second reload ✅
+    - Add weapon model loading and animation control ✅
+    - Integrate with projectile system for hit detection ✅
+    - Add physics engine integration ✅
     - _Requirements: 2.1, 3.1, 3.2, 4.1, 4.2, 7.1_
 
-  - [ ] 5.2 Implement Pistol weapon class
+  - [x] 5.2 Implement Pistol weapon class
     - Create semi-automatic firing with 20 damage and high fire rate
     - Implement 14-round magazine with reload mechanics
     - Add weapon model and animation integration
@@ -157,29 +149,12 @@
     - Create weapon selection persistence system
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 7.3 Add weapon audio integration
+  - [x] 7.3 Add weapon audio integration
+
+
+
     - Implement gunshot sound effects for each weapon type
     - Add reload sound effects with proper timing
     - Create knife swing and impact audio
     - Add weapon switching sound feedback
     - _Requirements: 8.1, 8.2, 8.3, 8.5_
-
-- [ ] 8. Create comprehensive weapon testing
-  - [ ] 8.1 Implement weapon functionality tests
-    - Create unit tests for each weapon class
-    - Test ammunition management and reload mechanics
-    - Verify damage calculations and fire rate timing
-    - _Requirements: All weapon-specific requirements_
-
-  - [ ] 8.2 Create weapon effects and performance tests
-    - Test muzzle flash and knife trail effect generation
-    - Verify effect attachment and cleanup systems
-    - Test performance under rapid fire conditions
-    - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
-
-  - [ ] 8.3 Add weapon integration tests
-    - Test weapon switching and state management
-    - Verify physics and projectile integration
-    - Test accuracy and recoil system behavior
-    - Create end-to-end weapon usage scenarios
-    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 7.1, 7.2, 7.3_

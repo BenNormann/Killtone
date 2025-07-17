@@ -40,10 +40,10 @@ export const WeaponConfigs = {
         recoilAmount: 0.1,
         muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/carbine/fps_animated_carbine.glb',
-        sounds: {
-            fire: 'carbine_fire',
-            reload: 'carbine_reload',
-            empty: 'weapon_empty'
+        audio: {
+            fireSound: 'assets/sounds/GenericGunshot.wav',
+            reloadSound: 'assets/sounds/Reload.wav',
+            volume: 0.8
         }
     },
     
@@ -59,10 +59,10 @@ export const WeaponConfigs = {
         recoilAmount: 0.08,
         muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/pistol/fps_animated_pistol.glb',
-        sounds: {
-            fire: 'pistol_fire',
-            reload: 'pistol_reload',
-            empty: 'weapon_empty'
+        audio: {
+            fireSound: 'assets/sounds/GenericGunshot.wav',
+            reloadSound: 'assets/sounds/Reload.wav',
+            volume: 0.7
         }
     },
     
@@ -80,10 +80,10 @@ export const WeaponConfigs = {
         recoilAmount: 0.25,
         muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/shotgun/fps_animated_shotgun.glb',
-        sounds: {
-            fire: 'shotgun_fire',
-            reload: 'shotgun_reload',
-            empty: 'weapon_empty'
+        audio: {
+            fireSound: 'assets/sounds/GenericGunshot.wav',
+            reloadSound: 'assets/sounds/Reload.wav',
+            volume: 0.9
         }
     },
     
@@ -99,10 +99,10 @@ export const WeaponConfigs = {
         recoilAmount: 0.12,
         muzzleFlashType: MuzzleFlashType.SPIKEY,
         modelPath: './assets/weapons/smg/fps_animated_smg.glb',
-        sounds: {
-            fire: 'smg_fire',
-            reload: 'smg_reload',
-            empty: 'weapon_empty'
+        audio: {
+            fireSound: 'assets/sounds/GenericGunshot.wav',
+            reloadSound: 'assets/sounds/Reload.wav',
+            volume: 0.8
         }
     },
     
@@ -118,10 +118,10 @@ export const WeaponConfigs = {
         recoilAmount: 0.3,
         muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/sniper/fps_animated_sniper.glb',
-        sounds: {
-            fire: 'sniper_fire',
-            reload: 'sniper_reload',
-            empty: 'weapon_empty'
+        audio: {
+            fireSound: 'assets/sounds/Sniper.wav',
+            reloadSound: 'assets/sounds/Reload.wav',
+            volume: 1.0
         }
     },
     
@@ -138,10 +138,10 @@ export const WeaponConfigs = {
         swingAngle: 60, // degrees
         animationDuration: 4.83, // seconds
         modelPath: './assets/weapons/knife/fps_animated_knife.glb',
-        sounds: {
-            swing: 'knife_swing',
-            impact: 'knife_impact',
-            empty: null // knife never runs out
+        audio: {
+            fireSound: 'assets/sounds/Knife.wav', // swing sound
+            reloadSound: null, // knife doesn't reload
+            volume: 0.8
         }
     }
 };

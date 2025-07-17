@@ -72,6 +72,21 @@ export class StateManager {
         this.registerStateHandler(StateManager.STATES.IN_GAME, {
             enter: async () => {
                 console.log('Entering IN_GAME state');
+                // Hide cursor and enable pointer lock
+                document.body.style.cursor = 'none';
+                try {
+                    await this.game.canvas.requestPointerLock();
+                } catch (error) {
+                    console.warn('Pointer lock failed:', error);
+                }
+                // Load default map if no map is loaded
+                if (this.game.mapManager && !this.game.mapManager.isMapLoaded()) {
+                    try {
+                        await this.game.mapManager.loadDefaultMap();
+                    } catch (error) {
+                        console.error('Failed to load default map:', error);
+                    }
+                }
                 // Enable game controls
                 if (this.game.inputManager) {
                     this.game.inputManager.enableGameControls();
@@ -86,6 +101,11 @@ export class StateManager {
             },
             exit: async () => {
                 console.log('Exiting IN_GAME state');
+                // Show cursor and exit pointer lock
+                document.body.style.cursor = 'default';
+                if (document.pointerLockElement) {
+                    document.exitPointerLock();
+                }
                 // Pause game systems when leaving
                 this._pauseGameSystems();
             }
@@ -95,6 +115,11 @@ export class StateManager {
         this.registerStateHandler(StateManager.STATES.PAUSED, {
             enter: async () => {
                 console.log('Entering PAUSED state');
+                // Show cursor and exit pointer lock
+                document.body.style.cursor = 'default';
+                if (document.pointerLockElement) {
+                    document.exitPointerLock();
+                }
                 // Show settings overlay
                 if (this.game.uiManager) {
                     await this.game.uiManager.showSettingsOverlay();
@@ -119,9 +144,18 @@ export class StateManager {
         this.registerStateHandler(StateManager.STATES.MAP_EDITOR, {
             enter: async () => {
                 console.log('Entering MAP_EDITOR state');
+                // Show cursor for editor mode
+                document.body.style.cursor = 'default';
+                if (document.pointerLockElement) {
+                    document.exitPointerLock();
+                }
                 // Initialize map editor
                 if (this.game.mapManager) {
-                    await this.game.mapManager.enterEditorMode();
+                    try {
+                        await this.game.mapManager.enterEditorMode();
+                    } catch (error) {
+                        console.warn('MapManager enterEditorMode not implemented:', error);
+                    }
                 }
                 // Show editor UI
                 if (this.game.uiManager) {
@@ -129,14 +163,22 @@ export class StateManager {
                 }
                 // Enable editor controls
                 if (this.game.inputManager) {
-                    this.game.inputManager.enableEditorControls();
+                    try {
+                        this.game.inputManager.enableEditorControls();
+                    } catch (error) {
+                        console.warn('InputManager enableEditorControls not implemented:', error);
+                    }
                 }
             },
             exit: async () => {
                 console.log('Exiting MAP_EDITOR state');
                 // Exit map editor
                 if (this.game.mapManager) {
-                    await this.game.mapManager.exitEditorMode();
+                    try {
+                        await this.game.mapManager.exitEditorMode();
+                    } catch (error) {
+                        console.warn('MapManager exitEditorMode not implemented:', error);
+                    }
                 }
                 // Hide editor UI
                 if (this.game.uiManager) {
@@ -242,6 +284,51 @@ export class StateManager {
     }
 
     /**
+     * Update method for game loop
+     * @param {number} deltaTime - Time since last frame
+     */
+    update(deltaTime) {
+        // Handle ESC key for state transitions
+        this._handleEscapeKey();
+    }
+
+    /**
+     * Handle ESC key for pausing/unpausing
+     */
+    _handleEscapeKey() {
+        // This will be handled by input manager when it's implemented
+        // For now, we'll set up a simple keyboard listener
+        if (!this._escKeyListener) {
+            this._escKeyListener = (event) => {
+                if (event.code === 'Escape') {
+                    event.preventDefault();
+                    this._handleEscapePress();
+                }
+            };
+            document.addEventListener('keydown', this._escKeyListener);
+        }
+    }
+
+    /**
+     * Handle escape key press
+     */
+    async _handleEscapePress() {
+        if (this.isTransitioning) return;
+
+        switch (this.currentState) {
+            case StateManager.STATES.IN_GAME:
+                await this.transitionTo(StateManager.STATES.PAUSED);
+                break;
+            case StateManager.STATES.PAUSED:
+                await this.transitionTo(StateManager.STATES.IN_GAME);
+                break;
+            case StateManager.STATES.MAP_EDITOR:
+                await this.transitionTo(StateManager.STATES.MAIN_MENU);
+                break;
+        }
+    }
+
+    /**
      * Check if state is valid
      * @param {string} state - State to validate
      * @returns {boolean}
@@ -333,6 +420,12 @@ export class StateManager {
      * Cleanup resources
      */
     dispose() {
+        // Remove ESC key listener
+        if (this._escKeyListener) {
+            document.removeEventListener('keydown', this._escKeyListener);
+            this._escKeyListener = null;
+        }
+        
         this.stateHandlers.clear();
         this.currentState = null;
         this.previousState = null;

@@ -1,22 +1,22 @@
 /**
- * KILLtONE Game Framework - Carbine Weapon Implementation
- * Semi-automatic rifle with 50 damage and 12-round magazine
+ * KILLtONE Game Framework - Pistol Weapon Implementation
+ * Semi-automatic sidearm with 20 damage and 14-round magazine
  */
 
 import * as BABYLON from '@babylonjs/core';
 import { WeaponBase } from './WeaponBase.js';
 import { WeaponConfigs, WeaponType, MuzzleFlashType } from './WeaponConfig.js';
 
-export class Carbine extends WeaponBase {
+export class Pistol extends WeaponBase {
     constructor(scene, effectsManager, accuracySystem = null, game = null) {
-        // Get carbine configuration
-        const config = WeaponConfigs[WeaponType.CARBINE];
+        // Get pistol configuration
+        const config = WeaponConfigs[WeaponType.PISTOL];
 
         super(config, scene, effectsManager, accuracySystem);
 
         this.game = game;
 
-        // Carbine-specific properties
+        // Pistol-specific properties
         this.lastShotTime = 0;
         this.muzzlePosition = new BABYLON.Vector3(0, 0, 0);
         this.muzzleDirection = new BABYLON.Vector3(0, 0, 1);
@@ -25,14 +25,14 @@ export class Carbine extends WeaponBase {
         this.skeleton = null;
         this.isAnimationPaused = false;
 
-        console.log(`Carbine weapon initialized - Damage: ${this.damage}, Magazine: ${this.magazineSize}, Fire Rate: ${this.fireRate}s`);
+        console.log(`Pistol weapon initialized - Damage: ${this.damage}, Magazine: ${this.magazineSize}, Fire Rate: ${this.fireRate}s`);
     }
 
     /**
-     * Initialize the carbine weapon
+     * Initialize the pistol weapon
      */
     async initialize() {
-        console.log('Initializing Carbine weapon...');
+        console.log('Initializing Pistol weapon...');
 
         try {
             // Load the weapon model with proper animation handling
@@ -41,11 +41,11 @@ export class Carbine extends WeaponBase {
             // Set up initial state
             this.pauseAtIdle();
 
-            console.log('Carbine weapon initialization complete');
+            console.log('Pistol weapon initialization complete');
             return true;
 
         } catch (error) {
-            console.error('Failed to initialize Carbine weapon:', error);
+            console.error('Failed to initialize Pistol weapon:', error);
             return false;
         }
     }
@@ -55,7 +55,7 @@ export class Carbine extends WeaponBase {
      */
     async loadWeaponModel() {
         if (!this.config.modelPath) {
-            console.warn('Carbine: No model path specified');
+            console.warn('Pistol: No model path specified');
             return;
         }
 
@@ -68,7 +68,7 @@ export class Carbine extends WeaponBase {
                     },
                     null, // onProgress
                     (scene, message, exception) => {
-                        reject(new Error(`Failed to load carbine model: ${message}`));
+                        reject(new Error(`Failed to load pistol model: ${message}`));
                     }
                 );
             });
@@ -86,21 +86,21 @@ export class Carbine extends WeaponBase {
                     this.scene.beginAnimation(this.skeleton, 0, 100, true);
                     this.scene.stopAnimation(this.skeleton);
 
-                    console.log(`Carbine: Loaded model with skeleton animation`);
+                    console.log(`Pistol: Loaded model with skeleton animation`);
                 } else {
-                    console.log(`Carbine: Loaded model without skeleton animation`);
+                    console.log(`Pistol: Loaded model without skeleton animation`);
                 }
 
                 // Calculate muzzle position (front of the weapon)
                 this.calculateMuzzlePosition();
 
-                console.log(`Carbine: Model loaded successfully`);
+                console.log(`Pistol: Model loaded successfully`);
             } else {
-                throw new Error('No meshes found in carbine model');
+                throw new Error('No meshes found in pistol model');
             }
 
         } catch (error) {
-            console.warn(`Carbine: Failed to load model - ${error.message}`);
+            console.warn(`Pistol: Failed to load model - ${error.message}`);
             // Continue without model for testing
         }
     }
@@ -121,22 +121,22 @@ export class Carbine extends WeaponBase {
     }
 
     /**
-     * Fire the carbine weapon
+     * Fire the pistol weapon
      */
     fire(origin, direction, game = null) {
         // Check if weapon can fire
         if (!this.canFireWeapon()) {
-            console.log('Carbine: Cannot fire - weapon not ready');
+            console.log('Pistol: Cannot fire - weapon not ready');
             return false;
         }
 
-        // Check fire rate (semi-automatic)
+        // Check fire rate (semi-automatic with high fire rate)
         const currentTime = performance.now() / 1000;
         if (currentTime - this.lastShotTime < this.fireRate) {
             return false; // Too soon to fire again
         }
 
-        console.log(`Carbine: Firing - Ammo: ${this.currentAmmo}/${this.magazineSize}`);
+        console.log(`Pistol: Firing - Ammo: ${this.currentAmmo}/${this.magazineSize}`);
 
         // Apply accuracy to shot direction
         const accurateDirection = this.applyAccuracyToDirection(direction);
@@ -151,8 +151,8 @@ export class Carbine extends WeaponBase {
                 damage: this.damage
             },
             damage: this.damage,
-            range: 500, // Carbine effective range
-            speed: 800, // High velocity for hitscan behavior
+            range: 300, // Pistol effective range (shorter than carbine)
+            speed: 600, // High velocity for hitscan behavior
             showTrail: true,
             playerId: 'local' // TODO: Get from player system
         };
@@ -161,7 +161,7 @@ export class Carbine extends WeaponBase {
         if (game && game.projectileManager) {
             game.projectileManager.createProjectile(projectileData);
         } else {
-            console.warn('Carbine: No projectile manager available');
+            console.warn('Pistol: No projectile manager available');
         }
 
         // Create muzzle flash effect
@@ -194,11 +194,9 @@ export class Carbine extends WeaponBase {
             game.eventEmitter.emit('weapon.fire', projectileData);
         }
 
-        console.log(`Carbine: Shot fired - Remaining ammo: ${this.currentAmmo}`);
+        console.log(`Pistol: Shot fired - Remaining ammo: ${this.currentAmmo}`);
         return true;
     }
-
-
 
     /**
      * Play weapon fire sound
@@ -207,7 +205,7 @@ export class Carbine extends WeaponBase {
         if (this.game && this.game.audioManager) {
             this.game.audioManager.playWeaponSound(this.config);
         } else {
-            console.warn('Carbine: No audio manager available for fire sound');
+            console.warn('Pistol: No audio manager available for fire sound');
         }
     }
 
@@ -216,7 +214,7 @@ export class Carbine extends WeaponBase {
      */
     createMuzzleFlash(origin, direction) {
         if (!this.effectsManager) {
-            console.warn('Carbine: No effects manager available for muzzle flash');
+            console.warn('Pistol: No effects manager available for muzzle flash');
             return;
         }
 
@@ -240,7 +238,7 @@ export class Carbine extends WeaponBase {
         );
 
         if (flashEffect) {
-            console.log('Carbine: Muzzle flash effect created');
+            console.log('Pistol: Muzzle flash effect created');
         }
     }
 
@@ -256,9 +254,9 @@ export class Carbine extends WeaponBase {
             this.scene.beginAnimation(this.skeleton, 100, 200, false);
             this.isAnimationPaused = false;
 
-            console.log('Carbine: Playing reload animation');
+            console.log('Pistol: Playing reload animation');
         } else {
-            console.log('Carbine: No skeleton available for reload animation');
+            console.log('Pistol: No skeleton available for reload animation');
         }
     }
 
@@ -275,7 +273,7 @@ export class Carbine extends WeaponBase {
             this.scene.stopAnimation(this.skeleton);
             this.isAnimationPaused = true;
 
-            console.log('Carbine: Animation paused at idle');
+            console.log('Pistol: Animation paused at idle');
         }
     }
 
@@ -288,7 +286,7 @@ export class Carbine extends WeaponBase {
             this.scene.beginAnimation(this.skeleton, currentFrame, 100, true);
             this.isAnimationPaused = false;
 
-            console.log(`Carbine: Animation resumed from frame ${currentFrame}`);
+            console.log(`Pistol: Animation resumed from frame ${currentFrame}`);
         }
     }
 
@@ -314,7 +312,7 @@ export class Carbine extends WeaponBase {
         if (this.game && this.game.audioManager) {
             this.game.audioManager.playReloadSound(this.config);
         } else {
-            console.warn('Carbine: No audio manager available for reload sound');
+            console.warn('Pistol: No audio manager available for reload sound');
         }
     }
 
@@ -348,12 +346,12 @@ export class Carbine extends WeaponBase {
         // Call parent update
         super.update(deltaTime);
 
-        // Carbine-specific updates can be added here
+        // Pistol-specific updates can be added here
         // For example, checking for animation completion, etc.
     }
 
     /**
-     * Get carbine-specific weapon information
+     * Get pistol-specific weapon information
      */
     getWeaponInfo() {
         const baseInfo = super.getWeaponInfo();
@@ -370,10 +368,10 @@ export class Carbine extends WeaponBase {
     }
 
     /**
-     * Dispose of carbine resources
+     * Dispose of pistol resources
      */
     dispose() {
-        console.log('Disposing Carbine weapon...');
+        console.log('Disposing Pistol weapon...');
 
         // Stop any running animations
         if (this.skeleton) {
@@ -387,8 +385,8 @@ export class Carbine extends WeaponBase {
         // Call parent dispose
         super.dispose();
 
-        console.log('Carbine weapon disposed');
+        console.log('Pistol weapon disposed');
     }
 }
 
-export default Carbine;
+export default Pistol;

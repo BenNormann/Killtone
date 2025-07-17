@@ -4,6 +4,7 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
+import RemotePlayer from '../entities/RemotePlayer.js';
 
 export class NetworkManager {
     constructor(game) {
@@ -15,9 +16,9 @@ export class NetworkManager {
         this.playerId = null;
         this.sessionId = null;
         
-        // WebSocket connection
+        // Socket.IO connection
         this.socket = null;
-        this.serverURL = GameConfig.network.serverURL;
+        this.serverURL = window.location.origin; // Use current origin for Socket.IO
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = GameConfig.network.reconnectAttempts;
         this.reconnectDelay = 1000; // Start with 1 second
@@ -68,96 +69,115 @@ export class NetworkManager {
     }
     
     initializeMessageHandlers() {
-        // Connection messages
-        this.registerMessageHandler('connection_established', this.handleConnectionEstablished.bind(this));
-        this.registerMessageHandler('connection_rejected', this.handleConnectionRejected.bind(this));
-        this.registerMessageHandler('player_joined', this.handlePlayerJoined.bind(this));
-        this.registerMessageHandler('player_left', this.handlePlayerLeft.bind(this));
-        
-        // State synchronization
-        this.registerMessageHandler('player_state', this.handlePlayerState.bind(this));
-        this.registerMessageHandler('game_state', this.handleGameState.bind(this));
-        this.registerMessageHandler('world_update', this.handleWorldUpdate.bind(this));
-        
-        // Game events
-        this.registerMessageHandler('player_shot', this.handlePlayerShot.bind(this));
-        this.registerMessageHandler('player_hit', this.handlePlayerHit.bind(this));
-        this.registerMessageHandler('player_death', this.handlePlayerDeath.bind(this));
-        this.registerMessageHandler('weapon_pickup', this.handleWeaponPickup.bind(this));
-        
-        // Network diagnostics
-        this.registerMessageHandler('ping', this.handlePing.bind(this));
-        this.registerMessageHandler('pong', this.handlePong.bind(this));
-        
-        // Error handling
-        this.registerMessageHandler('error', this.handleNetworkError.bind(this));
+        // Socket.IO event handlers will be set up in connect method
+        console.log('NetworkManager message handlers initialized');
     }
     
     // Connection Management
-    connect(playerName = 'Player') {
+    async connect(playerName = 'Player') {
         if (this.isConnected || this.socket) {
             console.warn('Already connected or connecting');
             return Promise.reject(new Error('Already connected'));
         }
         
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 console.log(`Connecting to ${this.serverURL}...`);
                 
-                this.socket = new WebSocket(this.serverURL);
+                // Load Socket.IO client library
+                if (typeof io === 'undefined') {
+                    await this.loadSocketIO();
+                }
                 
-                // Connection timeout
-                const timeoutId = setTimeout(() => {
-                    if (this.socket && this.socket.readyState === WebSocket.CONNECTING) {
-                        this.socket.close();
-                        reject(new Error('Connection timeout'));
-                    }
-                }, this.timeout);
+                // Create Socket.IO connection
+                this.socket = io(this.serverURL, {
+                    transports: ['websocket', 'polling'],
+                    timeout: this.timeout
+                });
                 
-                this.socket.onopen = () => {
-                    clearTimeout(timeoutId);
-                    console.log('WebSocket connected');
-                    
-                    // Send connection request
-                    this.sendMessage('connect', {
-                        playerName,
-                        version: '1.0.0',
-                        timestamp: Date.now()
-                    });
-                    
-                    // Start ping monitoring
-                    this.startPingMonitoring();
-                    
-                    this.stats.connectionTime = Date.now();
-                };
+                // Set up Socket.IO event handlers
+                this.setupSocketHandlers(resolve, reject);
                 
-                this.socket.onmessage = (event) => {
-                    this.handleMessage(event.data);
-                };
-                
-                this.socket.onclose = (event) => {
-                    clearTimeout(timeoutId);
-                    this.handleDisconnection(event);
-                    
-                    if (!this.isConnected) {
-                        reject(new Error(`Connection failed: ${event.reason || 'Unknown error'}`));
-                    }
-                };
-                
-                this.socket.onerror = (error) => {
-                    clearTimeout(timeoutId);
-                    console.error('WebSocket error:', error);
-                    reject(error);
-                };
-                
-                // Store resolve function for connection established handler
-                this._connectionResolve = resolve;
-                this._connectionReject = reject;
+                this.stats.connectionTime = Date.now();
                 
             } catch (error) {
-                console.error('Failed to create WebSocket connection:', error);
+                console.error('Failed to create Socket.IO connection:', error);
                 reject(error);
             }
+        });
+    }
+    
+    async loadSocketIO() {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '/socket.io/socket.io.js';
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('Failed to load Socket.IO client'));
+            document.head.appendChild(script);
+        });
+    }
+    
+    setupSocketHandlers(resolve, reject) {
+        // Connection events
+        this.socket.on('connect', () => {
+            console.log('Connected to server with ID:', this.socket.id);
+            this.isConnected = true;
+            this.playerId = this.socket.id;
+            resolve({ playerId: this.playerId });
+        });
+        
+        this.socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+            reject(error);
+        });
+        
+        this.socket.on('disconnect', (reason) => {
+            console.log('Disconnected from server:', reason);
+            this.handleDisconnection({ reason });
+        });
+        
+        // Player events
+        this.socket.on('playerJoined', (data) => {
+            console.log(`Player ${data.player.username} joined the game`);
+            this.handlePlayerJoined(data);
+        });
+        
+        this.socket.on('playerConnected', (playerData) => {
+            console.log('New player connected:', playerData);
+            this.handleNewPlayerConnected(playerData);
+        });
+        
+        this.socket.on('playerDisconnected', (playerId) => {
+            console.log('Player disconnected:', playerId);
+            this.handlePlayerDisconnected(playerId);
+        });
+        
+        this.socket.on('playerMoved', (data) => {
+            this.handlePlayerMoved(data);
+        });
+        
+        this.socket.on('playerShot', (data) => {
+            this.handlePlayerShot(data);
+        });
+        
+        this.socket.on('playerKilled', (data) => {
+            this.handlePlayerKilled(data);
+        });
+        
+        this.socket.on('playerRespawned', (data) => {
+            this.handlePlayerRespawned(data);
+        });
+        
+        this.socket.on('playerDamaged', (data) => {
+            this.handlePlayerDamaged(data);
+        });
+        
+        this.socket.on('playerHealthUpdated', (data) => {
+            this.handlePlayerHealthUpdated(data);
+        });
+        
+        this.socket.on('playerUsernameUpdated', (data) => {
+            this.handlePlayerUsernameUpdated(data);
         });
     }
     
@@ -270,48 +290,26 @@ export class NetworkManager {
         }
     }
     
-    sendMessage(type, data = {}, requiresResponse = false) {
-        if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+    // Socket.IO message sending
+    emit(eventName, data = {}) {
+        if (!this.socket || !this.isConnected) {
             console.warn('Cannot send message: not connected');
             return Promise.reject(new Error('Not connected'));
         }
         
-        const messageId = requiresResponse ? ++this.messageId : null;
-        const message = {
-            id: messageId,
-            type,
-            data,
-            timestamp: Date.now()
-        };
-        
         try {
-            const messageStr = JSON.stringify(message);
-            this.socket.send(messageStr);
-            
+            this.socket.emit(eventName, data);
             this.stats.messagesSent++;
-            this.stats.bytesSent += messageStr.length;
-            
-            // Handle response requirement
-            if (requiresResponse) {
-                return new Promise((resolve, reject) => {
-                    this.pendingMessages.set(messageId, { resolve, reject });
-                    
-                    // Timeout for response
-                    setTimeout(() => {
-                        if (this.pendingMessages.has(messageId)) {
-                            this.pendingMessages.delete(messageId);
-                            reject(new Error('Message timeout'));
-                        }
-                    }, this.timeout);
-                });
-            }
-            
             return Promise.resolve();
-            
         } catch (error) {
-            console.error('Failed to send message:', error);
+            console.error('Failed to emit message:', error);
             return Promise.reject(error);
         }
+    }
+    
+    // Legacy sendMessage method for compatibility
+    sendMessage(type, data = {}) {
+        return this.emit(type, data);
     }
     
     // Message Handlers
@@ -348,13 +346,138 @@ export class NetworkManager {
     }
     
     handlePlayerJoined(data) {
-        console.log('Player joined:', data);
+        console.log(`Player ${data.player.username} joined the game`);
         
-        this.remotePlayers.set(data.playerId, data);
+        // Initialize local player data if this is our join event
+        if (data.playerId === this.playerId) {
+            console.log('This is our player join event');
+            // Create all existing players as remote players
+            if (data.allPlayers) {
+                data.allPlayers.forEach(playerData => {
+                    if (playerData.id !== this.playerId) {
+                        this.createRemotePlayer(playerData);
+                    }
+                });
+            }
+        }
         
         if (this.onPlayerJoined) {
             this.onPlayerJoined(data);
         }
+    }
+    
+    handleNewPlayerConnected(playerData) {
+        console.log('New player connected:', playerData);
+        
+        // Don't create a remote player for ourselves
+        if (playerData.id === this.playerId) {
+            return;
+        }
+        
+        this.createRemotePlayer(playerData);
+    }
+    
+    handlePlayerDisconnected(playerId) {
+        console.log('Player disconnected:', playerId);
+        
+        // Remove remote player
+        const remotePlayer = this.remotePlayers.get(playerId);
+        if (remotePlayer) {
+            remotePlayer.dispose();
+            this.remotePlayers.delete(playerId);
+        }
+        
+        this.playerStates.delete(playerId);
+        
+        if (this.onPlayerLeft) {
+            this.onPlayerLeft({ playerId });
+        }
+    }
+    
+    handlePlayerMoved(data) {
+        const remotePlayer = this.remotePlayers.get(data.playerId);
+        if (remotePlayer) {
+            remotePlayer.updateFromNetworkData({
+                position: data.position,
+                rotation: data.rotation
+            });
+        }
+    }
+    
+    handlePlayerKilled(data) {
+        console.log(`Player ${data.victimId} killed by ${data.killerId}`);
+        
+        // Update victim
+        const victim = this.remotePlayers.get(data.victimId);
+        if (victim) {
+            victim.setAlive(false);
+            victim.deaths = data.victimDeaths;
+        }
+        
+        // Update killer
+        const killer = this.remotePlayers.get(data.killerId);
+        if (killer) {
+            killer.score = data.killerScore;
+        }
+        
+        // Handle local player death
+        if (data.victimId === this.playerId && this.localPlayer) {
+            this.localPlayer.die();
+        }
+    }
+    
+    handlePlayerRespawned(data) {
+        console.log(`Player ${data.playerId} respawned`);
+        
+        const remotePlayer = this.remotePlayers.get(data.playerId);
+        if (remotePlayer) {
+            remotePlayer.updateFromNetworkData(data.player);
+            remotePlayer.setAlive(true);
+        }
+        
+        // Handle local player respawn
+        if (data.playerId === this.playerId && this.localPlayer) {
+            this.localPlayer.respawn(new BABYLON.Vector3(
+                data.player.position.x,
+                data.player.position.y,
+                data.player.position.z
+            ));
+        }
+    }
+    
+    handlePlayerDamaged(data) {
+        // This is for local player damage feedback
+        if (this.localPlayer) {
+            console.log(`Took ${data.damage} damage from player ${data.shooterId}`);
+            // Update local UI or effects
+        }
+    }
+    
+    handlePlayerHealthUpdated(data) {
+        const remotePlayer = this.remotePlayers.get(data.playerId);
+        if (remotePlayer) {
+            remotePlayer.setHealth(data.health);
+        }
+    }
+    
+    handlePlayerUsernameUpdated(data) {
+        const remotePlayer = this.remotePlayers.get(data.playerId);
+        if (remotePlayer) {
+            remotePlayer.setUsername(data.username);
+        }
+    }
+    
+    createRemotePlayer(playerData) {
+        if (this.remotePlayers.has(playerData.id)) {
+            return; // Already exists
+        }
+        
+        console.log(`Creating remote player: ${playerData.username} (${playerData.id})`);
+        
+        const remotePlayer = new RemotePlayer(this.game, this.game.scene, playerData);
+        this.remotePlayers.set(playerData.id, remotePlayer);
+        
+        return remotePlayer;
     }
     
     handlePlayerLeft(data) {
@@ -493,15 +616,35 @@ export class NetworkManager {
         };
     }
     
+    // Player State Synchronization
+    updateLocalPlayerState(playerState) {
+        if (!this.isConnected || !this.localPlayer) return;
+        
+        const now = Date.now();
+        
+        // Throttle state updates based on tick rate
+        if (now - this.lastStateUpdate < this.stateUpdateInterval) {
+            return;
+        }
+        
+        // Send player state update
+        this.emit('playerUpdate', {
+            position: playerState.position,
+            rotation: playerState.rotation,
+            velocity: playerState.velocity,
+            health: playerState.health,
+            weapon: playerState.currentWeapon,
+            animation: playerState.animation,
+            timestamp: now
+        });
+        
+        this.lastStateUpdate = now;
+    }
+
     // Network Diagnostics
     startPingMonitoring() {
-        this.pingInterval = setInterval(() => {
-            if (this.isConnected) {
-                this.sendMessage('ping', {
-                    timestamp: Date.now()
-                });
-            }
-        }, 5000); // Ping every 5 seconds
+        // Socket.IO handles ping/pong automatically
+        console.log('Socket.IO ping monitoring is automatic');
     }
     
     getNetworkStats() {
@@ -538,6 +681,25 @@ export class NetworkManager {
         });
     }
     
+    // Update method for game loop
+    update(deltaTime) {
+        // Update network statistics
+        if (this.isConnected && this.socket) {
+            // Update connection uptime
+            if (this.stats.connectionTime) {
+                this.stats.uptime = Date.now() - this.stats.connectionTime;
+            }
+            
+            // Clean up old player states
+            const now = Date.now();
+            this.playerStates.forEach((state, playerId) => {
+                if (now - state.timestamp > 5000) { // Remove states older than 5 seconds
+                    this.playerStates.delete(playerId);
+                }
+            });
+        }
+    }
+
     dispose() {
         this.disconnect();
         
