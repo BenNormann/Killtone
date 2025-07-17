@@ -3,7 +3,7 @@
  * Specialized blood particle effects with realistic physics and visuals
  */
 
-import * as BABYLON from '@babylonjs/core';
+// BABYLON is loaded globally from CDN in index.html
 import GameConfig from '../mainConfig.js';
 
 export class BloodEffects {

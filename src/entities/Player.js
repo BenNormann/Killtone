@@ -386,7 +386,7 @@ export class Player {
     /**
      * Perform shooting action
      */
-    shoot() {
+    async shoot() {
         if (!this.canShoot) return;
 
         console.log('Player shooting');
@@ -400,31 +400,100 @@ export class Player {
             this.currentWeapon = { name: 'bulldog', fireRate: 500 };
         }
 
-        // Create shooting event data
-        const shootData = {
-            origin: shootOrigin,
-            direction: shootDirection,
-            weapon: this.currentWeapon,
-            playerId: this.id || 'local'
-        };
+        // Use WeaponBase system if available
+        if (this.currentWeapon && this.currentWeapon.fire && typeof this.currentWeapon.fire === 'function') {
+            // Use the weapon's own fire method
+            if (this.currentWeapon.canFireWeapon()) {
+                this.currentWeapon.fire(shootOrigin, shootDirection);
+                this.currentWeapon.applyRecoil(); // Apply visual recoil
+                this.currentWeapon.consumeAmmo(); // Consume ammo
+                this.currentWeapon.setFiringCooldown(); // Set cooldown
+            }
+        } else {
+            // Fallback for simple weapon objects
+            // Create shooting event data
+            const shootData = {
+                origin: shootOrigin,
+                direction: shootDirection,
+                weapon: this.currentWeapon,
+                playerId: this.id || 'local'
+            };
 
-        // Trigger network shooting event
-        if (this.onShoot) {
-            this.onShoot(shootData);
+            // Trigger network shooting event
+            if (this.onShoot) {
+                this.onShoot(shootData);
+            }
+
+            // Trigger local shooting event (will be handled by weapon system)
+            if (this.game.eventEmitter) {
+                this.game.eventEmitter.emit('player.shoot', shootData);
+            }
+
+            // Set cooldown
+            this.canShoot = false;
+            this.lastShotTime = performance.now();
+
+            // Play shooting sound (if audio manager available)
+            if (this.game.audioManager && this.currentWeapon) {
+                this.game.audioManager.playWeaponSound(this.currentWeapon);
+            }
+
+            // Reduce ammo
+            if (this.currentWeapon.ammo > 0) {
+                this.currentWeapon.ammo--;
+            }
         }
+    }
 
-        // Trigger local shooting event (will be handled by weapon system)
-        if (this.game.eventEmitter) {
-            this.game.eventEmitter.emit('player.shoot', shootData);
-        }
+    /**
+     * Reload current weapon
+     */
+    async reload() {
+        if (!this.currentWeapon || !this.isAlive) return;
+        
+        // Use WeaponBase system if available
+        if (this.currentWeapon && this.currentWeapon.reload && typeof this.currentWeapon.reload === 'function') {
+            // Use the weapon's own reload method
+            this.currentWeapon.reload();
+        } else {
+            // Fallback for simple weapon objects
+            // Check if reload is needed
+            if (this.currentWeapon.ammo >= this.currentWeapon.magazineSize) {
+                console.log('Weapon already fully loaded');
+                return;
+            }
+            
+            // Check if we have reserve ammo
+            if (this.currentWeapon.reserveAmmo <= 0) {
+                console.log('No reserve ammo available');
+                return;
+            }
 
-        // Set cooldown
-        this.canShoot = false;
-        this.lastShotTime = performance.now();
+            console.log('Player reloading weapon');
 
-        // Play shooting sound (if audio manager available)
-        if (this.game.audioManager) {
-            this.game.audioManager.playSound('weapon_fire', shootOrigin);
+            // Disable shooting during reload
+            this.canShoot = false;
+
+            // Fallback delay if no animation system
+            await new Promise(resolve => setTimeout(resolve, (this.currentWeapon.reloadTime || 3) * 1000));
+
+            // Calculate ammo to reload
+            const ammoNeeded = this.currentWeapon.magazineSize - this.currentWeapon.ammo;
+            const ammoToReload = Math.min(ammoNeeded, this.currentWeapon.reserveAmmo);
+
+            // Update ammo counts
+            this.currentWeapon.ammo += ammoToReload;
+            this.currentWeapon.reserveAmmo -= ammoToReload;
+
+            // Re-enable shooting
+            this.canShoot = true;
+
+            // Play reload sound
+            if (this.game.audioManager && this.currentWeapon.audio && this.currentWeapon.audio.reloadSound) {
+                this.game.audioManager.playSound(this.currentWeapon.audio.reloadSound, 0.6);
+            }
+
+            console.log(`Reload complete. Ammo: ${this.currentWeapon.ammo}/${this.currentWeapon.reserveAmmo}`);
         }
     }
 
@@ -584,16 +653,87 @@ export class Player {
     }
 
     /**
-     * Set weapon
+     * Set weapon using existing WeaponBase system
+     * @param {string} weaponType - Weapon type from WeaponType enum
+     * @param {Object} weaponConfig - Weapon configuration from WeaponConfigs
      */
-    setWeapon(weapon) {
-        this.currentWeapon = weapon;
+    async setWeapon(weaponType, weaponConfig) {
+        try {
+            // Import weapon classes
+            const { WeaponType } = await import('./WeaponConfig.js');
+            
+            // Dispose current weapon if exists
+            if (this.currentWeapon && this.currentWeapon.dispose) {
+                this.currentWeapon.dispose();
+            }
 
-        if (this.onWeaponChanged) {
-            this.onWeaponChanged(weapon);
+            if (weaponConfig) {
+                // Create weapon instance based on type
+                let WeaponClass;
+                switch (weaponType) {
+                    case WeaponType.CARBINE:
+                        const { Carbine } = await import('./Carbine.js');
+                        WeaponClass = Carbine;
+                        break;
+                    case WeaponType.PISTOL:
+                        const { Pistol } = await import('./Pistol.js');
+                        WeaponClass = Pistol;
+                        break;
+                    // Add other weapon types as needed
+                    default:
+                        console.warn(`Weapon type ${weaponType} not implemented, using base config`);
+                        this.currentWeapon = {
+                            type: weaponType,
+                            ...weaponConfig,
+                            ammo: weaponConfig.magazineSize,
+                            reserveAmmo: weaponConfig.magazineSize * 3
+                        };
+                        break;
+                }
+
+                // Create weapon instance if class is available
+                if (WeaponClass) {
+                    this.currentWeapon = new WeaponClass(
+                        weaponConfig, 
+                        this.scene, 
+                        this.game.effectsManager,
+                        this.game.accuracySystem
+                    );
+                    
+                    // Initialize the weapon with AssetManager
+                    await this.currentWeapon.initialize();
+                    
+                    // Load weapon model using AssetManager
+                    await this.currentWeapon.loadModel(this.game.assetManager);
+                    
+                    // Position weapon relative to camera
+                    if (this.currentWeapon.model && this.camera) {
+                        this.currentWeapon.model.parent = this.camera;
+                        this.currentWeapon.model.position = new BABYLON.Vector3(0.3, -0.2, 0.5);
+                        this.currentWeapon.model.rotation = new BABYLON.Vector3(0, Math.PI, 0);
+                        this.currentWeapon.setVisible(true);
+                    }
+                }
+            } else {
+                // Fallback for old format
+                this.currentWeapon = weaponType;
+            }
+
+            if (this.onWeaponChanged) {
+                this.onWeaponChanged(this.currentWeapon);
+            }
+
+            console.log(`Player equipped weapon: ${this.currentWeapon ? this.currentWeapon.name || this.currentWeapon.type : 'none'}`);
+        } catch (error) {
+            console.error('Error setting weapon:', error);
+            // Fallback to simple weapon object
+            this.currentWeapon = {
+                type: weaponType,
+                ...weaponConfig,
+                ammo: weaponConfig?.magazineSize || 30,
+                reserveAmmo: (weaponConfig?.magazineSize || 30) * 3
+            };
         }
-
-        console.log(`Player equipped weapon: ${weapon ? weapon.name : 'none'}`);
     }
 
     /**

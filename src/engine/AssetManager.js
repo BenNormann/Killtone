@@ -1,14 +1,16 @@
 /**
  * KILLtONE Game Framework - Enhanced Asset Manager
- * Provides asset loading with progress tracking and dependency resolution
+ * Provides asset loading with progress tracking, dependency resolution, and weapon animation management
  */
 
 import { GameConfig } from '../mainConfig.js';
 
 export class AssetManager {
-    constructor(scene) {
-        this.scene = scene;
+    constructor(game) {
+        this.game = game;
+        this.scene = game.scene;
         this.loadedAssets = new Map();
+
         this.loadingQueue = [];
         this.dependencies = new Map();
         this.progressCallbacks = [];
@@ -153,8 +155,8 @@ export class AssetManager {
             else if (BABYLON.SceneLoader && typeof BABYLON.SceneLoader.ImportMesh === 'function') {
                 result = await new Promise((resolve, reject) => {
                     BABYLON.SceneLoader.ImportMesh("", folder, filename, this.scene, 
-                        (meshes, particleSystems, skeletons) => {
-                            resolve({ meshes, particleSystems, skeletons });
+                        (meshes, particleSystems, skeletons, animationGroups) => {
+                            resolve({ meshes, particleSystems, skeletons, animationGroups });
                         },
                         (progress) => {
                             // Individual asset progress (not used for overall progress)
@@ -177,6 +179,7 @@ export class AssetManager {
                 meshes: result.meshes,
                 particleSystems: result.particleSystems,
                 skeletons: result.skeletons,
+                animationGroups: result.animationGroups || [],
                 loadedAt: Date.now()
             };
 
@@ -401,54 +404,115 @@ export class AssetManager {
     }
 
     /**
+     * Load weapon assets for use by WeaponBase classes
+     * @param {string} weaponType - Weapon type
+     * @param {Object} weaponConfig - Weapon configuration
+     * @returns {Promise} - Promise resolving to weapon asset data
+     */
+    async loadWeaponAsset(weaponType, weaponConfig) {
+        if (!weaponConfig.modelPath) {
+            console.warn(`No model path specified for weapon: ${weaponType}`);
+            return null;
+        }
+
+        // Parse model path
+        const pathParts = weaponConfig.modelPath.split('/');
+        const filename = pathParts.pop();
+        const folder = pathParts.join('/') + '/';
+
+        return await this.loadModel(weaponType, folder, filename, 'weapon');
+    }
+
+    /**
+     * Load an image texture
+     * @param {string} name - Asset name
+     * @param {string} path - Image path
+     * @returns {Promise} - Promise resolving to texture
+     */
+    async loadTexture(name, path) {
+        try {
+            console.log(`Loading texture ${name} from ${path}`);
+            
+            const texture = new BABYLON.Texture(path, this.scene);
+            
+            // Wait for texture to load
+            await new Promise((resolve, reject) => {
+                texture.onLoadObservable.add(() => {
+                    console.log(`Successfully loaded texture: ${name}`);
+                    resolve();
+                });
+                texture.onErrorObservable.add(() => {
+                    reject(new Error(`Failed to load texture: ${path}`));
+                });
+            });
+
+            const assetData = {
+                name,
+                category: 'texture',
+                texture: texture,
+                loadedAt: Date.now()
+            };
+
+            this.loadedAssets.set(name, assetData);
+            this.loadingProgress.loaded++;
+            this.notifyProgress();
+            
+            return assetData;
+
+        } catch (error) {
+            console.error(`Failed to load texture ${name}:`, error);
+            this.loadingProgress.failed++;
+            this.loadingProgress.errors.push({ asset: name, error: error.message });
+            this.notifyProgress();
+            
+            // Create placeholder texture
+            const placeholderTexture = new BABYLON.Texture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", this.scene);
+            
+            const assetData = {
+                name,
+                category: 'texture',
+                texture: placeholderTexture,
+                isPlaceholder: true,
+                loadedAt: Date.now()
+            };
+
+            this.loadedAssets.set(name, assetData);
+            return assetData;
+        }
+    }
+
+    /**
      * Load game assets based on configuration
      * @returns {Promise} - Promise resolving when all game assets are loaded
      */
     async loadGameAssets() {
-        const gameAssets = [
-            // Essential UI assets
-            {
-                name: 'loadingImage',
-                folder: GameConfig.assets.images,
-                filename: 'LoadingImage.png',
-                category: 'essential'
-            },
-            
-            // Weapons
-            {
-                name: 'ak47',
-                folder: GameConfig.assets.weapons,
-                filename: 'ak47.glb',
-                category: 'gameplay'
-            },
-            {
-                name: 'pistol',
-                folder: GameConfig.assets.weapons,
-                filename: 'pistol.gltf',
-                category: 'gameplay'
-            },
-            {
-                name: 'sniper',
-                folder: GameConfig.assets.weapons,
-                filename: 'sniper.glb',
-                category: 'gameplay'
-            },
-            
-            // Map props
-            {
-                name: 'crate',
-                folder: GameConfig.assets.basePath + 'props/',
-                filename: 'crate.glb',
-                category: 'gameplay'
-            },
-            {
-                name: 'barrel',
-                folder: GameConfig.assets.basePath + 'props/',
-                filename: 'barrel.glb',
-                category: 'optional'
-            }
-        ];
+        // Import weapon configurations
+        const { WeaponConfigs, WeaponConstants } = await import('../entities/WeaponConfig.js');
+        
+        const gameAssets = [];
 
+        // Add weapon assets for all weapon types (primary and secondary)
+        const allWeaponTypes = [...WeaponConstants.PRIMARY_WEAPONS, ...WeaponConstants.SECONDARY_WEAPONS];
+        
+        for (const weaponType of allWeaponTypes) {
+            const config = WeaponConfigs[weaponType];
+            if (config && config.modelPath) {
+                // Clean up the path - remove leading './' if present
+                const cleanPath = config.modelPath.replace(/^\.\//, '');
+                const pathParts = cleanPath.split('/');
+                const filename = pathParts.pop();
+                const folder = pathParts.join('/') + '/';
+                
+                gameAssets.push({
+                    name: weaponType,
+                    folder: folder,
+                    filename: filename,
+                    category: 'gameplay'
+                });
+            }
+        }
+
+        console.log('Loading essential assets...');
         await this.loadAssets(gameAssets);
     }
 

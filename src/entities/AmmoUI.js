@@ -3,7 +3,7 @@
  * On-screen ammunition counter display with real-time updates
  */
 
-import * as BABYLON from '@babylonjs/core';
+// BABYLON is loaded globally from CDN in index.html
 import { GameConfig } from '../mainConfig.js';
 import { WeaponType } from './WeaponConfig.js';
 

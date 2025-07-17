@@ -799,94 +799,147 @@ export class UIManager {
     }
 
     /**
-     * Create weapon selector
+     * Create weapon selector dropdown
      * @param {BABYLON.GUI.Container} container - Parent container
      */
     _createWeaponSelector(container) {
-        const weaponContainer = new BABYLON.GUI.Rectangle("weaponSelectorContainer");
-        weaponContainer.heightInPixels = 60;
-        weaponContainer.color = "transparent";
-        weaponContainer.background = "transparent";
-        container.addControl(weaponContainer);
+        // Import weapon configurations
+        import('../entities/WeaponConfig.js').then(({ WeaponConfigs, WeaponConstants }) => {
+            const weaponContainer = new BABYLON.GUI.Rectangle("weaponSelectorContainer");
+            weaponContainer.heightInPixels = 60;
+            weaponContainer.color = "transparent";
+            weaponContainer.background = "transparent";
+            container.addControl(weaponContainer);
 
-        // Weapon label
-        const weaponLabel = new BABYLON.GUI.TextBlock("weaponLabel");
-        weaponLabel.text = "Primary Weapon";
-        weaponLabel.color = GameConfig.theme.colors.textSecondary;
-        weaponLabel.fontSize = 14;
-        weaponLabel.fontFamily = GameConfig.theme.fonts.primary;
-        weaponLabel.heightInPixels = 20;
-        weaponLabel.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        weaponLabel.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        weaponLabel.topInPixels = 5;
-        weaponContainer.addControl(weaponLabel);
+            // Weapon label
+            const weaponLabel = new BABYLON.GUI.TextBlock("weaponLabel");
+            weaponLabel.text = "Primary Weapon";
+            weaponLabel.color = GameConfig.theme.colors.textSecondary;
+            weaponLabel.fontSize = 14;
+            weaponLabel.fontFamily = GameConfig.theme.fonts.primary;
+            weaponLabel.heightInPixels = 20;
+            weaponLabel.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            weaponLabel.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            weaponLabel.topInPixels = 5;
+            weaponContainer.addControl(weaponLabel);
 
-        // Weapon dropdown/selector
-        const weaponSelector = new BABYLON.GUI.Rectangle("weaponSelector");
-        weaponSelector.widthInPixels = 200;
-        weaponSelector.heightInPixels = 30;
-        weaponSelector.color = GameConfig.theme.colors.border;
-        weaponSelector.background = GameConfig.theme.colors.backgroundButton;
-        weaponSelector.cornerRadius = 4;
-        weaponSelector.thickness = 1;
-        weaponSelector.topInPixels = 15;
-        weaponContainer.addControl(weaponSelector);
+            // Get primary weapons only
+            const primaryWeapons = WeaponConstants.PRIMARY_WEAPONS.map(weaponType => ({
+                type: weaponType,
+                config: WeaponConfigs[weaponType]
+            }));
 
-        // Current weapon text
-        const currentWeaponText = new BABYLON.GUI.TextBlock("currentWeaponText");
-        currentWeaponText.text = "Bulldog Assault Rifle";
-        currentWeaponText.color = GameConfig.theme.colors.textPrimary;
-        currentWeaponText.fontSize = 12;
-        currentWeaponText.fontFamily = GameConfig.theme.fonts.primary;
-        currentWeaponText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        currentWeaponText.leftInPixels = 10;
-        weaponSelector.addControl(currentWeaponText);
+            let currentWeaponIndex = 0;
+            let dropdownOpen = false;
 
-        // Dropdown arrow
-        const dropdownArrow = new BABYLON.GUI.TextBlock("dropdownArrow");
-        dropdownArrow.text = "▼";
-        dropdownArrow.color = GameConfig.theme.colors.textSecondary;
-        dropdownArrow.fontSize = 10;
-        dropdownArrow.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        dropdownArrow.rightInPixels = 10;
-        weaponSelector.addControl(dropdownArrow);
-
-        // Available weapons
-        const weapons = [
-            { name: "Bulldog Assault Rifle", id: "bulldog" },
-            { name: "Carbine SMG", id: "carbine" },
-            { name: "Pistol", id: "pistol" }
-        ];
-
-        let currentWeaponIndex = 0;
-
-        // Click handler to cycle through weapons
-        weaponSelector.onPointerClickObservable.add(() => {
-            currentWeaponIndex = (currentWeaponIndex + 1) % weapons.length;
-            const selectedWeapon = weapons[currentWeaponIndex];
-            currentWeaponText.text = selectedWeapon.name;
-
-            // Update player weapon
-            if (this.game.localPlayer) {
-                this.game.localPlayer.setWeapon({
-                    name: selectedWeapon.id,
-                    displayName: selectedWeapon.name,
-                    fireRate: selectedWeapon.id === 'pistol' ? 300 : selectedWeapon.id === 'carbine' ? 150 : 500,
-                    ammo: 30,
-                    reserveAmmo: 90
-                });
-            }
-
-            console.log(`Selected weapon: ${selectedWeapon.name}`);
-        });
-
-        // Hover effects
-        weaponSelector.onPointerEnterObservable.add(() => {
-            weaponSelector.background = GameConfig.theme.colors.backgroundButtonHover;
-        });
-
-        weaponSelector.onPointerOutObservable.add(() => {
+            // Main selector button
+            const weaponSelector = new BABYLON.GUI.Rectangle("weaponSelector");
+            weaponSelector.widthInPixels = 200;
+            weaponSelector.heightInPixels = 30;
+            weaponSelector.color = GameConfig.theme.colors.border;
             weaponSelector.background = GameConfig.theme.colors.backgroundButton;
+            weaponSelector.cornerRadius = 4;
+            weaponSelector.thickness = 1;
+            weaponSelector.topInPixels = 15;
+            weaponContainer.addControl(weaponSelector);
+
+            // Current weapon text
+            const currentWeaponText = new BABYLON.GUI.TextBlock("currentWeaponText");
+            currentWeaponText.text = primaryWeapons[0].config.name;
+            currentWeaponText.color = GameConfig.theme.colors.textPrimary;
+            currentWeaponText.fontSize = 12;
+            currentWeaponText.fontFamily = GameConfig.theme.fonts.primary;
+            currentWeaponText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            currentWeaponText.leftInPixels = 10;
+            weaponSelector.addControl(currentWeaponText);
+
+            // Dropdown arrow
+            const dropdownArrow = new BABYLON.GUI.TextBlock("dropdownArrow");
+            dropdownArrow.text = "▼";
+            dropdownArrow.color = GameConfig.theme.colors.textSecondary;
+            dropdownArrow.fontSize = 10;
+            dropdownArrow.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            dropdownArrow.rightInPixels = 10;
+            weaponSelector.addControl(dropdownArrow);
+
+            // Dropdown menu container
+            const dropdownMenu = new BABYLON.GUI.Rectangle("dropdownMenu");
+            dropdownMenu.widthInPixels = 200;
+            dropdownMenu.heightInPixels = primaryWeapons.length * 35;
+            dropdownMenu.color = GameConfig.theme.colors.border;
+            dropdownMenu.background = GameConfig.theme.colors.backgroundPanel;
+            dropdownMenu.cornerRadius = 4;
+            dropdownMenu.thickness = 1;
+            dropdownMenu.topInPixels = 45;
+            dropdownMenu.isVisible = false;
+            weaponContainer.addControl(dropdownMenu);
+
+            // Create dropdown options
+            primaryWeapons.forEach((weapon, index) => {
+                const optionButton = new BABYLON.GUI.Rectangle(`weaponOption_${index}`);
+                optionButton.widthInPixels = 198;
+                optionButton.heightInPixels = 33;
+                optionButton.color = "transparent";
+                optionButton.background = "transparent";
+                optionButton.topInPixels = (index * 35) - (dropdownMenu.heightInPixels / 2) + 17;
+                dropdownMenu.addControl(optionButton);
+
+                const optionText = new BABYLON.GUI.TextBlock(`weaponOptionText_${index}`);
+                optionText.text = weapon.config.name;
+                optionText.color = GameConfig.theme.colors.textPrimary;
+                optionText.fontSize = 12;
+                optionText.fontFamily = GameConfig.theme.fonts.primary;
+                optionText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+                optionText.leftInPixels = 10;
+                optionButton.addControl(optionText);
+
+                // Option hover effects
+                optionButton.onPointerEnterObservable.add(() => {
+                    optionButton.background = GameConfig.theme.colors.backgroundButtonHover;
+                });
+
+                optionButton.onPointerOutObservable.add(() => {
+                    optionButton.background = "transparent";
+                });
+
+                // Option click handler
+                optionButton.onPointerClickObservable.add(() => {
+                    currentWeaponIndex = index;
+                    currentWeaponText.text = weapon.config.name;
+                    dropdownMenu.isVisible = false;
+                    dropdownOpen = false;
+                    dropdownArrow.text = "▼";
+
+                    // Update player weapon
+                    if (this.game.localPlayer) {
+                        this.game.localPlayer.setWeapon(weapon.type, weapon.config);
+                    }
+
+                    console.log(`Selected weapon: ${weapon.config.name}`);
+                });
+            });
+
+            // Main selector click handler
+            weaponSelector.onPointerClickObservable.add(() => {
+                dropdownOpen = !dropdownOpen;
+                dropdownMenu.isVisible = dropdownOpen;
+                dropdownArrow.text = dropdownOpen ? "▲" : "▼";
+            });
+
+            // Hover effects for main selector
+            weaponSelector.onPointerEnterObservable.add(() => {
+                weaponSelector.background = GameConfig.theme.colors.backgroundButtonHover;
+            });
+
+            weaponSelector.onPointerOutObservable.add(() => {
+                weaponSelector.background = GameConfig.theme.colors.backgroundButton;
+            });
+
+            // Set initial weapon
+            if (this.game.localPlayer) {
+                const initialWeapon = primaryWeapons[0];
+                this.game.localPlayer.setWeapon(initialWeapon.type, initialWeapon.config);
+            }
         });
     }
 

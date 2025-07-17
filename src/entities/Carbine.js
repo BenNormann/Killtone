@@ -3,7 +3,6 @@
  * Semi-automatic rifle with 50 damage and 12-round magazine
  */
 
-import * as BABYLON from '@babylonjs/core';
 import { WeaponBase } from './WeaponBase.js';
 import { WeaponConfigs, WeaponType, MuzzleFlashType } from './WeaponConfig.js';
 

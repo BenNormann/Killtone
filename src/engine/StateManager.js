@@ -412,7 +412,7 @@ export class StateManager {
 
         // Resume audio
         if (this.game.audioManager) {
-            this.game.audioManager.resumeGameAudio();
+            this.game.audioManager.resume();
         }
 
         // Resume game entities

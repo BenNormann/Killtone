@@ -3,7 +3,7 @@
  * Manages all visual effects for weapons including muzzle flashes and knife trails
  */
 
-import * as BABYLON from '@babylonjs/core';
+// BABYLON is loaded globally from CDN in index.html
 import { MuzzleFlashType, WeaponConstants } from './WeaponConfig.js';
 
 export class WeaponEffects {

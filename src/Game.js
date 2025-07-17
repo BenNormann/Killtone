@@ -681,6 +681,9 @@ export class Game {
             const { AssetManager } = await import('./engine/AssetManager.js');
             this.assetManager = new AssetManager(this);
 
+            // Load game assets including weapons
+            await this.assetManager.loadGameAssets();
+
             console.log('Asset Manager initialized successfully');
             return true;
 

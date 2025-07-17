@@ -3,7 +3,7 @@
  * Handles bullet physics, hit detection, and damage application
  */
 
-import * as BABYLON from '@babylonjs/core';
+// BABYLON is loaded globally from CDN in index.html
 import GameConfig from '../mainConfig.js';
 
 export class Projectile {

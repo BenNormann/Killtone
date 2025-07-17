@@ -3,7 +3,6 @@
  * Semi-automatic sidearm with 20 damage and 14-round magazine
  */
 
-import * as BABYLON from '@babylonjs/core';
 import { WeaponBase } from './WeaponBase.js';
 import { WeaponConfigs, WeaponType, MuzzleFlashType } from './WeaponConfig.js';
 

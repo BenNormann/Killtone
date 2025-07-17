@@ -3,7 +3,7 @@
  * Base class for all weapons with common functionality
  */
 
-import * as BABYLON from '@babylonjs/core';
+// BABYLON is loaded globally from CDN in index.html
 import { WeaponConstants } from './WeaponConfig.js';
 import { AccuracySystem } from './AccuracySystem.js';
 
@@ -158,12 +158,40 @@ export class WeaponBase {
     }
     
     /**
-     * Load weapon model and animations
+     * Load weapon model and animations using AssetManager
      */
-    async loadModel() {
+    async loadModel(assetManager = null) {
         if (!this.config.modelPath) return;
         
         try {
+            // Try to use AssetManager if available
+            if (assetManager && assetManager.getAsset) {
+                const weaponAsset = assetManager.getAsset(this.type);
+                if (weaponAsset && weaponAsset.meshes.length > 0) {
+                    // Clone the asset for this weapon instance
+                    this.model = weaponAsset.meshes[0].clone(`${this.name}_model`);
+                    this.model.setEnabled(false); // Hidden by default
+                    
+                    // Clone animation groups
+                    if (weaponAsset.animationGroups && weaponAsset.animationGroups.length > 0) {
+                        weaponAsset.animationGroups.forEach(animGroup => {
+                            const clonedAnim = animGroup.clone(`${this.name}_${animGroup.name}`, this.model);
+                            this.animationGroups.set(animGroup.name.toLowerCase(), clonedAnim);
+                            clonedAnim.stop(); // Stop all animations initially
+                        });
+                        
+                        console.log(`Loaded ${weaponAsset.animationGroups.length} animations for ${this.name}:`, 
+                            Array.from(this.animationGroups.keys()));
+                    } else {
+                        console.warn(`No animations found for weapon ${this.name}`);
+                    }
+                    
+                    console.log(`Loaded model for ${this.name} from AssetManager`);
+                    return;
+                }
+            }
+            
+            // Fallback to direct loading
             const result = await BABYLON.SceneLoader.ImportMeshAsync(
                 "", 
                 this.config.modelPath, 
@@ -195,7 +223,10 @@ export class WeaponBase {
      * Play reload animation
      */
     playReloadAnimation() {
-        const reloadAnim = this.animationGroups.get('reload');
+        const reloadAnim = this.animationGroups.get('reload') || 
+                          this.animationGroups.get('reloadaction') ||
+                          this.animationGroups.get('action');
+        
         if (reloadAnim) {
             // Stop current animation
             if (this.currentAnimation) {
@@ -205,6 +236,11 @@ export class WeaponBase {
             // Play reload animation once
             reloadAnim.play(false);
             this.currentAnimation = reloadAnim;
+            
+            console.log(`Playing reload animation for ${this.name}`);
+        } else {
+            console.warn(`No reload animation found for ${this.name}. Available animations:`, 
+                Array.from(this.animationGroups.keys()));
         }
     }
     

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The KILLtONE game framework initializes the Babylon.js engine and scene successfully but displays only a black screen because no camera is set as the active camera and existing manager systems are not being instantiated or initialized. The game needs to properly connect and initialize the existing manager classes and set up a basic camera to make the rendering visible.
+The KILLtONE game framework initializes the Babylon.js engine and scene successfully but displays only a black screen because no camera is set as the active camera and existing manager systems are not being instantiated or initialized. The game needs to properly connect and initialize the existing manager classes and set up a player properly.
 
 ## Requirements
 

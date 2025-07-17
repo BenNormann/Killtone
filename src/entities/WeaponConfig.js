@@ -58,7 +58,7 @@ export const WeaponConfigs = {
         accuracy: 0.90,
         recoilAmount: 0.08,
         muzzleFlashType: MuzzleFlashType.DONUT,
-        modelPath: './assets/weapons/pistol/fps_animated_pistol.glb',
+        modelPath: './assets/weapons/pistol/fps_pistol_animated.glb',
         audio: {
             fireSound: 'assets/sounds/GenericGunshot.wav',
             reloadSound: 'assets/sounds/Reload.wav',
@@ -79,7 +79,7 @@ export const WeaponConfigs = {
         accuracy: 0.85,
         recoilAmount: 0.25,
         muzzleFlashType: MuzzleFlashType.DONUT,
-        modelPath: './assets/weapons/shotgun/fps_animated_shotgun.glb',
+        modelPath: './assets/weapons/shotgun/shotgun_animated.glb',
         audio: {
             fireSound: 'assets/sounds/GenericGunshot.wav',
             reloadSound: 'assets/sounds/Reload.wav',
@@ -98,7 +98,7 @@ export const WeaponConfigs = {
         accuracy: 0.80,
         recoilAmount: 0.12,
         muzzleFlashType: MuzzleFlashType.SPIKEY,
-        modelPath: './assets/weapons/smg/fps_animated_smg.glb',
+        modelPath: './assets/weapons/smg/fps_smg9_animated.glb',
         audio: {
             fireSound: 'assets/sounds/GenericGunshot.wav',
             reloadSound: 'assets/sounds/Reload.wav',
@@ -117,7 +117,7 @@ export const WeaponConfigs = {
         accuracy: 0.98,
         recoilAmount: 0.3,
         muzzleFlashType: MuzzleFlashType.DONUT,
-        modelPath: './assets/weapons/sniper/fps_animated_sniper.glb',
+        modelPath: './assets/weapons/sniper/fps_50cal.glb',
         audio: {
             fireSound: 'assets/sounds/Sniper.wav',
             reloadSound: 'assets/sounds/Reload.wav',
@@ -137,7 +137,7 @@ export const WeaponConfigs = {
         range: 2.0, // meters
         swingAngle: 60, // degrees
         animationDuration: 4.83, // seconds
-        modelPath: './assets/weapons/knife/fps_animated_knife.glb',
+        modelPath: './assets/weapons/knife/knife_animated.glb',
         audio: {
             fireSound: 'assets/sounds/Knife.wav', // swing sound
             reloadSound: null, // knife doesn't reload
