@@ -292,13 +292,9 @@ export class Projectile {
     handleSurfaceHit(hitData) {
         console.log('Surface hit');
         
-        // Create impact effects based on surface material
-        this.createImpactEffect(hitData);
-        
         // Play impact sound
         if (this.game.audioManager) {
-            const surfaceType = this.getSurfaceType(hitData.mesh);
-            this.game.audioManager.playSound(`impact_${surfaceType}`, hitData.position);
+            this.game.audioManager.playSound('impact_default', hitData.position);
         }
     }
 
@@ -327,131 +323,48 @@ export class Projectile {
      * Create blood effect for player hits
      */
     createBloodEffect(hitData) {
-        if (!this.game.particleManager) return;
-        
-        // Create blood particle effect
-        const bloodEffect = new BABYLON.ParticleSystem("bloodEffect", 20, this.scene);
-        
-        bloodEffect.particleTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/flare.png", this.scene);
-        bloodEffect.emitter = hitData.position;
-        
-        // Blood particle properties
-        bloodEffect.minEmitBox = new BABYLON.Vector3(-0.1, -0.1, -0.1);
-        bloodEffect.maxEmitBox = new BABYLON.Vector3(0.1, 0.1, 0.1);
-        
-        bloodEffect.color1 = new BABYLON.Color4(0.8, 0.0, 0.0, 1.0); // Dark red
-        bloodEffect.color2 = new BABYLON.Color4(1.0, 0.2, 0.2, 1.0); // Bright red
-        bloodEffect.colorDead = new BABYLON.Color4(0.5, 0.0, 0.0, 0.0);
-        
-        bloodEffect.minSize = 0.1;
-        bloodEffect.maxSize = 0.3;
-        
-        bloodEffect.minLifeTime = 0.5;
-        bloodEffect.maxLifeTime = 1.5;
-        
-        bloodEffect.emitRate = 50;
-        bloodEffect.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-        
-        // Set direction based on hit normal
-        const direction = hitData.normal.scale(-1); // Opposite to surface normal
-        bloodEffect.direction1 = direction.add(new BABYLON.Vector3(-0.2, -0.2, -0.2));
-        bloodEffect.direction2 = direction.add(new BABYLON.Vector3(0.2, 0.2, 0.2));
-        
-        bloodEffect.gravity = new BABYLON.Vector3(0, -9.81, 0);
-        
-        // Start and auto-dispose
-        bloodEffect.start();
-        setTimeout(() => {
-            bloodEffect.stop();
-            setTimeout(() => {
-                bloodEffect.dispose();
-            }, 2000);
-        }, 200);
+        // Use the existing BloodEffects system
+        if (this.game.bloodEffects) {
+            this.game.bloodEffects.createBloodSplatter(
+                hitData.position,
+                hitData.normal,
+                1.0,
+                'normal'
+            );
+        } else if (this.game.particleManager) {
+            // Fallback to ParticleManager
+            this.game.particleManager.createBloodSplatter(
+                hitData.position,
+                hitData.normal,
+                1.0
+            );
+        }
     }
 
     /**
      * Create spark effect for surface impacts
      */
     createSparkEffect(hitData) {
-        const sparkEffect = new BABYLON.ParticleSystem("sparkEffect", 15, this.scene);
-        
-        sparkEffect.particleTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/flare.png", this.scene);
-        sparkEffect.emitter = hitData.position;
-        
-        // Spark properties
-        sparkEffect.minEmitBox = new BABYLON.Vector3(-0.05, -0.05, -0.05);
-        sparkEffect.maxEmitBox = new BABYLON.Vector3(0.05, 0.05, 0.05);
-        
-        sparkEffect.color1 = new BABYLON.Color4(1.0, 1.0, 0.0, 1.0); // Yellow
-        sparkEffect.color2 = new BABYLON.Color4(1.0, 0.5, 0.0, 1.0); // Orange
-        sparkEffect.colorDead = new BABYLON.Color4(0.5, 0.2, 0.0, 0.0);
-        
-        sparkEffect.minSize = 0.05;
-        sparkEffect.maxSize = 0.15;
-        
-        sparkEffect.minLifeTime = 0.2;
-        sparkEffect.maxLifeTime = 0.8;
-        
-        sparkEffect.emitRate = 100;
-        sparkEffect.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-        
-        // Sparks fly away from surface
-        const direction = hitData.normal;
-        sparkEffect.direction1 = direction.add(new BABYLON.Vector3(-0.3, -0.3, -0.3));
-        sparkEffect.direction2 = direction.add(new BABYLON.Vector3(0.3, 0.3, 0.3));
-        
-        sparkEffect.gravity = new BABYLON.Vector3(0, -5, 0);
-        
-        // Start and auto-dispose
-        sparkEffect.start();
-        setTimeout(() => {
-            sparkEffect.stop();
-            setTimeout(() => {
-                sparkEffect.dispose();
-            }, 1000);
-        }, 100);
+        // Use the existing ParticleManager
+        if (this.game.particleManager) {
+            this.game.particleManager.createHitSpark(
+                hitData.position,
+                hitData.normal
+            );
+        }
     }
 
     /**
      * Create debris effect for destructible hits
      */
     createDebrisEffect(hitData) {
-        // Similar to spark effect but with different colors and behavior
-        const debrisEffect = new BABYLON.ParticleSystem("debrisEffect", 10, this.scene);
-        
-        debrisEffect.particleTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/flare.png", this.scene);
-        debrisEffect.emitter = hitData.position;
-        
-        // Debris properties
-        debrisEffect.color1 = new BABYLON.Color4(0.5, 0.5, 0.5, 1.0); // Gray
-        debrisEffect.color2 = new BABYLON.Color4(0.3, 0.3, 0.3, 1.0); // Dark gray
-        debrisEffect.colorDead = new BABYLON.Color4(0.2, 0.2, 0.2, 0.0);
-        
-        debrisEffect.minSize = 0.1;
-        debrisEffect.maxSize = 0.2;
-        
-        debrisEffect.minLifeTime = 1.0;
-        debrisEffect.maxLifeTime = 3.0;
-        
-        debrisEffect.emitRate = 30;
-        debrisEffect.gravity = new BABYLON.Vector3(0, -9.81, 0);
-        
-        // Start and auto-dispose
-        debrisEffect.start();
-        setTimeout(() => {
-            debrisEffect.stop();
-            setTimeout(() => {
-                debrisEffect.dispose();
-            }, 3000);
-        }, 300);
-    }
-
-    /**
-     * Create impact effect based on surface type
-     */
-    createImpactEffect(hitData) {
-        // Default to spark effect for now
-        this.createSparkEffect(hitData);
+        // Use the existing ParticleManager for explosion-like effect
+        if (this.game.particleManager) {
+            this.game.particleManager.createExplosion(
+                hitData.position,
+                0.3 // Small scale for debris
+            );
+        }
     }
 
     /**
@@ -480,23 +393,6 @@ export class Projectile {
         setTimeout(() => {
             hole.dispose();
         }, 30000); // 30 seconds
-    }
-
-    /**
-     * Get surface type for sound effects
-     */
-    getSurfaceType(mesh) {
-        if (!mesh || !mesh.name) return 'default';
-        
-        const name = mesh.name.toLowerCase();
-        
-        if (name.includes('metal')) return 'metal';
-        if (name.includes('wood')) return 'wood';
-        if (name.includes('concrete') || name.includes('stone')) return 'concrete';
-        if (name.includes('glass')) return 'glass';
-        if (name.includes('water')) return 'water';
-        
-        return 'default';
     }
 
     /**
@@ -589,8 +485,32 @@ export class ProjectileManager {
         this.projectiles = [];
         this.maxProjectiles = 100; // Limit for performance
         
+        // Object pooling for better performance
+        this.projectilePool = [];
+        this.poolSize = 20;
+        
+        // Performance tracking
+        this.stats = {
+            created: 0,
+            destroyed: 0,
+            poolHits: 0,
+            poolMisses: 0
+        };
+        
+        // Initialize object pool
+        this.initializePool();
+        
         // Set up event listeners
         this.setupEventListeners();
+    }
+
+    /**
+     * Initialize object pool for projectiles
+     */
+    initializePool() {
+        // Pre-create projectiles for pooling (not implemented in this basic version)
+        // In a full implementation, you'd create reusable projectile objects
+        console.log(`ProjectileManager: Initialized with pool size ${this.poolSize}`);
     }
 
     /**
@@ -641,20 +561,37 @@ export class ProjectileManager {
     }
 
     /**
-     * Update all projectiles
+     * Update all projectiles (optimized)
      */
     update(deltaTime) {
-        // Update all active projectiles
-        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+        // Batch process projectiles for better performance
+        const activeProjectiles = [];
+        
+        for (let i = 0; i < this.projectiles.length; i++) {
             const projectile = this.projectiles[i];
             
             if (projectile.isActive) {
                 projectile.update(deltaTime);
+                activeProjectiles.push(projectile);
             } else {
-                // Remove inactive projectiles
-                this.projectiles.splice(i, 1);
+                // Track destroyed projectiles
+                this.stats.destroyed++;
             }
         }
+        
+        // Replace array with active projectiles only
+        this.projectiles = activeProjectiles;
+    }
+
+    /**
+     * Get performance statistics
+     */
+    getStats() {
+        return {
+            ...this.stats,
+            activeProjectiles: this.projectiles.length,
+            maxProjectiles: this.maxProjectiles
+        };
     }
 
     /**

@@ -4,6 +4,9 @@
  * Handles 3D audio, music playback, state management, and event coordination
  */
 
+import CommonUtils from '../utils/CommonUtils.js';
+import MathUtils from '../utils/MathUtils.js';
+
 export class AudioSystem {
     constructor(game) {
         this.game = game;
@@ -316,7 +319,7 @@ export class AudioSystem {
             panner.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
 
-            const sourceId = Date.now() + '_' + Math.random();
+            const sourceId = CommonUtils.generateAudioSourceId();
             this.activeAudioSources.set(sourceId, { source, panner, gainNode });
 
             source.onended = () => {
@@ -434,7 +437,7 @@ export class AudioSystem {
                 return;
             }
 
-            const randomStep = stepSounds[Math.floor(Math.random() * stepSounds.length)];
+            const randomStep = stepSounds[MathUtils.randomInt(0, stepSounds.length - 1)];
             const volume = isSprinting ? 0.4 : 0.3;
 
             try {
@@ -450,7 +453,7 @@ export class AudioSystem {
                 audio.volume = Math.min(1.0, Math.max(0.0, volume * this.masterVolume));
                 audio.loop = false;
 
-                const stepId = `step_${Date.now()}_${Math.random()}`;
+                const stepId = CommonUtils.generateStepSoundId();
                 this.stepSoundPool.set(stepId, audio);
 
                 audio.addEventListener('ended', () => {
@@ -521,7 +524,7 @@ export class AudioSystem {
         }
 
         const stepSounds = ['src/assets/sounds/steps/step1.mp3', 'src/assets/sounds/steps/step2.mp3'];
-        const randomStep = stepSounds[Math.floor(Math.random() * stepSounds.length)];
+        const randomStep = stepSounds[MathUtils.randomInt(0, stepSounds.length - 1)];
         const volume = isSprinting ? 0.2 : 0.15;
 
         this.remotePlayerStepTimes.set(playerId, now);

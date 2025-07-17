@@ -5,6 +5,8 @@
 
 import { GameConfig } from '../mainConfig.js';
 import { EditorTools } from './EditorTools.js';
+import CommonUtils from '../utils/CommonUtils.js';
+import MathUtils from '../utils/MathUtils.js';
 
 export class MapEditor {
     constructor(game) {
@@ -99,8 +101,8 @@ export class MapEditor {
         // Create ArcRotateCamera for editor view
         this.editorCamera = new BABYLON.ArcRotateCamera(
             'editorCamera',
-            -Math.PI / 2, // Alpha (horizontal rotation)
-            Math.PI / 2.5, // Beta (vertical rotation)
+            -MathUtils.HALF_PI, // Alpha (horizontal rotation)
+            MathUtils.PI / 2.5, // Beta (vertical rotation)
             50, // Radius (distance from target)
             new BABYLON.Vector3(0, 0, 0), // Target position
             this.scene
@@ -112,7 +114,7 @@ export class MapEditor {
 
         // Set camera limits
         this.editorCamera.lowerBetaLimit = 0.1;
-        this.editorCamera.upperBetaLimit = Math.PI / 2;
+        this.editorCamera.upperBetaLimit = MathUtils.HALF_PI;
         this.editorCamera.lowerRadiusLimit = 2;
         this.editorCamera.upperRadiusLimit = 200;
 
@@ -1065,11 +1067,7 @@ export class MapEditor {
 
         // Round position/rotation values to avoid floating point precision issues
         const roundVector = (vec) => {
-            if (vec) {
-                if (typeof vec.x === 'number') vec.x = Math.round(vec.x * 1000) / 1000;
-                if (typeof vec.y === 'number') vec.y = Math.round(vec.y * 1000) / 1000;
-                if (typeof vec.z === 'number') vec.z = Math.round(vec.z * 1000) / 1000;
-            }
+            return CommonUtils.roundVector(vec, 3);
         };
 
         cleaned.spawnPoints.forEach(spawn => {
@@ -1157,7 +1155,7 @@ export class MapEditor {
      * @returns {string} - Generated map ID
      */
     generateMapId() {
-        return 'map_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        return CommonUtils.generateMapId();
     }
 
     /**

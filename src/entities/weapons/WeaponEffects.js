@@ -5,6 +5,8 @@
 
 // BABYLON is loaded globally from CDN in index.html
 import { MuzzleFlashType, WeaponConstants } from './WeaponConfig.js';
+import CommonUtils from '../../utils/CommonUtils.js';
+import MathUtils from '../../utils/MathUtils.js';
 
 export class WeaponEffects {
     constructor(scene) {
@@ -78,7 +80,7 @@ export class WeaponEffects {
         // Configure the flash
         const config = this.muzzleFlashConfig[type];
         const effect = {
-            id: `muzzleflash_${Date.now()}_${Math.random()}`,
+            id: CommonUtils.generateMuzzleFlashId(),
             mesh: flashMesh,
             type: type,
             startTime: performance.now() / 1000,
@@ -146,7 +148,7 @@ export class WeaponEffects {
         
         const config = this.knifeTrailConfig;
         const effect = {
-            id: `knifetrail_${Date.now()}_${Math.random()}`,
+            id: CommonUtils.generateKnifeTrailId(),
             mesh: trailMesh,
             startTime: performance.now() / 1000,
             duration: config.duration,
@@ -397,7 +399,7 @@ export class WeaponEffects {
             const spikes = [];
             const spikeCount = 8;
             for (let i = 0; i < spikeCount; i++) {
-                const angle = (i / spikeCount) * Math.PI * 2;
+                const angle = (i / spikeCount) * MathUtils.TWO_PI;
                 const spike = BABYLON.MeshBuilder.CreateCylinder(`spike_${i}`, {
                     height: 0.8,
                     diameterTop: 0.02,
@@ -409,12 +411,12 @@ export class WeaponEffects {
                 const distance = 0.3;
                 spike.position.x = Math.cos(angle) * distance;
                 spike.position.y = Math.sin(angle) * distance;
-                spike.rotation.z = angle + Math.PI / 2;
+                spike.rotation.z = angle + MathUtils.HALF_PI;
                 
                 // Add some randomness to spike length and angle
-                const randomScale = 0.8 + Math.random() * 0.4;
+                const randomScale = MathUtils.random(0.8, 1.2);
                 spike.scaling.y = randomScale;
-                spike.rotation.z += (Math.random() - 0.5) * 0.3;
+                spike.rotation.z += MathUtils.random(-0.15, 0.15);
                 
                 spikes.push(spike);
             }
@@ -429,11 +431,11 @@ export class WeaponEffects {
                 }, this.scene);
                 
                 // Random position around center
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 0.15 + Math.random() * 0.2;
+                const angle = MathUtils.random(0, MathUtils.TWO_PI);
+                const distance = MathUtils.random(0.15, 0.35);
                 smallSpike.position.x = Math.cos(angle) * distance;
                 smallSpike.position.y = Math.sin(angle) * distance;
-                smallSpike.rotation.z = angle + Math.PI / 2 + (Math.random() - 0.5) * 0.5;
+                smallSpike.rotation.z = angle + MathUtils.HALF_PI + MathUtils.random(-0.25, 0.25);
                 
                 spikes.push(smallSpike);
             }
@@ -554,7 +556,7 @@ export class WeaponEffects {
         if (!effect.mesh || !effect.mesh.material) return;
         
         // Quick fade out
-        const alpha = Math.max(0, 1.0 - (progress * effect.fadeSpeed));
+        const alpha = MathUtils.clamp(1.0 - (progress * effect.fadeSpeed), 0, 1);
         effect.mesh.material.alpha = alpha;
         
         // Scale down slightly as it fades
@@ -572,7 +574,7 @@ export class WeaponEffects {
         if (!effect.mesh || !effect.mesh.material) return;
         
         // Smooth fade out
-        const alpha = Math.max(0, 1.0 - (progress * effect.fadeSpeed));
+        const alpha = MathUtils.clamp(1.0 - (progress * effect.fadeSpeed), 0, 1);
         effect.mesh.material.alpha = alpha;
     }
     

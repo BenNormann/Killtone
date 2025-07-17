@@ -3,6 +3,8 @@
  * Tools for placing and manipulating objects in the map editor
  */
 
+import CommonUtils from '../utils/CommonUtils.js';
+
 export class EditorTools {
     constructor(mapEditor) {
         this.mapEditor = mapEditor;
@@ -479,8 +481,7 @@ export class EditorTools {
             // Snap to grid if enabled
             if (this.mapEditor.snapToGrid) {
                 const gridSize = this.mapEditor.gridSize || 1;
-                position.x = Math.round(position.x / gridSize) * gridSize;
-                position.z = Math.round(position.z / gridSize) * gridSize;
+                position = CommonUtils.snapToGrid(position, gridSize);
             }
 
             // Update preview position
@@ -824,7 +825,7 @@ export class EditorTools {
      * @returns {string} Unique entity ID
      */
     generateEntityId() {
-        return `entity_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+        return CommonUtils.generateEntityId();
     }
 
     /**
@@ -832,7 +833,7 @@ export class EditorTools {
      * @returns {string} Unique prop ID
      */
     generatePropId() {
-        return `prop_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+        return CommonUtils.generatePropId();
     }
 
     /**
@@ -840,7 +841,7 @@ export class EditorTools {
      * @returns {string} Unique primitive ID
      */
     generatePrimitiveId() {
-        return `primitive_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+        return CommonUtils.generatePrimitiveId();
     }
 
     /**

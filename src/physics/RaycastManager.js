@@ -4,6 +4,7 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
+import MathUtils from '../utils/MathUtils.js';
 
 export class RaycastManager {
     constructor(scene, physicsManager = null) {
@@ -311,8 +312,8 @@ export class RaycastManager {
      */
     calculateSpreadDirection(baseDirection, spreadAngle) {
         // Generate random angles within the spread cone
-        const randomAngleX = (Math.random() - 0.5) * spreadAngle;
-        const randomAngleY = (Math.random() - 0.5) * spreadAngle;
+        const randomAngleX = MathUtils.random(-0.5, 0.5) * spreadAngle;
+        const randomAngleY = MathUtils.random(-0.5, 0.5) * spreadAngle;
         
         // Create rotation matrix for the spread
         const rotationMatrix = BABYLON.Matrix.RotationYawPitchRoll(randomAngleY, randomAngleX, 0);

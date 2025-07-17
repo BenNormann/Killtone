@@ -11,9 +11,7 @@ export class Pistol extends WeaponBase {
         // Get pistol configuration
         const config = WeaponConfigs[WeaponType.PISTOL];
 
-        super(config, scene, effectsManager, accuracySystem);
-
-        this.game = game;
+        super(config, scene, effectsManager, accuracySystem, game);
 
         // Pistol-specific properties
         this.lastShotTime = 0;
@@ -120,30 +118,12 @@ export class Pistol extends WeaponBase {
     }
 
     /**
-     * Fire the pistol weapon
+     * Create pistol-specific projectile data
      */
-    fire(origin, direction, game = null) {
-        // Check if weapon can fire
-        if (!this.canFireWeapon()) {
-            console.log('Pistol: Cannot fire - weapon not ready');
-            return false;
-        }
-
-        // Check fire rate (semi-automatic with high fire rate)
-        const currentTime = performance.now() / 1000;
-        if (currentTime - this.lastShotTime < this.fireRate) {
-            return false; // Too soon to fire again
-        }
-
-        console.log(`Pistol: Firing - Ammo: ${this.currentAmmo}/${this.magazineSize}`);
-
-        // Apply accuracy to shot direction
-        const accurateDirection = this.applyAccuracyToDirection(direction);
-
-        // Create projectile data
-        const projectileData = {
+    createProjectileData(origin, direction, game = null) {
+        return {
             origin: origin.clone(),
-            direction: accurateDirection,
+            direction: direction,
             weapon: {
                 name: this.name,
                 type: this.type,
@@ -155,61 +135,10 @@ export class Pistol extends WeaponBase {
             showTrail: true,
             playerId: 'local' // TODO: Get from player system
         };
-
-        // Create projectile through game's projectile manager
-        if (game && game.projectileManager) {
-            game.projectileManager.createProjectile(projectileData);
-        } else {
-            console.warn('Pistol: No projectile manager available');
-        }
-
-        // Create muzzle flash effect
-        this.createMuzzleFlash(origin, direction);
-
-        // Play weapon fire sound
-        this.playFireSound();
-
-        // Apply recoil effects
-        this.applyRecoil();
-        this.addRecoilToAccuracy();
-
-        // Consume ammunition
-        this.consumeAmmo(1);
-
-        // Set firing cooldown
-        this.setFiringCooldown();
-        this.lastShotTime = currentTime;
-
-        // Trigger fire event with projectile data
-        if (this.onFire) {
-            this.onFire({
-                ...this.getWeaponInfo(),
-                projectileData: projectileData
-            });
-        }
-
-        // Emit weapon fire event for projectile system
-        if (game && game.eventEmitter) {
-            game.eventEmitter.emit('weapon.fire', projectileData);
-        }
-
-        console.log(`Pistol: Shot fired - Remaining ammo: ${this.currentAmmo}`);
-        return true;
     }
 
     /**
-     * Play weapon fire sound
-     */
-    playFireSound() {
-        if (this.game && this.game.audioManager) {
-            this.game.audioManager.playWeaponSound(this.config);
-        } else {
-            console.warn('Pistol: No audio manager available for fire sound');
-        }
-    }
-
-    /**
-     * Create muzzle flash effect
+     * Create pistol-specific muzzle flash effect
      */
     createMuzzleFlash(origin, direction) {
         if (!this.effectsManager) {
@@ -286,32 +215,6 @@ export class Pistol extends WeaponBase {
             this.isAnimationPaused = false;
 
             console.log(`Pistol: Animation resumed from frame ${currentFrame}`);
-        }
-    }
-
-    /**
-     * Start reloading the weapon (override to add sound)
-     */
-    reload() {
-        // Call parent reload method
-        const reloadStarted = super.reload();
-        
-        if (reloadStarted) {
-            // Play reload sound when reload starts
-            this.playReloadSound();
-        }
-        
-        return reloadStarted;
-    }
-
-    /**
-     * Play reload sound
-     */
-    playReloadSound() {
-        if (this.game && this.game.audioManager) {
-            this.game.audioManager.playReloadSound(this.config);
-        } else {
-            console.warn('Pistol: No audio manager available for reload sound');
         }
     }
 

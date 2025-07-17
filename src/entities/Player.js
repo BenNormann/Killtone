@@ -5,6 +5,7 @@
 
 // BABYLON is loaded globally from CDN in index.html
 import GameConfig from '../mainConfig.js';
+import PlayerUtils from './PlayerUtils.js';
 
 export class Player {
     constructor(game, scene, spawnPosition = new BABYLON.Vector3(0, 2, 0)) {
@@ -740,7 +741,7 @@ export class Player {
      * Get player position
      */
     getPosition() {
-        return this.position.clone();
+        return PlayerUtils.getPosition(this);
     }
 
     /**
@@ -761,7 +762,7 @@ export class Player {
      * Check if player is alive
      */
     isPlayerAlive() {
-        return this.isAlive;
+        return PlayerUtils.isPlayerAlive(this);
     }
 
     /**

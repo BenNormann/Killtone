@@ -4,11 +4,11 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
+import { BaseManager } from './BaseManager.js';
 
-export class UIManager {
+export class UIManager extends BaseManager {
     constructor(game) {
-        this.game = game;
-        this.scene = game.scene;
+        super(game);
         this.engine = game.engine;
 
         // UI elements
@@ -1376,7 +1376,7 @@ export class UIManager {
     /**
      * Cleanup resources
      */
-    dispose() {
+    _doDispose() {
         if (this.fullscreenUI) {
             this.fullscreenUI.dispose();
         }
@@ -1389,8 +1389,6 @@ export class UIManager {
         this.mapEditor = null;
         this.fullscreenUI = null;
 
-        this.game = null;
-        this.scene = null;
         this.engine = null;
     }
 }

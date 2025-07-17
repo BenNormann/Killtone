@@ -4,6 +4,7 @@
  */
 
 import { WeaponConstants } from '../WeaponConfig.js';
+import MathUtils from '../../utils/MathUtils.js';
 
 export class AccuracySystem {
     constructor() {
@@ -90,9 +91,10 @@ export class AccuracySystem {
             const currentPattern = this.getCurrentRecoilPattern();
             const recoveryRate = currentPattern ? currentPattern.recovery : this.recoveryRate;
             
-            this.recoilAccumulation = Math.max(
-                0, 
-                this.recoilAccumulation - (recoveryRate * deltaTime)
+            this.recoilAccumulation = MathUtils.clamp(
+                this.recoilAccumulation - (recoveryRate * deltaTime),
+                0,
+                Infinity
             );
         }
         
@@ -210,11 +212,11 @@ export class AccuracySystem {
         const recoilStrength = this.recoilAccumulation / pattern.maxAccumulation;
         
         // Generate random recoil within pattern bounds
-        const horizontalRecoil = (Math.random() - 0.5) * 2 * 
+        const horizontalRecoil = MathUtils.random(-1, 1) * 
                                pattern.horizontal.max * recoilStrength;
         const verticalRecoil = pattern.vertical.min + 
                               (pattern.vertical.max - pattern.vertical.min) * 
-                              Math.random() * recoilStrength;
+                              MathUtils.random(0, 1) * recoilStrength;
         
         // Apply recoil to direction vector
         const recoiledDirection = this.cloneDirection(direction);

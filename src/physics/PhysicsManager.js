@@ -4,6 +4,7 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
+import CommonUtils from '../utils/CommonUtils.js';
 
 export class PhysicsManager {
     constructor(scene) {
@@ -313,7 +314,7 @@ export class PhysicsManager {
      * Generate unique body ID
      */
     generateBodyId() {
-        return `physics_body_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return CommonUtils.generatePhysicsBodyId();
     }
 
     /**

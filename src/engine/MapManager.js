@@ -4,11 +4,12 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
+import { BaseManager } from './BaseManager.js';
+import CommonUtils from '../utils/CommonUtils.js';
 
-export class MapManager {
+export class MapManager extends BaseManager {
     constructor(game) {
-        this.game = game;
-        this.scene = game.scene;
+        super(game);
         this.assetManager = game.assetManager;
         
         // Current map state
@@ -44,22 +45,17 @@ export class MapManager {
         this.onMapLoadComplete = null;
         this.onMapLoadError = null;
         
-        this.initialize();
     }
 
     /**
      * Initialize the MapManager
      */
-    initialize() {
-        console.log('Initializing MapManager...');
-        
+    async _doInitialize() {
         // Register default maps
         this.registerDefaultMaps();
         
         // Set up event listeners
         this.setupEventListeners();
-        
-        console.log('MapManager initialized');
     }
 
     /**
@@ -383,7 +379,7 @@ export class MapManager {
     async spawnBasicObject(objData) {
         try {
             let mesh;
-            const objName = `${objData.type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const objName = CommonUtils.generateId(objData.type);
 
             // Create mesh based on type
             switch (objData.type) {
@@ -801,9 +797,7 @@ export class MapManager {
     /**
      * Dispose of the MapManager and clean up resources
      */
-    dispose() {
-        console.log('Disposing MapManager...');
-        
+    _doDispose() {
         // Unload current map
         if (this.currentMap) {
             this.unloadCurrentMap();
@@ -819,8 +813,6 @@ export class MapManager {
         this.onMapLoadProgress = null;
         this.onMapLoadComplete = null;
         this.onMapLoadError = null;
-
-        console.log('MapManager disposed');
     }
 }
 

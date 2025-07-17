@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Prevent Method Duplication",
+  "description": "Monitors JavaScript files for changes and ensures no duplicate methods are created when existing methods could be reused from other files",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.js",
+      "server/**/*.js",
+      "*.js"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A JavaScript file has been modified. Please review the method_catalog.json to check if any new methods being added already exist in other files. If duplicate functionality is detected, suggest refactoring to reuse existing methods instead of creating duplicates. Ensure the code follows the rule: \"You SHALL never create a duplicated method when you could apply it from another file\""
+  }
+}

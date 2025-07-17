@@ -4,6 +4,7 @@
  */
 
 import { WeaponType, WeaponConfigs } from './WeaponConfig.js';
+import MathUtils from '../../utils/MathUtils.js';
 
 export class AmmoRegistry {
     constructor() {
@@ -61,7 +62,7 @@ export class AmmoRegistry {
         const oldCurrent = ammoData.current;
         const oldMax = ammoData.max;
         
-        ammoData.current = Math.max(0, Math.min(current, max));
+        ammoData.current = MathUtils.clamp(current, 0, max);
         ammoData.max = Math.max(1, max);
         
         // Trigger events if values changed
@@ -101,7 +102,7 @@ export class AmmoRegistry {
         }
         
         const oldCurrent = ammoData.current;
-        ammoData.current = Math.max(0, ammoData.current - amount);
+        ammoData.current = MathUtils.clamp(ammoData.current - amount, 0, ammoData.max);
         
         // Trigger events
         this.triggerAmmoChanged(weaponType, ammoData.current, ammoData.max);

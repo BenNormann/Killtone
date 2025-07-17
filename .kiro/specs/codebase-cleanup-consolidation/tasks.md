@@ -35,10 +35,7 @@
 
 ## Phase 3: Effects Directory Cleanup
 
-- [-] 3. Effects system duplicate method removal
-
-
-
+- [ ] 3. Effects system duplicate method removal
   - Re-read method_catalog.json to identify duplicate effect creation methods across effects files
   - Move createBloodSplatter method from BloodEffects.js to ParticleManager.js
   - Consolidate all createMuzzleFlash methods into single implementation in ParticleManager.js
@@ -49,7 +46,14 @@
 
 ## Phase 4: Engine Directory Cleanup
 
-- [ ] 4. NetworkManager file splitting
+- [x] 4. NetworkManager file splitting
+
+
+
+
+
+
+
   - Re-read method_catalog.json to analyze NetworkManager.js methods and identify logical groupings
   - Create NetworkEvents.js file for event handling methods
   - Create NetworkState.js file for state management methods
@@ -58,7 +62,11 @@
   - Test multiplayer functionality to ensure network operations work correctly
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 4.1 BaseManager class creation
+
+- [x] 4.1 BaseManager class creation
+
+
+
   - Re-read method_catalog.json to identify common patterns across all manager files
   - Create src/engine/BaseManager.js with common initialize, update, dispose methods
   - Update AssetManager.js to extend BaseManager and remove duplicate methods
@@ -71,7 +79,13 @@
 
 ## Phase 5: Entities Directory Cleanup
 
-- [ ] 5. Player and projectile method consolidation
+- [x] 5. Player and projectile method consolidation
+
+
+
+
+
+
   - Re-read method_catalog.json to identify duplicate methods between Player.js and RemotePlayer.js
   - Create src/entities/PlayerUtils.js for shared player methods (getPosition, isPlayerAlive)
   - Move common player methods from Player.js and RemotePlayer.js to PlayerUtils.js
@@ -80,7 +94,11 @@
   - Test local and remote player functionality
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 5.1 Projectile system optimization
+
+
+- [x] 5.1 Projectile system optimization
+
+
   - Re-read method_catalog.json to analyze Projectile.js methods for consolidation opportunities
   - Move performRaycast method to src/physics/RaycastManager.js if not already there
   - Consolidate projectile update methods to reduce file size
@@ -90,8 +108,9 @@
 
 ## Phase 6: Weapons Directory Cleanup
 
-- [ ] 6. WeaponBase inheritance strengthening
+- [x] 6. WeaponBase inheritance strengthening
   - Re-read method_catalog.json to identify all duplicate methods across weapon files
+  - Ensure that GLB files are properly rendered with babylon.js 
   - Move reload method implementation to WeaponBase.js, remove from Carbine.js and Pistol.js
   - Move fire method template to WeaponBase.js, keep weapon-specific implementations in subclasses
   - Move playReloadSound method to WeaponBase.js, remove duplicates
@@ -100,7 +119,9 @@
   - Test all weapon functionality including firing, reloading, and accuracy
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 6.1 Ammunition system consolidation
+- [x] 6.1 Ammunition system consolidation
+
+
   - Re-read method_catalog.json to identify duplicate ammunition methods
   - Consolidate consumeAmmo, getCurrentAmmo, getMaxAmmo methods in AmmoRegistry.js
   - Remove duplicate ammunition methods from WeaponBase.js
@@ -138,8 +159,14 @@
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
 ## Phase 9: Utils Directory Enhancement
+-
+- [x] 9. Shared utilities creation
 
-- [ ] 9. Shared utilities creation
+
+
+
+
+
   - Re-read method_catalog.json to identify remaining duplicate methods across all files
   - Create src/utils/CommonUtils.js for frequently duplicated utility methods
   - Create src/utils/MathUtils.js for mathematical operations used across files
@@ -148,7 +175,11 @@
   - Test functionality to ensure utility methods work correctly
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 9.1 EventEmitter consistency
+- [x] 9.1 EventEmitter consistency
+
+
+
+
   - Re-read method_catalog.json to verify EventEmitter usage across codebase
   - Ensure all files use src/utils/EventEmitter.js consistently
   - Remove any duplicate event handling implementations

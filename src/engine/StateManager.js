@@ -3,7 +3,9 @@
  * Handles LOADING, MAIN_MENU, IN_GAME, PAUSED, MAP_EDITOR states
  */
 
-export class StateManager {
+import { BaseManager } from './BaseManager.js';
+
+export class StateManager extends BaseManager {
     // Game states
     static STATES = {
         LOADING: 'LOADING',
@@ -14,7 +16,7 @@ export class StateManager {
     };
 
     constructor(game) {
-        this.game = game;
+        super(game);
         this.currentState = StateManager.STATES.LOADING;
         this.previousState = null;
         this.stateHandlers = new Map();
@@ -424,7 +426,7 @@ export class StateManager {
     /**
      * Cleanup resources
      */
-    dispose() {
+    _doDispose() {
         // Remove ESC key listener
         if (this._escKeyListener) {
             document.removeEventListener('keydown', this._escKeyListener);
@@ -434,6 +436,5 @@ export class StateManager {
         this.stateHandlers.clear();
         this.currentState = null;
         this.previousState = null;
-        this.game = null;
     }
 }

@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Review Method Catalog",
+  "description": "Automatically reminds to review method_catalog.json before editing any files in the project",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.js",
+      "server/**/*.js",
+      "*.js",
+      "*.py",
+      "*.html"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "IMPORTANT: Before making any changes to this file, you MUST first review the method_catalog.json file to understand existing methods and avoid duplication. Check if any functionality you're about to implement already exists in the catalog."
+  }
+}

@@ -5,6 +5,7 @@
 
 // BABYLON is loaded globally from CDN in index.html
 import GameConfig from '../mainConfig.js';
+import MathUtils from '../utils/MathUtils.js';
 
 export class BloodEffects {
     constructor(game, particleManager) {
@@ -283,8 +284,8 @@ export class BloodEffects {
                 const dropPosition = BABYLON.Vector3.Lerp(startPosition, endPosition, t);
                 
                 // Add some randomness to drop positions
-                dropPosition.x += (Math.random() - 0.5) * 0.2;
-                dropPosition.z += (Math.random() - 0.5) * 0.2;
+                dropPosition.x += MathUtils.random(-0.1, 0.1);
+                dropPosition.z += MathUtils.random(-0.1, 0.1);
                 
                 // Create small blood splatter
                 setTimeout(() => {
@@ -406,7 +407,7 @@ export class BloodEffects {
      */
     update(deltaTime) {
         // Periodic cleanup of old effects
-        if (Math.random() < 0.01) { // 1% chance per frame
+        if (MathUtils.random(0, 1) < 0.01) { // 1% chance per frame
             this.cleanupOldEffects();
         }
     }

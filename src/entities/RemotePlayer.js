@@ -4,6 +4,7 @@
  */
 
 import GameConfig from '../mainConfig.js';
+import PlayerUtils from './PlayerUtils.js';
 
 export class RemotePlayer {
     constructor(game, scene, playerData) {
@@ -183,7 +184,7 @@ export class RemotePlayer {
      * Get health bar color based on health percentage
      */
     getHealthColor() {
-        const healthPercent = this.health / this.maxHealth;
+        const healthPercent = PlayerUtils.getHealthPercentage(this);
         
         if (healthPercent > 0.6) {
             return GameConfig.theme.colors.healthHigh;
@@ -424,7 +425,7 @@ export class RemotePlayer {
      * Get player position
      */
     getPosition() {
-        return this.position.clone();
+        return PlayerUtils.getPosition(this);
     }
     
     /**
@@ -438,7 +439,7 @@ export class RemotePlayer {
      * Check if player is alive
      */
     isPlayerAlive() {
-        return this.isAlive;
+        return PlayerUtils.isPlayerAlive(this);
     }
     
     /**

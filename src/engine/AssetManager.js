@@ -4,11 +4,11 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
+import { BaseManager } from './BaseManager.js';
 
-export class AssetManager {
+export class AssetManager extends BaseManager {
     constructor(game) {
-        this.game = game;
-        this.scene = game.scene;
+        super(game);
         this.loadedAssets = new Map();
 
         this.loadingQueue = [];
@@ -540,9 +540,7 @@ export class AssetManager {
     /**
      * Clear all loaded assets and free memory
      */
-    dispose() {
-        console.log('Disposing AssetManager...');
-        
+    _doDispose() {
         this.loadedAssets.forEach((asset, name) => {
             this.disposeAsset(name);
         });

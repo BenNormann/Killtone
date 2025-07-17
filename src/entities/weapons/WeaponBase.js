@@ -6,9 +6,10 @@
 // BABYLON is loaded globally from CDN in index.html
 import { WeaponConstants } from './WeaponConfig.js';
 import { AccuracySystem } from './AccuracySystem.js';
+import MathUtils from '../../utils/MathUtils.js';
 
 export class WeaponBase {
-    constructor(config, scene, effectsManager, accuracySystem = null) {
+    constructor(config, scene, effectsManager, accuracySystem = null, game = null) {
         if (this.constructor === WeaponBase) {
             throw new Error('WeaponBase is an abstract class and cannot be instantiated directly');
         }
@@ -16,6 +17,7 @@ export class WeaponBase {
         this.config = config;
         this.scene = scene;
         this.effectsManager = effectsManager;
+        this.game = game;
         
         // Weapon properties from config
         this.name = config.name;
@@ -62,10 +64,127 @@ export class WeaponBase {
     }
     
     /**
-     * Fire the weapon (must be implemented by subclasses)
+     * Fire the weapon (template method with common logic)
      */
-    fire(origin, direction) {
-        throw new Error('fire() must be implemented by subclass');
+    fire(origin, direction, game = null) {
+        // Check if weapon can fire
+        if (!this.canFireWeapon()) {
+            console.log(`${this.name}: Cannot fire - weapon not ready`);
+            return false;
+        }
+
+        // Check fire rate
+        const currentTime = performance.now() / 1000;
+        if (currentTime - this.lastFireTime < this.fireRate) {
+            return false; // Too soon to fire again
+        }
+
+        console.log(`${this.name}: Firing - Ammo: ${this.getCurrentAmmo()}/${this.getMaxAmmo()}`);
+
+        // Apply accuracy to shot direction
+        const accurateDirection = this.applyAccuracyToDirection(direction);
+
+        // Create projectile data (can be overridden by subclasses)
+        const projectileData = this.createProjectileData(origin, accurateDirection, game);
+
+        // Create projectile through game's projectile manager
+        if (game && game.projectileManager) {
+            game.projectileManager.createProjectile(projectileData);
+        } else {
+            console.warn(`${this.name}: No projectile manager available`);
+        }
+
+        // Create muzzle flash effect
+        this.createMuzzleFlash(origin, direction);
+
+        // Play weapon fire sound
+        this.playFireSound();
+
+        // Apply recoil effects
+        this.applyRecoil();
+        this.addRecoilToAccuracy();
+
+        // Consume ammunition
+        this.consumeAmmo(1);
+
+        // Set firing cooldown
+        this.setFiringCooldown();
+        this.lastFireTime = currentTime;
+
+        // Trigger fire event with projectile data
+        if (this.onFire) {
+            this.onFire({
+                ...this.getWeaponInfo(),
+                projectileData: projectileData
+            });
+        }
+
+        // Emit weapon fire event for projectile system
+        if (game && game.eventEmitter) {
+            game.eventEmitter.emit('weapon.fire', projectileData);
+        }
+
+        console.log(`${this.name}: Shot fired - Remaining ammo: ${this.getCurrentAmmo()}`);
+        return true;
+    }
+
+    /**
+     * Create projectile data (can be overridden by subclasses)
+     */
+    createProjectileData(origin, direction, game = null) {
+        return {
+            origin: origin.clone(),
+            direction: direction,
+            weapon: {
+                name: this.name,
+                type: this.type,
+                damage: this.damage
+            },
+            damage: this.damage,
+            range: 400, // Default range
+            speed: 700, // Default speed
+            showTrail: true,
+            playerId: 'local' // TODO: Get from player system
+        };
+    }
+
+    /**
+     * Create muzzle flash effect (can be overridden by subclasses)
+     */
+    createMuzzleFlash(origin, direction) {
+        if (!this.effectsManager) {
+            console.warn(`${this.name}: No effects manager available for muzzle flash`);
+            return;
+        }
+
+        // Calculate world muzzle position
+        let muzzleWorldPos = origin.clone();
+        let muzzleWorldDir = direction.clone();
+
+        if (this.model && this.model.isEnabled()) {
+            // Transform muzzle position to world coordinates if muzzle position is defined
+            if (this.muzzlePosition) {
+                const worldMatrix = this.model.getWorldMatrix();
+                muzzleWorldPos = BABYLON.Vector3.TransformCoordinates(this.muzzlePosition, worldMatrix);
+                muzzleWorldDir = BABYLON.Vector3.TransformNormal(this.muzzleDirection || direction, worldMatrix);
+            }
+        }
+
+        // Create basic muzzle flash - subclasses can override for specific effects
+        if (this.effectsManager.createMuzzleFlash) {
+            this.effectsManager.createMuzzleFlash(muzzleWorldPos, muzzleWorldDir, 'default', this.model);
+        }
+    }
+
+    /**
+     * Play weapon fire sound
+     */
+    playFireSound() {
+        if (this.game && this.game.audioManager) {
+            this.game.audioManager.playWeaponSound(this.config);
+        } else {
+            console.warn(`${this.name}: No audio manager available for fire sound`);
+        }
     }
     
     /**
@@ -84,11 +203,20 @@ export class WeaponBase {
      * Start reloading the weapon
      */
     reload() {
-        // Cannot reload if already reloading, magazine is full, or weapon has infinite ammo
-        if (this.isReloading || 
-            this.currentAmmo >= this.magazineSize || 
-            this.magazineSize === Infinity) {
-            return false;
+        // Check reload conditions using AmmoRegistry if available
+        if (this.game && this.game.ammoRegistry) {
+            if (this.isReloading || 
+                this.game.ammoRegistry.isFull(this.type) || 
+                this.game.ammoRegistry.isInfiniteAmmo(this.type)) {
+                return false;
+            }
+        } else {
+            // Fallback to local state
+            if (this.isReloading || 
+                this.currentAmmo >= this.magazineSize || 
+                this.magazineSize === Infinity) {
+                return false;
+            }
         }
         
         console.log(`Reloading ${this.name}...`);
@@ -97,6 +225,9 @@ export class WeaponBase {
         
         // Play reload animation
         this.playReloadAnimation();
+        
+        // Play reload sound
+        this.playReloadSound();
         
         // Trigger reload event
         if (this.onReload) {
@@ -117,14 +248,21 @@ export class WeaponBase {
     finishReload() {
         if (!this.isReloading) return;
         
-        // Restore magazine to full capacity
-        this.currentAmmo = this.magazineSize;
+        // Reload using AmmoRegistry if available
+        if (this.game && this.game.ammoRegistry) {
+            this.game.ammoRegistry.reloadWeapon(this.type);
+            this.currentAmmo = this.game.ammoRegistry.getCurrentAmmo(this.type);
+        } else {
+            // Fallback to local state
+            this.currentAmmo = this.magazineSize;
+        }
+        
         this.isReloading = false;
         
         // Return to idle animation
         this.pauseAtIdle();
         
-        console.log(`${this.name} reloaded. Ammo: ${this.currentAmmo}/${this.magazineSize}`);
+        console.log(`${this.name} reloaded. Ammo: ${this.currentAmmo}/${this.getMaxAmmo()}`);
         
         // Trigger events
         if (this.onReload) {
@@ -132,7 +270,18 @@ export class WeaponBase {
         }
         
         if (this.onAmmoChanged) {
-            this.onAmmoChanged(this.currentAmmo, this.magazineSize);
+            this.onAmmoChanged(this.currentAmmo, this.getMaxAmmo());
+        }
+    }
+    
+    /**
+     * Play reload sound
+     */
+    playReloadSound() {
+        if (this.game && this.game.audioManager) {
+            this.game.audioManager.playReloadSound(this.config);
+        } else {
+            console.warn(`${this.name}: No audio manager available for reload sound`);
         }
     }
     
@@ -191,11 +340,11 @@ export class WeaponBase {
                 }
             }
             
-            // Fallback to direct loading
+            // Fallback to direct loading with proper GLB support
             const result = await BABYLON.SceneLoader.ImportMeshAsync(
                 "", 
-                this.config.modelPath, 
                 "", 
+                this.config.modelPath, 
                 this.scene
             );
             
@@ -204,15 +353,38 @@ export class WeaponBase {
                 this.model.name = `${this.name}_model`;
                 this.model.setEnabled(false); // Hidden by default
                 
+                // Ensure proper material setup for GLB files
+                if (this.model.material) {
+                    // Enable proper lighting for PBR materials (common in GLB files)
+                    if (this.model.material.getClassName() === 'PBRMaterial') {
+                        this.model.material.environmentIntensity = 1.0;
+                        this.model.material.directIntensity = 1.0;
+                    }
+                }
+                
+                // Handle child meshes for complex GLB models
+                result.meshes.forEach(mesh => {
+                    if (mesh !== this.model && mesh.material) {
+                        // Apply same material fixes to child meshes
+                        if (mesh.material.getClassName() === 'PBRMaterial') {
+                            mesh.material.environmentIntensity = 1.0;
+                            mesh.material.directIntensity = 1.0;
+                        }
+                    }
+                });
+                
                 // Store animation groups
                 if (result.animationGroups) {
                     result.animationGroups.forEach(animGroup => {
                         this.animationGroups.set(animGroup.name.toLowerCase(), animGroup);
                         animGroup.stop(); // Stop all animations initially
                     });
+                    
+                    console.log(`Loaded ${result.animationGroups.length} animations for ${this.name}:`, 
+                        Array.from(this.animationGroups.keys()));
                 }
                 
-                console.log(`Loaded model for ${this.name}`);
+                console.log(`Loaded GLB model for ${this.name} with ${result.meshes.length} meshes`);
             }
         } catch (error) {
             console.warn(`Failed to load model for ${this.name}:`, error);
@@ -272,9 +444,9 @@ export class WeaponBase {
         if (!this.model) return;
         
         // Apply recoil rotation to weapon model
-        const recoilX = (Math.random() - 0.5) * this.recoilAmount * 0.1;
-        const recoilY = (Math.random() - 0.5) * this.recoilAmount * 0.1;
-        const recoilZ = Math.random() * this.recoilAmount * 0.05;
+        const recoilX = MathUtils.random(-0.5, 0.5) * this.recoilAmount * 0.1;
+        const recoilY = MathUtils.random(-0.5, 0.5) * this.recoilAmount * 0.1;
+        const recoilZ = MathUtils.random(0, 1) * this.recoilAmount * 0.05;
         
         // Apply recoil rotation
         this.model.rotation.x += recoilX;
@@ -320,16 +492,24 @@ export class WeaponBase {
     }
     
     /**
-     * Get current ammunition count
+     * Get current ammunition count (delegated to AmmoRegistry)
      */
     getCurrentAmmo() {
+        // If AmmoRegistry is available, use it; otherwise fallback to local state
+        if (this.game && this.game.ammoRegistry) {
+            return this.game.ammoRegistry.getCurrentAmmo(this.type);
+        }
         return this.currentAmmo;
     }
     
     /**
-     * Get maximum ammunition capacity
+     * Get maximum ammunition capacity (delegated to AmmoRegistry)
      */
     getMaxAmmo() {
+        // If AmmoRegistry is available, use it; otherwise fallback to local state
+        if (this.game && this.game.ammoRegistry) {
+            return this.game.ammoRegistry.getMaxAmmo(this.type);
+        }
         return this.magazineSize;
     }
     
@@ -368,14 +548,39 @@ export class WeaponBase {
     }
     
     /**
-     * Consume ammunition
+     * Consume ammunition (delegated to AmmoRegistry)
      */
     consumeAmmo(amount = 1) {
-        if (this.magazineSize === Infinity) {
-            return; // Infinite ammo weapons don't consume ammo
+        // If AmmoRegistry is available, use it; otherwise fallback to local state
+        if (this.game && this.game.ammoRegistry) {
+            const consumed = this.game.ammoRegistry.consumeAmmo(this.type, amount);
+            if (consumed) {
+                // Update local state for compatibility
+                this.currentAmmo = this.game.ammoRegistry.getCurrentAmmo(this.type);
+                
+                // Trigger ammo changed event
+                if (this.onAmmoChanged) {
+                    this.onAmmoChanged(this.currentAmmo, this.getMaxAmmo());
+                }
+                
+                // Check if weapon is empty
+                if (this.game.ammoRegistry.isEmpty(this.type) && this.onWeaponEmpty) {
+                    this.onWeaponEmpty();
+                }
+            }
+            return consumed;
         }
         
-        this.currentAmmo = Math.max(0, this.currentAmmo - amount);
+        // Fallback to local state management
+        if (this.magazineSize === Infinity) {
+            return true; // Infinite ammo weapons don't consume ammo
+        }
+        
+        if (this.currentAmmo < amount) {
+            return false;
+        }
+        
+        this.currentAmmo = MathUtils.clamp(this.currentAmmo - amount, 0, this.magazineSize);
         
         // Trigger ammo changed event
         if (this.onAmmoChanged) {
@@ -386,6 +591,8 @@ export class WeaponBase {
         if (this.currentAmmo <= 0 && this.onWeaponEmpty) {
             this.onWeaponEmpty();
         }
+        
+        return true;
     }
     
     /**
@@ -440,12 +647,12 @@ export class WeaponBase {
         const spreadAngle = this.accuracySystem.calculateShotSpread(currentAccuracy, 1.0);
         
         // Apply random spread based on accuracy
-        const spreadRadians = (spreadAngle * Math.PI / 180) * (1.0 - currentAccuracy);
+        const spreadRadians = MathUtils.degToRad(spreadAngle) * (1.0 - currentAccuracy);
         
         if (spreadRadians > 0) {
             // Generate random spread within cone
-            const randomAngle = Math.random() * Math.PI * 2;
-            const randomRadius = Math.random() * spreadRadians;
+            const randomAngle = MathUtils.random(0, MathUtils.TWO_PI);
+            const randomRadius = MathUtils.random(0, spreadRadians);
             
             // Create perpendicular vectors for spread
             const up = new BABYLON.Vector3(0, 1, 0);

@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Method Catalog Updater",
+  "description": "Automatically runs generate_method_catalog.py whenever any source files are edited to keep the method catalog up to date",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.js",
+      "server/**/*.js",
+      "*.js"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Files have been edited. You must now run the generate_method_catalog.py script to update the method catalog. Execute: python generate_method_catalog.py"
+  }
+}

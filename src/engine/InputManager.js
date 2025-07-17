@@ -3,11 +3,12 @@
  * Handles keyboard, mouse input and context-sensitive controls
  */
 
-export class InputManager {
+import { BaseManager } from './BaseManager.js';
+
+export class InputManager extends BaseManager {
     constructor(game) {
-        this.game = game;
+        super(game);
         this.canvas = game.canvas;
-        this.scene = game.scene;
         
         // Input state
         this.activeKeys = new Set();
@@ -563,7 +564,7 @@ export class InputManager {
     /**
      * Cleanup resources
      */
-    dispose() {
+    _doDispose() {
         // Remove event listeners
         for (const [eventType, handler] of this.boundEventHandlers) {
             if (eventType === 'keydown' || eventType === 'keyup') {
@@ -585,8 +586,6 @@ export class InputManager {
         this.activeKeys.clear();
         this.boundEventHandlers.clear();
         
-        this.game = null;
         this.canvas = null;
-        this.scene = null;
     }
 }
