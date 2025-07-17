@@ -1,5 +1,14 @@
-class AudioManager {
-    constructor() {
+/**
+ * KILLtONE Game Framework - Unified Audio System
+ * Combines core audio functionality with framework integration
+ * Handles 3D audio, music playback, state management, and event coordination
+ */
+
+export class AudioSystem {
+    constructor(game) {
+        this.game = game;
+
+        // Core audio properties
         this.enabled = true;
         this.masterVolume = 1.0;
         this.soundCache = new Map();
@@ -7,7 +16,7 @@ class AudioManager {
         this.activeAudioSources = new Map();
         this.maxConcurrentSources = 20;
 
-        // Audio context
+        // Audio context for 3D audio
         this.audioContext = null;
         this.listener = null;
 
@@ -17,9 +26,9 @@ class AudioManager {
 
         // Step sound rate limiting
         this.lastStepTime = 0;
-        this.minStepInterval = 200; // Minimum 200ms between step sounds
-        this.stepSoundPool = new Map(); // Pool of step sound instances
-        this.maxStepSounds = 5; // Maximum concurrent step sounds
+        this.minStepInterval = 200;
+        this.stepSoundPool = new Map();
+        this.maxStepSounds = 5;
 
         // Remote player step tracking
         this.remotePlayerStepTimes = new Map();
@@ -29,10 +38,58 @@ class AudioManager {
         this.preloadingComplete = false;
         this.preloadingPromise = null;
 
-        this.initAudioContext();
-        console.log('AudioManager initialized');
+        // Framework integration properties
+        this.currentState = null;
+        this.settings = {
+            masterVolume: 1.0,
+            musicVolume: 0.8,
+            effectsVolume: 1.0,
+            enabled: true
+        };
+
+        // Flowstate music tracking
+        this.flowstateMusic = null;
+        this.selectedFlowstateTrack = null;
+        this.availableTracks = [
+            'src/assets/sounds/songs/Phonk1.mp3',
+            'src/assets/sounds/songs/Phonk2.mp3',
+            'src/assets/sounds/songs/Synthwave1.mp3',
+            'src/assets/sounds/songs/Synthwave2.mp3'
+        ];
+
+        // Flowstate state
+        this.isInFlowstate = false;
+        this.flowstateIntensity = 0;
+
+        // Event listeners storage
+        this.eventListeners = [];
+
+        this.initialize();
     }
 
+    /**
+     * Initialize the audio system - sets up core audio and framework listeners
+     */
+    initialize() {
+        console.log('AudioSystem initializing...');
+
+        // Initialize core audio
+        this.initAudioContext();
+
+        // Set up framework event listeners
+        this.setupFrameworkListeners();
+
+        // Apply initial settings
+        this.applySettings(this.settings);
+
+        console.log('AudioSystem initialized successfully');
+    }
+
+    // ===== CORE AUDIO FUNCTIONALITY =====
+
+    /**
+     * Initialize Web Audio API context for 3D spatial audio
+     */
     initAudioContext() {
         try {
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -59,6 +116,9 @@ class AudioManager {
         }
     }
 
+    /**
+     * Resume suspended audio context (required for user interaction)
+     */
     async resumeAudioContext() {
         if (this.audioContext?.state === 'suspended') {
             try {
@@ -69,6 +129,9 @@ class AudioManager {
         }
     }
 
+    /**
+     * Update 3D audio listener position and orientation
+     */
     updateListener(position, forward, up) {
         if (!this.listener || !this.audioContext) return;
 
@@ -94,10 +157,16 @@ class AudioManager {
         }
     }
 
+    /**
+     * Check if a sound file has been preloaded into cache
+     */
     isSoundPreloaded(soundPath) {
         return this.soundCache.has(soundPath);
     }
 
+    /**
+     * Play a sound file with volume and loop options
+     */
     async playSound(soundPath, volume = 1.0, loop = false) {
         if (!this.enabled) return null;
 
@@ -106,30 +175,25 @@ class AudioManager {
 
             let audio;
             if (this.soundCache.has(soundPath)) {
-                // Use preloaded sound
                 const cachedAudio = this.soundCache.get(soundPath);
                 audio = cachedAudio.cloneNode();
                 console.log(`Using preloaded sound: ${soundPath}`);
             } else {
-                // Fallback to loading on-demand
                 console.warn(`Sound not preloaded, loading on-demand: ${soundPath}`);
                 audio = new Audio(soundPath);
                 audio.preload = 'auto';
 
-                // Cache for future use (but don't cache music files)
                 const isMusic = soundPath.includes('/songs/');
                 if (!isMusic) {
                     this.soundCache.set(soundPath, audio.cloneNode());
                 }
             }
 
-            // Ensure volume values are finite numbers
             const safeVolume = isFinite(volume) ? volume : 1.0;
             const safeMasterVolume = isFinite(this.masterVolume) ? this.masterVolume : 1.0;
             audio.volume = Math.min(1.0, Math.max(0.0, safeVolume * safeMasterVolume));
             audio.loop = loop;
 
-            // Auto-cleanup
             audio.addEventListener('ended', () => audio.remove());
 
             const playPromise = audio.play();
@@ -147,7 +211,9 @@ class AudioManager {
         }
     }
 
-    // Optimized distance calculation using squared distance with steeper falloff
+    /**
+     * Calculate volume based on 3D distance with exponential falloff
+     */
     calculateDistanceVolume(listenerPosition, sourcePosition, maxDistance = 200, baseVolume = 1.0) {
         const dx = listenerPosition.x - sourcePosition.x;
         const dy = listenerPosition.y - sourcePosition.y;
@@ -159,11 +225,13 @@ class AudioManager {
 
         const distance = Math.sqrt(distanceSquared);
         const normalizedDistance = distance / maxDistance;
-        // Apply exponential falloff for steeper decay (25% more aggressive)
         const falloffFactor = Math.pow(1 - normalizedDistance, 1.25);
         return baseVolume * Math.max(0, falloffFactor);
     }
 
+    /**
+     * Play 3D positioned sound with distance-based volume falloff
+     */
     async play3DSound(soundPath, listenerPosition, sourcePosition, baseVolume = 1.0, maxDistance = 200, loop = false) {
         if (!this.enabled) return null;
 
@@ -175,15 +243,32 @@ class AudioManager {
         }
     }
 
+    /**
+     * Play positional audio using Web Audio API panner node
+     * @param {string} soundPath - Path to sound file
+     * @param {Object} sourcePosition - 3D position of sound source
+     * @param {number} baseVolume - Base volume level
+     * @param {number} maxDistance - Maximum audible distance
+     * @param {boolean} loop - Whether to loop the sound
+     * @returns {AudioBufferSourceNode|null} Audio source node
+     */
     async playPositionalAudio(soundPath, sourcePosition, baseVolume = 1.0, maxDistance = 200, loop = false) {
         const result = await this.playPositionalAudioWithPanner(soundPath, sourcePosition, baseVolume, maxDistance, loop);
         return result?.source || null;
     }
 
+    /**
+     * Play positional audio with full Web Audio API setup including panner and gain nodes
+     * @param {string} soundPath - Path to sound file
+     * @param {Object} sourcePosition - 3D position of sound source
+     * @param {number} baseVolume - Base volume level
+     * @param {number} maxDistance - Maximum audible distance
+     * @param {boolean} loop - Whether to loop the sound
+     * @returns {Object|null} Object containing source and panner nodes
+     */
     async playPositionalAudioWithPanner(soundPath, sourcePosition, baseVolume = 1.0, maxDistance = 200, loop = false) {
         if (!this.audioContext || !this.listener) return null;
 
-        // Limit concurrent sources
         if (this.activeAudioSources.size >= this.maxConcurrentSources) {
             console.warn('Too many concurrent audio sources, skipping sound');
             return null;
@@ -192,7 +277,6 @@ class AudioManager {
         try {
             await this.resumeAudioContext();
 
-            // Get or create audio buffer
             let audioBuffer;
             const bufferKey = soundPath + '_buffer';
             if (this.soundCache.has(bufferKey)) {
@@ -204,12 +288,10 @@ class AudioManager {
                 this.soundCache.set(bufferKey, audioBuffer);
             }
 
-            // Create audio nodes
             const source = this.audioContext.createBufferSource();
             const panner = this.audioContext.createPanner();
             const gainNode = this.audioContext.createGain();
 
-            // Configure
             source.buffer = audioBuffer;
             source.loop = loop;
 
@@ -219,7 +301,6 @@ class AudioManager {
             panner.maxDistance = maxDistance;
             panner.rolloffFactor = 0.4;
 
-            // Set position
             const currentTime = this.audioContext.currentTime;
             if (panner.positionX) {
                 panner.positionX.setValueAtTime(sourcePosition.x, currentTime);
@@ -231,12 +312,10 @@ class AudioManager {
 
             gainNode.gain.setValueAtTime(baseVolume * this.masterVolume, currentTime);
 
-            // Connect
             source.connect(panner);
             panner.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
 
-            // Track and cleanup
             const sourceId = Date.now() + '_' + Math.random();
             this.activeAudioSources.set(sourceId, { source, panner, gainNode });
 
@@ -260,7 +339,13 @@ class AudioManager {
         }
     }
 
-    // Weapon sounds
+    // ===== GAME-SPECIFIC AUDIO METHODS =====
+
+    /**
+     * Play weapon firing sound for local player
+     * @param {Object} weaponConfig - Weapon configuration containing audio settings
+     * @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed
+     */
     async playWeaponSound(weaponConfig) {
         if (!weaponConfig?.audio?.fireSound) {
             console.warn('No fire sound configured for weapon');
@@ -269,34 +354,63 @@ class AudioManager {
         return this.playSound(weaponConfig.audio.fireSound, weaponConfig.audio.volume || 1.0);
     }
 
+    /**
+     * Play 3D positioned weapon sound for remote players
+     * @param {Object} weaponConfig - Weapon configuration containing audio settings
+     * @param {Object} listenerPosition - Position of the audio listener
+     * @param {Object} sourcePosition - Position where the weapon was fired
+     * @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed
+     */
     async playRemoteWeaponSound(weaponConfig, listenerPosition, sourcePosition) {
         if (!weaponConfig?.audio?.fireSound) return null;
         return this.play3DSound(weaponConfig.audio.fireSound, listenerPosition, sourcePosition, weaponConfig.audio.volume || 1.0, 1500);
     }
 
-    // Damage sounds
+    /**
+     * Play damage sound when local player takes damage
+     * @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed
+     */
     async playDamageSound() {
         return this.playSound('src/assets/sounds/OOF.m4a', 0.7);
     }
 
+    /**
+     * Play 3D positioned damage sound for remote players
+     * @param {Object} listenerPosition - Position of the audio listener
+     * @param {Object} sourcePosition - Position where damage occurred
+     * @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed
+     */
     async playRemoteDamageSound(listenerPosition, sourcePosition) {
         return this.play3DSound('src/assets/sounds/OOF.m4a', listenerPosition, sourcePosition, 0.7, 200);
     }
 
+    /**
+     * Play weapon reload sound
+     * @param {Object} weaponConfig - Weapon configuration containing audio settings
+     * @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed
+     */
     async playReloadSound(weaponConfig) {
         if (!weaponConfig?.audio?.reloadSound) return null;
         return this.playSound(weaponConfig.audio.reloadSound, 0.6);
     }
 
+    /**
+     * Start playing walking/footstep sounds for local player
+     * @param {boolean} isSprinting - Whether the player is sprinting
+     * @returns {Promise<void>}
+     */
     async playWalkingSound(isSprinting = false) {
         if (this.currentWalkingSound) {
             this.currentWalkingSound.pause();
             this.currentWalkingSound = null;
         }
-
         this.playLocalStepSequence(isSprinting);
     }
 
+    /**
+     * Play sequence of randomized footstep sounds for local player
+     * @param {boolean} isSprinting - Whether the player is sprinting (affects timing and volume)
+     */
     playLocalStepSequence(isSprinting) {
         const stepSounds = [
             'src/assets/sounds/steps/step1.mp3',
@@ -306,27 +420,24 @@ class AudioManager {
             'src/assets/sounds/steps/step5.mp3'
         ];
 
-        const stepInterval = isSprinting ? 300 : 500; // Faster steps when sprinting
+        const stepInterval = isSprinting ? 300 : 500;
 
         const playRandomStep = async () => {
             if (!this.enabled) return;
 
-            // Rate limiting: don't play steps too frequently
             const now = Date.now();
             if (now - this.lastStepTime < this.minStepInterval) {
                 return;
             }
 
-            // Check if we have too many concurrent step sounds
             if (this.stepSoundPool.size >= this.maxStepSounds) {
                 return;
             }
 
             const randomStep = stepSounds[Math.floor(Math.random() * stepSounds.length)];
-            const volume = isSprinting ? 0.4 : 0.3; // Quieter when sprinting
+            const volume = isSprinting ? 0.4 : 0.3;
 
             try {
-                // Use pooled audio instance if available
                 let audio;
                 if (this.soundCache.has(randomStep)) {
                     audio = this.soundCache.get(randomStep).cloneNode();
@@ -339,11 +450,9 @@ class AudioManager {
                 audio.volume = Math.min(1.0, Math.max(0.0, volume * this.masterVolume));
                 audio.loop = false;
 
-                // Add to step sound pool
                 const stepId = `step_${Date.now()}_${Math.random()}`;
                 this.stepSoundPool.set(stepId, audio);
 
-                // Auto-cleanup from pool
                 audio.addEventListener('ended', () => {
                     this.stepSoundPool.delete(stepId);
                 });
@@ -367,13 +476,13 @@ class AudioManager {
             }
         };
 
-        // Play first step immediately
         playRandomStep();
-
-        // Set up interval for subsequent steps
         this.walkingInterval = setInterval(playRandomStep, stepInterval);
     }
 
+    /**
+     * Stop all walking/footstep sounds for local player
+     */
     stopWalkingSound() {
         if (this.currentWalkingSound) {
             this.currentWalkingSound.pause();
@@ -385,7 +494,6 @@ class AudioManager {
             this.walkingInterval = null;
         }
 
-        // Clear step sound pool
         this.stepSoundPool.forEach((audio, stepId) => {
             try {
                 audio.pause();
@@ -396,11 +504,17 @@ class AudioManager {
         this.stepSoundPool.clear();
     }
 
+    /**
+     * Play 3D positioned walking sound for remote players
+     * @param {string} playerId - Unique identifier for the remote player
+     * @param {Object} sourcePosition - 3D position of the remote player
+     * @param {boolean} isSprinting - Whether the remote player is sprinting
+     * @returns {Promise<HTMLAudioElement|null>} Audio element or null if rate limited
+     */
     async playRemoteWalkingSound(playerId, sourcePosition, isSprinting = false) {
-        // Rate limiting for remote player steps
         const now = Date.now();
         const lastStepTime = this.remotePlayerStepTimes.get(playerId) || 0;
-        const minInterval = isSprinting ? 250 : 400; // Slightly longer intervals for remote players
+        const minInterval = isSprinting ? 250 : 400;
 
         if (now - lastStepTime < minInterval) {
             return null;
@@ -412,14 +526,17 @@ class AudioManager {
 
         this.remotePlayerStepTimes.set(playerId, now);
 
-        return this.play3DSound(randomStep, this.listenerPosition || BABYLON.Vector3.Zero(), sourcePosition, volume, 50);
+        return this.play3DSound(randomStep, this.listenerPosition || { x: 0, y: 0, z: 0 }, sourcePosition, volume, 50);
     }
 
+    /**
+     * Update the 3D position of a remote player's walking sound
+     * @param {string} playerId - Unique identifier for the remote player
+     * @param {Object} newPosition - New 3D position of the remote player
+     */
     updateWalkingSoundPosition(playerId, newPosition) {
-        // Update position for remote walking sounds
         if (this.activeAudioSources.has(playerId)) {
             const audioSource = this.activeAudioSources.get(playerId);
-            // Update panner position if available
             if (audioSource.panner && audioSource.panner.positionX) {
                 const currentTime = this.audioContext.currentTime;
                 audioSource.panner.positionX.setValueAtTime(newPosition.x, currentTime);
@@ -429,36 +546,10 @@ class AudioManager {
         }
     }
 
-    playStepSequence(playerId, initialPosition, isSprinting) {
-        // Don't create multiple step sequences for the same player
-        if (this.remoteWalkingIntervals && this.remoteWalkingIntervals.has(playerId)) {
-            return;
-        }
-
-        const stepSounds = ['src/assets/sounds/steps/step1.mp3', 'src/assets/sounds/steps/step2.mp3'];
-        const stepInterval = isSprinting ? 350 : 550; // Slightly longer intervals to reduce frequency
-
-        const playRandomStep = async () => {
-            // Check if player still exists and is moving
-            if (!this.remotePlayerStepTimes.has(playerId)) {
-                this.stopRemoteWalkingSound(playerId);
-                return;
-            }
-
-            const randomStep = stepSounds[Math.floor(Math.random() * stepSounds.length)];
-            const volume = isSprinting ? 0.2 : 0.15;
-
-            await this.play3DSound(randomStep, this.listenerPosition || BABYLON.Vector3.Zero(), initialPosition, volume, 50);
-        };
-
-        playRandomStep();
-        const interval = setInterval(playRandomStep, stepInterval);
-
-        // Store interval for cleanup
-        this.remoteWalkingIntervals = this.remoteWalkingIntervals || new Map();
-        this.remoteWalkingIntervals.set(playerId, interval);
-    }
-
+    /**
+     * Stop walking sound for a specific remote player
+     * @param {string} playerId - Unique identifier for the remote player
+     */
     stopRemoteWalkingSound(playerId) {
         if (this.remoteWalkingIntervals && this.remoteWalkingIntervals.has(playerId)) {
             clearInterval(this.remoteWalkingIntervals.get(playerId));
@@ -473,14 +564,487 @@ class AudioManager {
             this.activeAudioSources.delete(playerId);
         }
 
-        // Clean up step tracking
         this.remotePlayerStepTimes.delete(playerId);
     }
 
+    // ===== MUSIC METHODS =====
+
+    /**
+     * Play music file with specified volume and loop settings
+     * @param {string} musicPath - Path to music file
+     * @param {number} volume - Volume level (0.0 to 1.0)
+     * @param {boolean} loop - Whether to loop the music
+     * @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed
+     */
+    async playMusic(musicPath, volume = 0.8, loop = true) {
+        return this.playSound(musicPath, volume, loop);
+    }
+
+    /**
+     * Stop and reset an audio element
+     * @param {HTMLAudioElement} audio - Audio element to stop
+     */
+    stopAudio(audio) {
+        if (audio) {
+            try {
+                audio.pause();
+                audio.currentTime = 0;
+            } catch (error) {
+                console.warn('Error stopping audio:', error);
+            }
+        }
+    }
+
+    // ===== FRAMEWORK INTEGRATION =====
+
+    /**
+     * Set up event listeners for framework integration
+     */
+    setupFrameworkListeners() {
+        if (this.game.stateManager) {
+            const stateListener = (newState, oldState) => this.onStateChange(newState, oldState);
+            this.game.stateManager.on('stateChanged', stateListener);
+            this.eventListeners.push({ target: this.game.stateManager, event: 'stateChanged', listener: stateListener });
+        }
+
+        if (this.game.uiManager) {
+            const settingsListener = (newSettings) => this.onSettingsChange(newSettings);
+            this.game.uiManager.on('settingsChanged', settingsListener);
+            this.eventListeners.push({ target: this.game.uiManager, event: 'settingsChanged', listener: settingsListener });
+
+            const musicSelectListener = (trackPath) => this.onMusicTrackSelected(trackPath);
+            this.game.uiManager.on('musicTrackSelected', musicSelectListener);
+            this.eventListeners.push({ target: this.game.uiManager, event: 'musicTrackSelected', listener: musicSelectListener });
+        }
+
+        if (this.game.playerManager) {
+            const killListener = (data) => this.onPlayerKill(data);
+            const deathListener = (data) => this.onPlayerDeath(data);
+            const moveListener = (data) => this.onPlayerMove(data);
+
+            this.game.playerManager.on('playerKill', killListener);
+            this.game.playerManager.on('playerDeath', deathListener);
+            this.game.playerManager.on('playerMove', moveListener);
+
+            this.eventListeners.push(
+                { target: this.game.playerManager, event: 'playerKill', listener: killListener },
+                { target: this.game.playerManager, event: 'playerDeath', listener: deathListener },
+                { target: this.game.playerManager, event: 'playerMove', listener: moveListener }
+            );
+        }
+
+        if (this.game.weaponManager) {
+            const fireListener = (data) => this.onWeaponFired(data);
+            const reloadListener = (data) => this.onWeaponReload(data);
+
+            this.game.weaponManager.on('weaponFired', fireListener);
+            this.game.weaponManager.on('weaponReload', reloadListener);
+
+            this.eventListeners.push(
+                { target: this.game.weaponManager, event: 'weaponFired', listener: fireListener },
+                { target: this.game.weaponManager, event: 'weaponReload', listener: reloadListener }
+            );
+        }
+
+        if (this.game.flowstateManager) {
+            const flowstateListener = (intensity, isActive) => this.onFlowstateChange(intensity, isActive);
+            this.game.flowstateManager.on('flowstateChanged', flowstateListener);
+            this.eventListeners.push({ target: this.game.flowstateManager, event: 'flowstateChanged', listener: flowstateListener });
+        }
+    }
+
+    /**
+     * Handle game state changes and adjust audio accordingly
+     * @param {string} newState - New game state
+     * @param {string} oldState - Previous game state
+     */
+    onStateChange(newState, oldState) {
+        console.log(`AudioSystem: State changed from ${oldState} to ${newState}`);
+        this.currentState = newState;
+
+        switch (newState) {
+            case 'LOADING':
+                this.handleLoadingState();
+                break;
+            case 'MAIN_MENU':
+                this.handleMainMenuState();
+                break;
+            case 'IN_GAME':
+                this.handleInGameState();
+                break;
+            case 'PAUSED':
+                this.handlePausedState();
+                break;
+            case 'MAP_EDITOR':
+                this.handleMapEditorState();
+                break;
+            default:
+                console.warn(`AudioSystem: Unknown state ${newState}`);
+        }
+    }
+
+    /**
+     * Handle loading state - stop music and start preloading sounds
+     */
+    handleLoadingState() {
+        this.stopFlowstateMusic();
+        this.resumeAudioContext();
+
+        if (!this.isPreloadingComplete()) {
+            this.preloadSounds().then((result) => {
+                console.log('Audio preloading completed:', result);
+            });
+        }
+    }
+
+    /**
+     * Handle main menu state - stop flowstate music and reduce volume
+     */
+    handleMainMenuState() {
+        this.stopFlowstateMusic();
+        this.isInFlowstate = false;
+        this.setMasterVolume(this.settings.masterVolume * 0.8);
+    }
+
+    /**
+     * Handle in-game state - restore full volume and resume audio context
+     */
+    handleInGameState() {
+        this.setMasterVolume(this.settings.masterVolume);
+        this.resumeAudioContext();
+    }
+
+    /**
+     * Handle paused state - reduce music volume and stop walking sounds
+     */
+    handlePausedState() {
+        if (this.flowstateMusic && this.isInFlowstate) {
+            this.flowstateMusic.volume = this.settings.musicVolume * 0.3;
+        }
+        this.stopWalkingSound();
+    }
+
+    /**
+     * Handle map editor state - stop flowstate music and set moderate volume
+     */
+    handleMapEditorState() {
+        this.stopFlowstateMusic();
+        this.isInFlowstate = false;
+        this.setMasterVolume(this.settings.masterVolume * 0.6);
+    }
+
+    /**
+     * Handle music track selection from UI
+     * @param {string} trackPath - Path to selected music track
+     */
+    onMusicTrackSelected(trackPath) {
+        console.log(`AudioSystem: Music track selected: ${trackPath}`);
+        this.selectedFlowstateTrack = trackPath;
+    }
+
+    /**
+     * Handle settings changes from UI
+     * @param {Object} newSettings - New audio settings
+     */
+    onSettingsChange(newSettings) {
+        console.log('AudioSystem: Settings changed', newSettings);
+
+        if (newSettings.audio) {
+            Object.assign(this.settings, newSettings.audio);
+        }
+
+        this.applySettings(this.settings);
+    }
+
+    /**
+     * Apply audio settings to the system
+     * @param {Object} settings - Audio settings to apply
+     */
+    applySettings(settings) {
+        this.setMasterVolume(settings.masterVolume || 1.0);
+        this.setEnabled(settings.enabled !== false);
+
+        if (this.flowstateMusic && this.isInFlowstate) {
+            this.flowstateMusic.volume = (settings.musicVolume || 0.8) * (settings.masterVolume || 1.0);
+        }
+
+        console.log('Audio settings applied:', settings);
+    }
+
+    /**
+     * Handle player kill events - play kill sound effect
+     * @param {Object} data - Kill event data
+     */
+    onPlayerKill(data) {
+        this.playSound('src/assets/sounds/kill.wav', this.settings.effectsVolume * 0.8);
+    }
+
+    /**
+     * Handle player death events - play damage sound and stop flowstate
+     * @param {Object} data - Death event data
+     */
+    onPlayerDeath(data) {
+        this.playDamageSound();
+        this.stopWalkingSound();
+
+        if (this.isInFlowstate) {
+            this.stopFlowstateMusic();
+            this.isInFlowstate = false;
+        }
+    }
+
+    /**
+     * Handle player movement events - update listener position and walking sounds
+     * @param {Object} data - Movement event data containing position, direction, and movement state
+     */
+    onPlayerMove(data) {
+        const { isMoving, isSprinting, position, forward, up } = data;
+
+        if (position && forward && up) {
+            this.updateListener(position, forward, up);
+        }
+
+        if (isMoving) {
+            this.playWalkingSound(isSprinting);
+        } else {
+            this.stopWalkingSound();
+        }
+    }
+
+    /**
+     * Handle weapon fired events - play appropriate weapon sound
+     * @param {Object} data - Weapon fire event data containing weapon config and position
+     */
+    onWeaponFired(data) {
+        const { weapon, position, isLocal } = data;
+
+        if (isLocal) {
+            this.playWeaponSound(weapon);
+        } else {
+            const listenerPos = this.game.player?.getPosition() || { x: 0, y: 0, z: 0 };
+            this.playRemoteWeaponSound(weapon, listenerPos, position);
+        }
+    }
+
+    /**
+     * Handle weapon reload events - play reload sound
+     * @param {Object} data - Weapon reload event data
+     */
+    onWeaponReload(data) {
+        const { weapon } = data;
+        this.playReloadSound(weapon);
+    }
+
+    /**
+     * Handle flowstate intensity changes - start/stop/adjust flowstate music
+     * @param {number} intensity - Flowstate intensity (0-1)
+     * @param {boolean} isActive - Whether flowstate is currently active
+     */
+    onFlowstateChange(intensity, isActive) {
+        console.log(`AudioSystem: Flowstate changed - intensity: ${intensity}, active: ${isActive}`);
+
+        this.flowstateIntensity = intensity;
+
+        if (isActive && !this.isInFlowstate) {
+            this.startFlowstateMusic();
+            this.isInFlowstate = true;
+        } else if (!isActive && this.isInFlowstate) {
+            this.stopFlowstateMusic();
+            this.isInFlowstate = false;
+        } else if (isActive && this.isInFlowstate) {
+            this.adjustFlowstateMusicVolume(intensity);
+        }
+    }
+
+    /**
+     * Start flowstate music using the selected track
+     * @returns {Promise<void>}
+     */
+    async startFlowstateMusic() {
+        if (!this.selectedFlowstateTrack) {
+            console.warn('No flowstate music track selected');
+            return;
+        }
+
+        if (this.currentState !== 'IN_GAME') {
+            console.log('Not in game state, skipping flowstate music');
+            return;
+        }
+
+        try {
+            console.log(`Starting flowstate music: ${this.selectedFlowstateTrack}`);
+
+            this.stopFlowstateMusic();
+
+            this.flowstateMusic = await this.playMusic(
+                this.selectedFlowstateTrack,
+                this.settings.musicVolume * this.settings.masterVolume,
+                true
+            );
+
+            if (this.flowstateMusic) {
+                console.log('Flowstate music started successfully');
+
+                this.flowstateMusic.addEventListener('ended', () => {
+                    if (this.isInFlowstate && this.currentState === 'IN_GAME') {
+                        this.startFlowstateMusic();
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn(`Failed to start flowstate music ${this.selectedFlowstateTrack}:`, error);
+        }
+    }
+
+    /**
+     * Stop flowstate music and reset music reference
+     */
+    stopFlowstateMusic() {
+        if (this.flowstateMusic) {
+            console.log('Flowstate music stopped');
+            this.stopAudio(this.flowstateMusic);
+            this.flowstateMusic = null;
+        }
+    }
+
+    /**
+     * Adjust flowstate music volume based on intensity level
+     * @param {number} intensity - Flowstate intensity (0-1)
+     */
+    adjustFlowstateMusicVolume(intensity) {
+        if (this.flowstateMusic) {
+            const baseVolume = this.settings.musicVolume * this.settings.masterVolume;
+            const intensityBoost = intensity * 0.5;
+            this.flowstateMusic.volume = Math.min(1.0, baseVolume * (1 + intensityBoost));
+        }
+    }
+
+    /**
+     * Handle remote player audio events for multiplayer
+     * @param {string} playerId - Remote player ID
+     * @param {string} eventType - Type of audio event
+     * @param {Object} data - Event data
+     */
+    handleRemotePlayerAudio(playerId, eventType, data) {
+        const listenerPos = this.game.player?.getPosition() || { x: 0, y: 0, z: 0 };
+
+        switch (eventType) {
+            case 'weaponFired':
+                this.playRemoteWeaponSound(data.weapon, listenerPos, data.position);
+                break;
+            case 'takeDamage':
+                this.playRemoteDamageSound(listenerPos, data.position);
+                break;
+            case 'startWalking':
+                this.playRemoteWalkingSound(playerId, data.position, data.isSprinting);
+                break;
+            case 'stopWalking':
+                this.stopRemoteWalkingSound(playerId);
+                break;
+            case 'updatePosition':
+                this.updateWalkingSoundPosition(playerId, data.position);
+                break;
+        }
+    }
+
+    // ===== UTILITY METHODS =====
+
+    /**
+     * Get array of available music tracks for UI selection
+     * @returns {Array<string>} Array of available track paths
+     */
+    getAvailableTracks() {
+        return [...this.availableTracks];
+    }
+
+    /**
+     * Get currently selected flowstate track
+     * @returns {string|null} Currently selected track path or null
+     */
+    getSelectedTrack() {
+        return this.selectedFlowstateTrack;
+    }
+
+    /**
+     * Set flowstate music track (called from UI)
+     * @param {string} trackPath - Path to music track
+     */
+    setFlowstateTrack(trackPath) {
+        if (this.availableTracks.includes(trackPath)) {
+            this.selectedFlowstateTrack = trackPath;
+            console.log(`Flowstate track set to: ${trackPath}`);
+        } else {
+            console.warn(`Invalid track path: ${trackPath}`);
+        }
+    }
+
+    /**
+     * Get current audio settings
+     * @returns {Object} Copy of current audio settings
+     */
+    getSettings() {
+        return { ...this.settings };
+    }
+
+    /**
+     * Update specific audio setting and apply changes
+     * @param {string} key - Setting key
+     * @param {*} value - Setting value
+     */
+    updateSetting(key, value) {
+        this.settings[key] = value;
+        this.applySettings(this.settings);
+    }
+
+    /**
+     * Check if audio system is enabled
+     * @returns {boolean} True if audio is enabled
+     */
+    isEnabled() {
+        return this.settings.enabled && this.enabled;
+    }
+
+    /**
+     * Check if currently in flowstate mode
+     * @returns {boolean} True if in flowstate
+     */
+    isFlowstateActive() {
+        return this.isInFlowstate;
+    }
+
+    /**
+     * Set master volume level
+     * @param {number} volume - Volume level (0.0 to 1.0)
+     */
+    setMasterVolume(volume) {
+        this.masterVolume = Math.max(0, Math.min(1, volume));
+    }
+
+    /**
+     * Enable or disable the audio system
+     * @param {boolean} enabled - Whether to enable audio
+     */
+    setEnabled(enabled) {
+        this.enabled = enabled;
+        if (!enabled) {
+            this.stopAllSounds();
+        }
+    }
+
+    // ===== PRELOADING =====
+
+    /**
+     * Check if sound preloading is complete
+     * @returns {boolean} True if preloading is complete
+     */
     isPreloadingComplete() {
         return this.preloadingComplete;
     }
 
+    /**
+     * Wait for sound preloading to complete
+     * @returns {Promise<boolean>} Promise that resolves when preloading is complete
+     */
     async waitForPreloading() {
         if (this.preloadingComplete) {
             return true;
@@ -490,28 +1054,26 @@ class AudioManager {
             return await this.preloadingPromise;
         }
 
-        // If preloading hasn't started, start it
         this.preloadingPromise = this.preloadSounds();
         return await this.preloadingPromise;
     }
 
+    /**
+     * Preload all game sounds for better performance
+     * @returns {Promise<Object>} Promise that resolves with preloading results
+     */
     async preloadSounds() {
         const soundsToPreload = [
-            // Weapon sounds
             'assets/sounds/GenericGunshot.wav',
             'src/assets/sounds/Bulldog.wav',
             'src/assets/sounds/Sniper.wav',
             'src/assets/sounds/Reload.wav',
             'src/assets/sounds/OOF.m4a',
-
-            // Step sounds
             'src/assets/sounds/steps/step1.mp3',
             'src/assets/sounds/steps/step2.mp3',
             'src/assets/sounds/steps/step3.mp3',
             'src/assets/sounds/steps/step4.mp3',
             'src/assets/sounds/steps/step5.mp3',
-
-            // Background music (preload but don't cache for memory management)
             'src/assets/sounds/songs/Phonk1.mp3',
             'src/assets/sounds/songs/Phonk2.mp3',
             'src/assets/sounds/songs/Synthwave1.mp3',
@@ -525,33 +1087,27 @@ class AudioManager {
         let failedCount = 0;
         const failedSounds = [];
 
-        // Create a progress tracking function
         const updateProgress = () => {
             const progress = ((loadedCount + failedCount) / totalSounds) * 100;
             console.log(`Sound preloading progress: ${progress.toFixed(1)}% (${loadedCount} loaded, ${failedCount} failed)`);
 
-            // Update loading screen if it exists
             const loadingText = document.getElementById('loadingText');
             if (loadingText) {
                 loadingText.textContent = `Loading sounds... ${progress.toFixed(0)}%`;
             }
         };
 
-        // Preload with retry logic and better error handling
         const preloadWithRetry = async (soundPath, maxRetries = 3) => {
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
                     const audio = new Audio();
                     audio.preload = 'auto';
-
-                    // Set crossOrigin for CORS issues
                     audio.crossOrigin = 'anonymous';
 
-                    // Create a promise that resolves when the audio is loaded
                     const loadPromise = new Promise((resolve, reject) => {
                         const timeout = setTimeout(() => {
                             reject(new Error('Load timeout'));
-                        }, 10000); // 10 second timeout
+                        }, 10000);
 
                         audio.addEventListener('canplaythrough', () => {
                             clearTimeout(timeout);
@@ -569,13 +1125,11 @@ class AudioManager {
                         }, { once: true });
                     });
 
-                    // Set the source and start loading
                     audio.src = soundPath;
                     audio.load();
 
                     const loadedAudio = await loadPromise;
 
-                    // Only cache non-music sounds to save memory
                     const isMusic = soundPath.includes('/songs/');
                     if (!isMusic) {
                         this.soundCache.set(soundPath, loadedAudio);
@@ -593,13 +1147,11 @@ class AudioManager {
                         return false;
                     }
 
-                    // Wait before retry (exponential backoff)
                     await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
                 }
             }
         };
 
-        // Preload all sounds concurrently with progress tracking
         const preloadPromises = soundsToPreload.map(async (soundPath) => {
             const success = await preloadWithRetry(soundPath);
             if (success) {
@@ -619,16 +1171,13 @@ class AudioManager {
                 console.warn('Failed to preload the following sounds:', failedSounds);
             }
 
-            // Update loading screen with completion message
             const loadingText = document.getElementById('loadingText');
             if (loadingText) {
                 loadingText.textContent = 'Sounds loaded successfully!';
             }
 
-            // Log cache statistics
             console.log(`Sound cache contains ${this.soundCache.size} preloaded sounds`);
 
-            // Mark preloading as complete
             this.preloadingComplete = true;
 
             return {
@@ -652,16 +1201,20 @@ class AudioManager {
         }
     }
 
+    // ===== CLEANUP =====
+
+    /**
+     * Clean up stuck or orphaned audio sources and expired step sounds
+     */
     cleanupStuckSounds() {
         const currentTime = Date.now();
 
-        // Clean up old audio sources
         for (const [sourceId, audioSource] of this.activeAudioSources.entries()) {
             if (audioSource.source && audioSource.source.buffer) {
                 const duration = audioSource.source.buffer.duration;
                 const startTime = audioSource.startTime || 0;
 
-                if (currentTime - startTime > duration * 1000 + 1000) { // 1 second buffer
+                if (currentTime - startTime > duration * 1000 + 1000) {
                     console.log('Cleaning up stuck audio source:', sourceId);
                     try {
                         audioSource.source.stop();
@@ -676,7 +1229,6 @@ class AudioManager {
             }
         }
 
-        // Clean up step sound pool
         this.stepSoundPool.forEach((audio, stepId) => {
             try {
                 if (audio.ended || audio.error) {
@@ -687,7 +1239,6 @@ class AudioManager {
             }
         });
 
-        // Clean up old remote player step times (older than 10 seconds)
         for (const [playerId, lastStepTime] of this.remotePlayerStepTimes.entries()) {
             if (currentTime - lastStepTime > 10000) {
                 this.remotePlayerStepTimes.delete(playerId);
@@ -697,35 +1248,10 @@ class AudioManager {
         this.lastCleanup = currentTime;
     }
 
-    setMasterVolume(volume) {
-        this.masterVolume = Math.max(0, Math.min(1, volume));
-    }
-
-    setEnabled(enabled) {
-        this.enabled = enabled;
-        if (!enabled) {
-            this.stopAllSounds();
-        }
-    }
-
     /**
-     * Resume audio (called when game resumes)
+     * Stop all active audio sources and clear sound pools
      */
-    resume() {
-        this.resumeAudioContext();
-        console.log('AudioManager resumed');
-    }
-
-    /**
-     * Pause game audio (called when game is paused)
-     */
-    pauseGameAudio() {
-        // Pause all non-essential sounds but keep UI sounds
-        console.log('Game audio paused');
-    }
-
     stopAllSounds() {
-        // Stop all active audio sources
         for (const [sourceId, audioSource] of this.activeAudioSources.entries()) {
             try {
                 if (audioSource.source) {
@@ -740,10 +1266,8 @@ class AudioManager {
         }
         this.activeAudioSources.clear();
 
-        // Stop walking sounds
         this.stopWalkingSound();
 
-        // Stop remote walking sounds
         if (this.remoteWalkingIntervals) {
             for (const interval of this.remoteWalkingIntervals.values()) {
                 clearInterval(interval);
@@ -754,15 +1278,32 @@ class AudioManager {
         console.log('All sounds stopped');
     }
 
+    /**
+     * Update method called from game loop for periodic maintenance
+     * @param {number} deltaTime - Time elapsed since last update
+     */
     update(deltaTime) {
-        // Perform periodic cleanup of stuck sounds
         const currentTime = Date.now();
-        if (currentTime - this.lastCleanup > 5000) { // Clean up every 5 seconds
+        if (currentTime - this.lastCleanup > 5000) {
             this.cleanupStuckSounds();
         }
     }
 
+    /**
+     * Cleanup and dispose of all audio resources
+     */
     dispose() {
+        console.log('AudioSystem disposing...');
+
+        this.stopFlowstateMusic();
+
+        this.eventListeners.forEach(({ target, event, listener }) => {
+            if (target && typeof target.off === 'function') {
+                target.off(event, listener);
+            }
+        });
+        this.eventListeners = [];
+
         this.stopAllSounds();
         this.soundCache.clear();
 
@@ -772,9 +1313,8 @@ class AudioManager {
         }
 
         this.listener = null;
-        console.log('AudioManager disposed');
+        console.log('AudioSystem disposed');
     }
 }
 
-// Export for use in other modules
-export { AudioManager }; 
+export default AudioSystem;

@@ -487,7 +487,7 @@ export class AssetManager {
      */
     async loadGameAssets() {
         // Import weapon configurations
-        const { WeaponConfigs, WeaponConstants } = await import('../entities/WeaponConfig.js');
+        const { WeaponConfigs, WeaponConstants } = await import('../entities/weapons/WeaponConfig.js');
         
         const gameAssets = [];
 

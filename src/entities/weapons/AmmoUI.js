@@ -4,7 +4,7 @@
  */
 
 // BABYLON is loaded globally from CDN in index.html
-import { GameConfig } from '../mainConfig.js';
+import { GameConfig } from '../../mainConfig.js';
 import { WeaponType } from './WeaponConfig.js';
 
 export class AmmoUI {

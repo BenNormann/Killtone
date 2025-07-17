@@ -804,7 +804,7 @@ export class UIManager {
      */
     _createWeaponSelector(container) {
         // Import weapon configurations
-        import('../entities/WeaponConfig.js').then(({ WeaponConfigs, WeaponConstants }) => {
+        import('../entities/weapons/WeaponConfig.js').then(({ WeaponConfigs, WeaponConstants }) => {
             const weaponContainer = new BABYLON.GUI.Rectangle("weaponSelectorContainer");
             weaponContainer.heightInPixels = 60;
             weaponContainer.color = "transparent";

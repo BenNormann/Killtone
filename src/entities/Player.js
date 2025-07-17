@@ -660,7 +660,7 @@ export class Player {
     async setWeapon(weaponType, weaponConfig) {
         try {
             // Import weapon classes
-            const { WeaponType } = await import('./WeaponConfig.js');
+            const { WeaponType } = await import('./weapons/WeaponConfig.js');
             
             // Dispose current weapon if exists
             if (this.currentWeapon && this.currentWeapon.dispose) {
@@ -672,11 +672,11 @@ export class Player {
                 let WeaponClass;
                 switch (weaponType) {
                     case WeaponType.CARBINE:
-                        const { Carbine } = await import('./Carbine.js');
+                        const { Carbine } = await import('./weapons/Carbine.js');
                         WeaponClass = Carbine;
                         break;
                     case WeaponType.PISTOL:
-                        const { Pistol } = await import('./Pistol.js');
+                        const { Pistol } = await import('./weapons/Pistol.js');
                         WeaponClass = Pistol;
                         break;
                     // Add other weapon types as needed

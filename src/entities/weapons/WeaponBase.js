@@ -172,12 +172,12 @@ export class WeaponBase {
                     this.model = weaponAsset.meshes[0].clone(`${this.name}_model`);
                     this.model.setEnabled(false); // Hidden by default
                     
-                    // Clone animation groups
+                    // Store animation groups (don't clone, use references)
                     if (weaponAsset.animationGroups && weaponAsset.animationGroups.length > 0) {
                         weaponAsset.animationGroups.forEach(animGroup => {
-                            const clonedAnim = animGroup.clone(`${this.name}_${animGroup.name}`, this.model);
-                            this.animationGroups.set(animGroup.name.toLowerCase(), clonedAnim);
-                            clonedAnim.stop(); // Stop all animations initially
+                            // Use the original animation group, don't clone
+                            this.animationGroups.set(animGroup.name.toLowerCase(), animGroup);
+                            animGroup.stop(); // Stop all animations initially
                         });
                         
                         console.log(`Loaded ${weaponAsset.animationGroups.length} animations for ${this.name}:`, 

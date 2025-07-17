@@ -694,20 +694,20 @@ export class Game {
     }
 
     /**
-     * Initialize Audio Manager
+     * Initialize Audio System
      */
     async initializeAudioManager() {
         try {
-            console.log('Initializing Audio Manager...');
+            console.log('Initializing Audio System...');
 
-            const { AudioManager } = await import('./audio/AudioManager.js');
-            this.audioManager = new AudioManager(this);
+            const { AudioSystem } = await import('./audio/AudioSystem.js');
+            this.audioManager = new AudioSystem(this);
 
-            console.log('Audio Manager initialized successfully');
+            console.log('Audio System initialized successfully');
             return true;
 
         } catch (error) {
-            console.error('Failed to initialize Audio Manager:', error);
+            console.error('Failed to initialize Audio System:', error);
             return false;
         }
     }

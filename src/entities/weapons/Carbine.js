@@ -5,6 +5,7 @@
 
 import { WeaponBase } from './WeaponBase.js';
 import { WeaponConfigs, WeaponType, MuzzleFlashType } from './WeaponConfig.js';
+import { MuzzleFlash } from '../../effects/MuzzleFlash.js';
 
 export class Carbine extends WeaponBase {
     constructor(scene, effectsManager, accuracySystem = null, game = null) {
@@ -230,17 +231,9 @@ export class Carbine extends WeaponBase {
             muzzleWorldDir = BABYLON.Vector3.TransformNormal(this.muzzleDirection, worldMatrix);
         }
 
-        // Create donut-style muzzle flash for semi-automatic weapon
-        const flashEffect = this.effectsManager.createMuzzleFlash(
-            muzzleWorldPos,
-            muzzleWorldDir,
-            MuzzleFlashType.DONUT,
-            this.model
-        );
-
-        if (flashEffect) {
-            console.log('Carbine: Muzzle flash effect created');
-        }
+        // Create muzzle flash using MuzzleFlash system
+        const muzzleFlash = new MuzzleFlash(this.game, this.game?.particleManager);
+        muzzleFlash.createMuzzleFlash(muzzleWorldPos, muzzleWorldDir, 'assault_rifle');
     }
 
     /**
