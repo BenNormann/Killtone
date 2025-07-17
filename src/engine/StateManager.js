@@ -245,6 +245,11 @@ export class StateManager {
                 await newHandler.enter();
             }
 
+            // Notify UIManager of state change
+            if (this.game.uiManager && this.game.uiManager.onStateChange) {
+                this.game.uiManager.onStateChange(newState);
+            }
+
             console.log(`State transition completed: ${newState}`);
             return true;
 

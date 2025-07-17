@@ -24,8 +24,13 @@
             background-color: #000;
             color: #fff;
             overflow: hidden;
+            cursor: default;
+            /* Show cursor by default, will be hidden during gameplay */
+        }
+
+        body.in-game {
             cursor: none;
-            /* Hide cursor during gameplay */
+            /* Hide cursor only during gameplay */
         }
 
         #gameCanvas {

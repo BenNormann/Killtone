@@ -180,7 +180,6 @@ export class UIManager {
         // Load and create background image (full screen)
         try {
             const backgroundImage = new BABYLON.GUI.Image("menuBackground", "assets/Images/LoadingImage.png");
-            backgroundImage.horizontalAlignment = left;
             backgroundImage.stretch = BABYLON.GUI.Image.STRETCH_UNIFORM;
             backgroundImage.widthInPixels = this.engine.getRenderWidth();
             backgroundImage.heightInPixels = this.engine.getRenderHeight();
@@ -1253,6 +1252,25 @@ export class UIManager {
             pingText.top = "8px";
             entryContainer.addControl(pingText);
         }
+    }
+
+    /**
+     * Handle game state changes to control cursor visibility
+     * @param {string} newState - The new game state
+     */
+    onStateChange(newState) {
+        // Control cursor visibility based on game state
+        const body = document.body;
+        
+        if (newState === 'IN_GAME') {
+            // Hide cursor during gameplay
+            body.classList.add('in-game');
+        } else {
+            // Show cursor in menus
+            body.classList.remove('in-game');
+        }
+        
+        console.log(`Cursor visibility updated for state: ${newState}`);
     }
 
     /**

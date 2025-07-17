@@ -734,6 +734,14 @@ class AudioManager {
         console.log('All sounds stopped');
     }
 
+    update(deltaTime) {
+        // Perform periodic cleanup of stuck sounds
+        const currentTime = Date.now();
+        if (currentTime - this.lastCleanup > 5000) { // Clean up every 5 seconds
+            this.cleanupStuckSounds();
+        }
+    }
+
     dispose() {
         this.stopAllSounds();
         this.soundCache.clear();
@@ -749,8 +757,4 @@ class AudioManager {
 }
 
 // Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AudioManager;
-} else {
-    window.AudioManager = AudioManager;
-} 
+export { AudioManager }; 
