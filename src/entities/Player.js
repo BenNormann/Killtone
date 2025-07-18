@@ -354,6 +354,9 @@ export class Player {
         const forward = this.camera.getForwardRay().direction;
         const origin = this.camera.position.clone();
         
+        console.log('Player: Firing weapon from position:', origin.toString());
+        console.log('Player: Firing direction:', forward.toString());
+        
         // Fire weapon
         this.currentWeapon.fire(origin, forward);
         

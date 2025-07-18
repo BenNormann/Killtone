@@ -326,7 +326,7 @@ export class PerformanceMonitor {
         container.color = GameConfig.theme.colors.border;
         container.thickness = 2;
         container.background = GameConfig.theme.colors.backgroundPanel;
-        container.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        container.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         container.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
         container.topInPixels = 10;
         container.rightInPixels = 10;

@@ -22,6 +22,7 @@ export { Carbine } from './Carbine.js';
 export { AccuracySystem } from './AccuracySystem.js';
 
 // Export projectile system
-export { Projectile, ProjectileManager } from '../Projectile.js';
+export { Projectile } from '../Projectile.js';
+export { ProjectileManager } from '../../engine/ProjectileManager.js';
 
 // WeaponEffects removed - using different approach

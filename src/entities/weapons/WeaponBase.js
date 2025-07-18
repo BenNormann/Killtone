@@ -183,8 +183,10 @@ export class WeaponBase {
 
         // Create projectile through game's projectile manager
         if (game && game.projectileManager) {
-            game.projectileManager.fireProjectile(projectileData);
-            return true;
+            console.log(`${this.name}: Firing projectile with data:`, projectileData);
+            const projectileId = game.projectileManager.fireProjectile(projectileData);
+            console.log(`${this.name}: Projectile fired with ID:`, projectileId);
+            return projectileId !== null;
         } else {
             console.warn(`${this.name}: No projectile manager available`);
             return false;

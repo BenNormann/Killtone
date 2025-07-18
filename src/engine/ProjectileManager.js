@@ -1,268 +1,517 @@
 /**
- * KILLtONE Game Framework - Projectile Manager
- * Manages all projectiles in the game with hit detection and effects
+ * KILLtONE Game Framework - ProjectileManager
+ * Central coordinator for all projectile-related activities
  */
 
 import { Projectile } from '../entities/Projectile.js';
 
-/**
- * ProjectileManager class - manages all projectiles in the game
- */
 export class ProjectileManager {
     constructor(game, scene) {
         this.game = game;
         this.scene = scene;
         
-        // Projectile tracking
-        this.projectiles = new Map();
-        this.activeProjectileCount = 0;
-        this.totalProjectilesFired = 0;
-        this.projectilesHit = 0;
+        // Active projectiles storage
+        this.activeProjectiles = new Map();
+        this.projectileCounter = 0;
         
         // Configuration
         this.config = {
-            maxActiveProjectiles: 100,
+            maxProjectiles: 100,
             enableHitEffects: true,
-            collisionLayers: ['player', 'environment']
+            enableTrails: true,
+            debugMode: false,
+            networkTimeout: 5000,
+            maxRetries: 3,
+            cleanupInterval: 5, // seconds
+            maxAge: 10 // seconds
         };
         
-        // Glow layer for projectile effects
-        this.glowLayer = null;
+        // Performance tracking
+        this.stats = {
+            totalFired: 0,
+            totalHits: 0,
+            activeCount: 0,
+            hitRate: 0,
+            lastCleanupTime: 0
+        };
+        
+        // Network state
+        this.isOnline = false;
+        this.pendingProjectiles = new Map();
+        this.networkQueue = [];
+        
+        // Cleanup timer
+        this.lastCleanupTime = 0;
+        
+        // Initialize glow layer for projectiles
+        this.initializeGlowLayer();
     }
-
+    
     /**
      * Initialize the projectile manager
      */
-    initialize() {
-        // Create glow layer for projectile effects
-        this.glowLayer = new BABYLON.GlowLayer('projectileGlow', this.scene);
-        this.glowLayer.intensity = 0.4; // Reduced intensity to prevent overpowering
+    async initialize() {
+        console.log('Initializing ProjectileManager...');
         
-        // Add to scene effect layers
-        if (!this.scene.effectLayers) {
-            this.scene.effectLayers = [];
+        // Set up network connection if available
+        if (this.game.networkManager) {
+            this.setupNetworkHandlers();
         }
-        this.scene.effectLayers.push(this.glowLayer);
+        
+        // Set up periodic cleanup
+        this.setupCleanupTimer();
         
         console.log('ProjectileManager initialized');
     }
-
+    
     /**
-     * Fire a projectile from a position in a direction
+     * Initialize glow layer for enhanced projectile visibility
      */
-    fireProjectile(options = {}) {
-        // Check projectile limit
-        if (this.activeProjectileCount >= this.config.maxActiveProjectiles) {
-            console.warn('Maximum projectile limit reached');
+    initializeGlowLayer() {
+        console.log('ProjectileManager: Initializing glow layer...');
+        if (!this.scene.glowLayer) {
+            console.log('ProjectileManager: Creating new glow layer');
+            this.scene.glowLayer = new BABYLON.GlowLayer("projectileGlow", this.scene, {
+                mainTextureSamples: 4,
+                blurHorizontalSize: 0.3,
+                blurVerticalSize: 0.3,
+                glowIntensity: 0.8
+            });
+            console.log('ProjectileManager: Glow layer created:', this.scene.glowLayer);
+        } else {
+            console.log('ProjectileManager: Glow layer already exists');
+        }
+    }
+    
+    /**
+     * Fire a new projectile
+     */
+    fireProjectile(projectileData) {
+        console.log('ProjectileManager: Received projectile data:', projectileData);
+        
+        // Validate projectile data
+        if (!this.validateProjectileData(projectileData)) {
+            console.warn('Invalid projectile data:', projectileData);
             return null;
         }
         
-        // Create projectile with default settings
-        const projectileOptions = {
-            position: options.position || new BABYLON.Vector3.Zero(),
-            velocity: options.velocity || options.direction?.normalize().scale(options.speed || 50) || new BABYLON.Vector3(0, 0, 50),
-            speed: options.speed || 50,
-            damage: options.damage || 25,
-            ownerId: options.ownerId || null,
-            maxDistance: options.maxDistance || 500,
-            lifeTime: options.lifeTime || 10,
-            ...options
-        };
+        // Check projectile limit
+        if (this.activeProjectiles.size >= this.config.maxProjectiles) {
+            console.warn('Projectile limit reached, cannot fire new projectile');
+            return null;
+        }
         
-        // Create projectile
-        const projectile = new Projectile(this.scene, projectileOptions);
+        // Generate unique ID if not provided
+        if (!projectileData.id) {
+            projectileData.id = this.generateProjectileId();
+        }
         
-        // Add to tracking
-        this.projectiles.set(projectile.id, projectile);
-        this.activeProjectileCount++;
-        this.totalProjectilesFired++;
+        console.log('ProjectileManager: Creating projectile with ID:', projectileData.id);
         
-        return projectile;
+        // Create projectile instance
+        const projectile = new Projectile(
+            projectileData,
+            this.scene,
+            this.game.physicsManager ? this.game.physicsManager.raycastManager : null
+        );
+        
+        console.log('ProjectileManager: Projectile created, mesh:', projectile.mesh);
+        
+        // Add to active projectiles
+        this.activeProjectiles.set(projectile.id, projectile);
+        
+        // Update statistics
+        this.stats.totalFired++;
+        this.stats.activeCount = this.activeProjectiles.size;
+        this.updateHitRate();
+        
+        // Log if in debug mode
+        if (this.config.debugMode) {
+            console.log(`Fired projectile ${projectile.id} from ${projectileData.position.toString()}`);
+        }
+        
+        // Send to network if online
+        if (this.isOnline) {
+            this.sendProjectileToServer(projectileData);
+        }
+        
+        console.log('ProjectileManager: Returning projectile ID:', projectile.id);
+        return projectile.id;
     }
-
+    
+    /**
+     * Validate projectile data
+     */
+    validateProjectileData(data) {
+        return data &&
+               data.position &&
+               data.direction &&
+               data.speed > 0 &&
+               data.damage > 0 &&
+               data.maxDistance > 0;
+    }
+    
+    /**
+     * Generate unique projectile ID
+     */
+    generateProjectileId() {
+        this.projectileCounter++;
+        return `proj_${Date.now()}_${this.projectileCounter}`;
+    }
+    
     /**
      * Update all active projectiles
      */
     update(deltaTime) {
-        const projectilesToRemove = [];
-        
-        for (const [id, projectile] of this.projectiles) {
-            // Update projectile
-            const stillActive = projectile.update(deltaTime);
+        // Update each active projectile
+        for (const [id, projectile] of this.activeProjectiles) {
+            projectile.update(deltaTime);
             
-            if (!stillActive) {
-                projectilesToRemove.push(id);
-                continue;
-            }
-            
-            // Check for collisions
-            this.checkProjectileCollisions(projectile);
-        }
-        
-        // Remove inactive projectiles
-        for (const id of projectilesToRemove) {
-            this.removeProjectile(id);
-        }
-    }
-
-    /**
-     * Check collisions for a specific projectile
-     */
-    checkProjectileCollisions(projectile) {
-        if (!this.game.raycastManager) return;
-        
-        // Perform raycast for collision detection
-        const hitInfo = this.game.raycastManager.bulletRaycast(
-            projectile.lastPosition,
-            projectile.velocity.normalize(),
-            projectile.velocity.length() * 0.016, // Distance traveled this frame
-            [projectile.mesh] // Exclude the projectile itself
-        );
-        
-        if (hitInfo && hitInfo.hit) {
-            // Check if we hit a valid target
-            const hitMesh = hitInfo.mesh;
-            
-            if (this.isValidTarget(hitMesh, projectile)) {
-                // Handle the hit
-                const hitResult = projectile.onHit(hitInfo, this.game.particleManager);
-                
-                // Process hit effects
-                this.processHit(hitResult, hitMesh);
-                
-                // Remove projectile
-                this.removeProjectile(projectile.id);
-                this.projectilesHit++;
+            // Remove inactive projectiles
+            if (!projectile.isActive) {
+                this.removeProjectile(id);
             }
         }
+        
+        // Periodic cleanup
+        this.performPeriodicCleanup();
+        
+        // Process network queue
+        this.processNetworkQueue();
     }
-
+    
     /**
-     * Check if a mesh is a valid target for the projectile
-     */
-    isValidTarget(mesh, projectile) {
-        if (!mesh || !mesh.metadata) return true; // Default to true for environment
-        
-        // Don't hit the owner
-        if (mesh.metadata.playerId === projectile.ownerId) {
-            return false;
-        }
-        
-        // Don't hit other projectiles
-        if (mesh.metadata.type === 'projectile') {
-            return false;
-        }
-        
-        // Don't hit triggers unless specified
-        if (mesh.metadata.isTrigger) {
-            return false;
-        }
-        
-        return true;
-    }
-
-    /**
-     * Process hit effects and damage
-     */
-    processHit(hitResult, hitMesh) {
-        // Emit hit event for game systems
-        if (this.game.eventEmitter) {
-            this.game.eventEmitter.emit('projectileHit', {
-                ...hitResult,
-                targetMesh: hitMesh
-            });
-        }
-        
-        // Handle player hits
-        if (hitMesh.metadata && hitMesh.metadata.type === 'player') {
-            this.handlePlayerHit(hitResult, hitMesh);
-        }
-        
-        // Create hit effects using particle manager
-        if (this.config.enableHitEffects && this.game.particleManager) {
-            this.game.particleManager.createHitSpark(hitResult.position, hitResult.normal);
-        }
-    }
-
-    /**
-     * Handle hits on players
-     */
-    handlePlayerHit(hitResult, playerMesh) {
-        const playerId = playerMesh.metadata.playerId;
-        
-        // Apply damage through game systems
-        if (this.game.playerManager) {
-            this.game.playerManager.applyDamage(playerId, hitResult.damage, {
-                source: 'projectile',
-                attackerId: hitResult.ownerId,
-                position: hitResult.position
-            });
-        }
-        
-        // Create blood effects using particle manager
-        if (this.game.particleManager) {
-            this.game.particleManager.createBloodSplatter(hitResult.position, hitResult.normal);
-        }
-    }
-
-    /**
-     * Remove a projectile by ID
+     * Remove a projectile from active list
      */
     removeProjectile(id) {
-        const projectile = this.projectiles.get(id);
+        const projectile = this.activeProjectiles.get(id);
         if (projectile) {
-            projectile.destroy();
-            this.projectiles.delete(id);
-            this.activeProjectileCount--;
+            // Update hit statistics
+            if (projectile.hasHit) {
+                this.stats.totalHits++;
+                this.updateHitRate();
+            }
+            
+            // Dispose resources
+            projectile.dispose();
+            
+            // Remove from active list
+            this.activeProjectiles.delete(id);
+            
+            // Update statistics
+            this.stats.activeCount = this.activeProjectiles.size;
+            
+            if (this.config.debugMode) {
+                console.log(`Removed projectile ${id}, active: ${this.stats.activeCount}`);
+            }
         }
     }
-
+    
     /**
-     * Clear all projectiles
+     * Perform periodic cleanup of old projectiles
      */
-    clearAllProjectiles() {
-        for (const [id, projectile] of this.projectiles) {
-            projectile.destroy();
+    performPeriodicCleanup() {
+        const currentTime = performance.now() / 1000;
+        
+        if (currentTime - this.lastCleanupTime >= this.config.cleanupInterval) {
+            this.lastCleanupTime = currentTime;
+            
+            const projectilesToRemove = [];
+            
+            for (const [id, projectile] of this.activeProjectiles) {
+                const age = currentTime - projectile.createdTime;
+                
+                if (age >= this.config.maxAge) {
+                    projectilesToRemove.push(id);
+                }
+            }
+            
+            // Remove old projectiles
+            for (const id of projectilesToRemove) {
+                this.removeProjectile(id);
+            }
+            
+            if (projectilesToRemove.length > 0 && this.config.debugMode) {
+                console.log(`Cleaned up ${projectilesToRemove.length} old projectiles`);
+            }
         }
-        this.projectiles.clear();
-        this.activeProjectileCount = 0;
     }
-
+    
     /**
-     * Get projectile statistics
+     * Update hit rate calculation
+     */
+    updateHitRate() {
+        if (this.stats.totalFired > 0) {
+            this.stats.hitRate = (this.stats.totalHits / this.stats.totalFired) * 100;
+        }
+    }
+    
+    /**
+     * Get current statistics
      */
     getStats() {
         return {
-            activeProjectiles: this.activeProjectileCount,
-            totalFired: this.totalProjectilesFired,
-            totalHits: this.projectilesHit,
-            hitRate: this.totalProjectilesFired > 0 ? 
-                (this.projectilesHit / this.totalProjectilesFired * 100).toFixed(1) + '%' : '0%'
+            ...this.stats,
+            pendingCount: this.pendingProjectiles.size,
+            networkQueueSize: this.networkQueue.length,
+            isOnline: this.isOnline
         };
     }
-
+    
+    /**
+     * Get list of active projectiles
+     */
+    getActiveProjectiles() {
+        return Array.from(this.activeProjectiles.values()).map(projectile => ({
+            id: projectile.id,
+            position: projectile.position.clone(),
+            stats: projectile.getStats()
+        }));
+    }
+    
     /**
      * Configure projectile manager settings
      */
     configure(newConfig) {
         this.config = { ...this.config, ...newConfig };
+        
+        if (this.config.debugMode) {
+            console.log('ProjectileManager configuration updated:', this.config);
+        }
     }
-
+    
     /**
-     * Dispose of the projectile manager and clean up resources
+     * Test function to create a visible projectile
+     */
+    testProjectile() {
+        console.log('ProjectileManager: Creating test projectile...');
+        
+        const testData = {
+            position: new BABYLON.Vector3(0, 5, 0), // Start high up
+            direction: new BABYLON.Vector3(0, 0, 1), // Move forward
+            speed: 100, // Slow speed for visibility
+            damage: 50,
+            maxDistance: 1000,
+            ownerId: 'test',
+            weapon: {
+                name: 'Test Weapon',
+                type: 'carbine',
+                damage: 50
+            },
+            showTrail: true
+        };
+        
+        const projectileId = this.fireProjectile(testData);
+        console.log('ProjectileManager: Test projectile created with ID:', projectileId);
+        return projectileId;
+    }
+    
+    /**
+     * Setup network event handlers
+     */
+    setupNetworkHandlers() {
+        if (!this.game.networkManager) return;
+        
+        // Handle projectile hit events from server
+        this.game.networkManager.on('projectileHit', (data) => {
+            this.handleServerProjectileHit(data);
+        });
+        
+        // Handle projectile creation from server
+        this.game.networkManager.on('projectileCreated', (data) => {
+            this.handleServerProjectileCreated(data);
+        });
+        
+        // Handle network connection status
+        this.game.networkManager.on('connected', () => {
+            this.isOnline = true;
+            this.flushPendingProjectiles();
+        });
+        
+        this.game.networkManager.on('disconnected', () => {
+            this.isOnline = false;
+        });
+    }
+    
+    /**
+     * Send projectile to server
+     */
+    sendProjectileToServer(projectileData) {
+        if (!this.game.networkManager || !this.isOnline) {
+            // Store for later if offline
+            this.pendingProjectiles.set(projectileData.id, projectileData);
+            return;
+        }
+        
+        const networkData = {
+            type: 'projectileFire',
+            data: {
+                projectileId: projectileData.id,
+                position: projectileData.position,
+                direction: projectileData.direction,
+                speed: projectileData.speed,
+                damage: projectileData.damage,
+                maxDistance: projectileData.maxDistance,
+                weapon: projectileData.weapon,
+                timestamp: Date.now()
+            }
+        };
+        
+        this.game.networkManager.send(networkData);
+    }
+    
+    /**
+     * Handle projectile hit from server
+     */
+    handleServerProjectileHit(data) {
+        const projectile = this.activeProjectiles.get(data.projectileId);
+        if (projectile) {
+            // Server confirmed hit, mark projectile as hit
+            projectile.hasHit = true;
+            projectile.isActive = false;
+        }
+    }
+    
+    /**
+     * Handle projectile creation from server (other players)
+     */
+    handleServerProjectileCreated(data) {
+        // Create projectile from other player
+        const projectileData = {
+            id: data.projectileId,
+            position: new BABYLON.Vector3(data.position.x, data.position.y, data.position.z),
+            direction: new BABYLON.Vector3(data.direction.x, data.direction.y, data.direction.z),
+            speed: data.speed,
+            damage: data.damage,
+            maxDistance: data.maxDistance,
+            weapon: data.weapon,
+            ownerId: data.ownerId,
+            showTrail: false // Don't show trails for other players' projectiles
+        };
+        
+        this.fireProjectile(projectileData);
+    }
+    
+    /**
+     * Flush pending projectiles when coming online
+     */
+    flushPendingProjectiles() {
+        for (const [id, data] of this.pendingProjectiles) {
+            this.sendProjectileToServer(data);
+        }
+        this.pendingProjectiles.clear();
+    }
+    
+    /**
+     * Process network queue
+     */
+    processNetworkQueue() {
+        if (this.networkQueue.length === 0) return;
+        
+        const currentTime = performance.now();
+        const processed = [];
+        
+        for (const item of this.networkQueue) {
+            if (currentTime - item.timestamp > this.config.networkTimeout) {
+                // Timeout, remove from queue
+                processed.push(item);
+                continue;
+            }
+            
+            if (this.isOnline) {
+                // Try to send again
+                this.game.networkManager.send(item.data);
+                processed.push(item);
+            }
+        }
+        
+        // Remove processed items
+        for (const item of processed) {
+            const index = this.networkQueue.indexOf(item);
+            if (index > -1) {
+                this.networkQueue.splice(index, 1);
+            }
+        }
+    }
+    
+    /**
+     * Setup cleanup timer
+     */
+    setupCleanupTimer() {
+        // Cleanup is handled in the update loop
+        // This method is for future expansion if needed
+    }
+    
+    /**
+     * Clear all projectiles (for level reset, etc.)
+     */
+    clearAllProjectiles() {
+        const count = this.activeProjectiles.size;
+        
+        for (const [id, projectile] of this.activeProjectiles) {
+            projectile.dispose();
+        }
+        
+        this.activeProjectiles.clear();
+        this.stats.activeCount = 0;
+        
+        if (this.config.debugMode) {
+            console.log(`Cleared ${count} projectiles`);
+        }
+    }
+    
+    /**
+     * Get projectile by ID
+     */
+    getProjectile(id) {
+        return this.activeProjectiles.get(id);
+    }
+    
+    /**
+     * Check if projectile exists
+     */
+    hasProjectile(id) {
+        return this.activeProjectiles.has(id);
+    }
+    
+    /**
+     * Get performance metrics
+     */
+    getPerformanceMetrics() {
+        return {
+            activeProjectiles: this.activeProjectiles.size,
+            totalFired: this.stats.totalFired,
+            totalHits: this.stats.totalHits,
+            hitRate: this.stats.hitRate,
+            memoryUsage: this.activeProjectiles.size * 1024, // Rough estimate
+            networkQueueSize: this.networkQueue.length,
+            pendingProjectiles: this.pendingProjectiles.size
+        };
+    }
+    
+    /**
+     * Clean up resources
      */
     dispose() {
         // Clear all projectiles
         this.clearAllProjectiles();
         
-        // Dispose glow layer
-        if (this.glowLayer) {
-            this.glowLayer.dispose();
-            this.glowLayer = null;
+        // Clear network queue
+        this.networkQueue = [];
+        this.pendingProjectiles.clear();
+        
+        // Remove network handlers
+        if (this.game.networkManager) {
+            this.game.networkManager.off('projectileHit');
+            this.game.networkManager.off('projectileCreated');
+            this.game.networkManager.off('connected');
+            this.game.networkManager.off('disconnected');
         }
+        
+        // Clear references
+        this.game = null;
+        this.scene = null;
         
         console.log('ProjectileManager disposed');
     }
-}
-
-export default ProjectileManager;
+} 

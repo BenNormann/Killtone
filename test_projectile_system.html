@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KILLtONE - Projectile System Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        
+        #gameCanvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="info">
+        <h3>Projectile System Test</h3>
+        <div id="stats">
+            <div>Active Projectiles: <span id="activeCount">0</span></div>
+            <div>Total Fired: <span id="totalFired">0</span></div>
+            <div>Total Hits: <span id="totalHits">0</span></div>
+            <div>Hit Rate: <span id="hitRate">0%</span></div>
+        </div>
+    </div>
+    
+    <div id="controls">
+        <h4>Controls:</h4>
+        <div>Click to fire projectiles</div>
+        <div>WASD to move camera</div>
+        <div>Mouse to look around</div>
+        <br>
+        <button onclick="fireProjectile()" style="padding: 10px; background: #ff0040; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">Fire Test Projectile</button>
+        <button onclick="testProjectileMovement()" style="padding: 10px; background: #8800ff; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">Test Movement</button>
+        <button onclick="checkGameLoop()" style="padding: 10px; background: #00ff40; color: white; border: none; border-radius: 5px; cursor: pointer;">Check Game Loop</button>
+    </div>
+
+    <!-- Babylon.js -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    
+    <!-- Game Framework -->
+    <script type="module">
+        import { Game } from './src/Game.js';
+        
+        // Create game instance
+        const game = new Game();
+        
+        // Initialize game
+        game.initialize().then(() => {
+            console.log('Game initialized, starting...');
+            game.start();
+            
+            // Set up click handler for firing projectiles
+            const canvas = document.getElementById('gameCanvas');
+            canvas.addEventListener('click', (event) => {
+                fireProjectile();
+            });
+            
+            // Update stats display
+            setInterval(() => {
+                updateStats();
+            }, 100);
+            
+        }).catch(error => {
+            console.error('Failed to initialize game:', error);
+        });
+        
+        // Make fireProjectile global so the button can call it
+        window.fireProjectile = function() {
+            if (!game.projectileManager) return;
+            
+            // Use a simple upward direction for testing (easy to see movement)
+            const origin = new BABYLON.Vector3(0, 2, 0);
+            const direction = new BABYLON.Vector3(0, 1, 0); // Upward direction
+            
+            console.log(`Test firing projectile from ${origin.toString()} in direction ${direction.toString()}`);
+            
+            // Create projectile data
+            const projectileData = {
+                position: origin,
+                direction: direction,
+                speed: 800,
+                damage: 50,
+                maxDistance: 500,
+                ownerId: 'local',
+                weapon: {
+                    name: 'Test Weapon',
+                    type: 'carbine',
+                    damage: 50
+                },
+                showTrail: true
+            };
+            
+            // Fire projectile
+            const projectileId = game.projectileManager.fireProjectile(projectileData);
+            
+            if (projectileId) {
+                console.log(`Fired projectile: ${projectileId}`);
+                
+                // Check if projectile is in active list
+                const stats = game.projectileManager.getStats();
+                console.log(`Active projectiles after firing: ${stats.activeCount}`);
+                
+                // Get the actual projectile object
+                const activeProjectiles = game.projectileManager.getActiveProjectiles();
+                console.log(`Active projectiles list:`, activeProjectiles);
+            }
+        }
+        
+        function updateStats() {
+            if (!game.projectileManager) return;
+            
+            const stats = game.projectileManager.getStats();
+            
+            document.getElementById('activeCount').textContent = stats.activeCount;
+            document.getElementById('totalFired').textContent = stats.totalFired;
+            document.getElementById('totalHits').textContent = stats.totalHits;
+            document.getElementById('hitRate').textContent = `${stats.hitRate.toFixed(1)}%`;
+        }
+        
+        // Add a test function to manually update a projectile
+        window.testProjectileMovement = function() {
+            if (!game.projectileManager) return;
+            
+            const activeProjectiles = game.projectileManager.getActiveProjectiles();
+            if (activeProjectiles.length > 0) {
+                const firstProjectile = activeProjectiles[0];
+                console.log(`Testing movement for projectile ${firstProjectile.id}:`, firstProjectile.stats);
+                
+                // Manually update the projectile
+                const projectile = game.projectileManager.activeProjectiles.get(firstProjectile.id);
+                if (projectile) {
+                    console.log(`Before update - Position: ${projectile.position.toString()}`);
+                    projectile.update(0.016); // 60 FPS delta time
+                    console.log(`After update - Position: ${projectile.position.toString()}`);
+                }
+            }
+        };
+        
+        // Add a test to check if the game loop is running
+        window.checkGameLoop = function() {
+            console.log(`Game running: ${game.isRunning}`);
+            console.log(`Game initialized: ${game.isInitialized}`);
+            console.log(`Current state: ${game.stateManager ? game.stateManager.getCurrentState() : 'UNKNOWN'}`);
+            console.log(`Active projectiles: ${game.projectileManager ? game.projectileManager.getActiveProjectiles().length : 0}`);
+        };
+    </script>
+</body>
+</html> 
