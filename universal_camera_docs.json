@@ -1,0 +1,1205 @@
+{
+  "class": "UniversalCamera",
+  "namespace": "BABYLON",
+  "description": "The Universal Camera is the one to choose for first person shooter type games, and works with all the keyboard, mouse, touch and gamepads. This replaces the earlier Free Camera, which still works and will still be found in many Playgrounds.",
+  "properties": {
+    "animations": {
+      "type": "Animation[]",
+      "description": "Array of animations attached to the camera"
+    },
+    "applyGravity": {
+      "type": "boolean",
+      "description": "Whether gravity should be applied to the camera"
+    },
+    "cameraDirection": {
+      "type": "Vector3",
+      "description": "The direction the camera is facing"
+    },
+    "cameraRigMode": {
+      "type": "number",
+      "description": "The rig mode for stereoscopic rendering"
+    },
+    "cameraRotation": {
+      "type": "Vector3",
+      "description": "The rotation of the camera in Euler angles"
+    },
+    "checkCollisions": {
+      "type": "boolean",
+      "description": "Whether collision detection is enabled for the camera"
+    },
+    "customRenderTargets": {
+      "type": "RenderTargetTexture[]",
+      "description": "Array of custom render targets"
+    },
+    "ellipsoid": {
+      "type": "Vector3",
+      "description": "The ellipsoid used for collision detection"
+    },
+    "ellipsoidOffset": {
+      "type": "Vector3",
+      "description": "Offset for the collision ellipsoid"
+    },
+    "fov": {
+      "type": "number",
+      "description": "Field of view in radians"
+    },
+    "fovMode": {
+      "type": "number",
+      "description": "Field of view mode (horizontal or vertical fixed)"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the camera"
+    },
+    "inertia": {
+      "type": "number",
+      "description": "Inertia factor for camera movement smoothing"
+    },
+    "inputs": {
+      "type": "UniversalCameraInputsManager",
+      "description": "Input manager for handling keyboard, mouse, touch, and gamepad inputs"
+    },
+    "inspectableCustomProperties": {
+      "type": "IInspectable[]",
+      "description": "Custom properties that can be inspected in the inspector"
+    },
+    "interaxialDistance": {
+      "type": "number",
+      "description": "Distance between eyes for stereoscopic rendering"
+    },
+    "inverseRotationSpeed": {
+      "type": "number",
+      "description": "Inverse rotation speed multiplier"
+    },
+    "invertRotation": {
+      "type": "boolean",
+      "description": "Whether to invert rotation controls"
+    },
+    "isIntermediate": {
+      "type": "boolean",
+      "description": "Whether this is an intermediate camera in a rig"
+    },
+    "isRigCamera": {
+      "type": "boolean",
+      "description": "Whether this camera is part of a rig"
+    },
+    "isStereoscopicSideBySide": {
+      "type": "boolean",
+      "description": "Whether stereoscopic side-by-side rendering is enabled"
+    },
+    "layerMask": {
+      "type": "number",
+      "description": "Layer mask for selective rendering"
+    },
+    "lockedTarget": {
+      "type": "AbstractMesh",
+      "description": "Target mesh that the camera is locked to"
+    },
+    "maxZ": {
+      "type": "number",
+      "description": "Maximum Z distance for rendering (far plane)"
+    },
+    "metadata": {
+      "type": "any",
+      "description": "Custom metadata associated with the camera"
+    },
+    "minZ": {
+      "type": "number",
+      "description": "Minimum Z distance for rendering (near plane)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the camera"
+    },
+    "noRotationConstraint": {
+      "type": "boolean",
+      "description": "Whether rotation constraints are disabled"
+    },
+    "oblique": {
+      "type": "Vector4",
+      "description": "Oblique projection parameters"
+    },
+    "onAccessibilityTagChangedObservable": {
+      "type": "Observable<Node>",
+      "description": "Observable triggered when accessibility tag changes"
+    },
+    "onAfterCheckInputsObservable": {
+      "type": "Observable<Camera>",
+      "description": "Observable triggered after input checking"
+    },
+    "onCollide": {
+      "type": "function",
+      "description": "Callback function called when collision occurs"
+    },
+    "onDisposeObservable": {
+      "type": "Observable<Node>",
+      "description": "Observable triggered when the camera is disposed"
+    },
+    "onProjectionMatrixChangedObservable": {
+      "type": "Observable<Camera>",
+      "description": "Observable triggered when projection matrix changes"
+    },
+    "onReady": {
+      "type": "function",
+      "description": "Callback function called when camera is ready"
+    },
+    "onRestoreStateObservable": {
+      "type": "Observable<Camera>",
+      "description": "Observable triggered when camera state is restored"
+    },
+    "onViewMatrixChangedObservable": {
+      "type": "Observable<Camera>",
+      "description": "Observable triggered when view matrix changes"
+    },
+    "outputRenderTarget": {
+      "type": "RenderTargetTexture",
+      "description": "Output render target for the camera"
+    },
+    "projectionPlaneTilt": {
+      "type": "number",
+      "description": "Tilt angle for the projection plane"
+    },
+    "renderPassId": {
+      "type": "number",
+      "description": "Render pass identifier"
+    },
+    "reservedDataStore": {
+      "type": "any",
+      "description": "Reserved data store for internal use"
+    },
+    "rigParent": {
+      "type": "Camera",
+      "description": "Parent camera in a rig setup"
+    },
+    "rotation": {
+      "type": "Vector3",
+      "description": "Rotation of the camera in Euler angles"
+    },
+    "rotationQuaternion": {
+      "type": "Quaternion",
+      "description": "Rotation of the camera as a quaternion"
+    },
+    "speed": {
+      "type": "number",
+      "description": "Movement speed of the camera"
+    },
+    "state": {
+      "type": "string",
+      "description": "Current state of the camera"
+    },
+    "uniqueId": {
+      "type": "number",
+      "description": "Unique numeric identifier"
+    },
+    "updateUpVectorFromRotation": {
+      "type": "boolean",
+      "description": "Whether to update up vector from rotation"
+    },
+    "viewport": {
+      "type": "Viewport",
+      "description": "Viewport settings for the camera"
+    }
+  },
+  "constants": {
+    "ForceAttachControlToAlwaysPreventDefault": {
+      "type": "boolean",
+      "description": "Force attach control to always prevent default behavior"
+    },
+    "FOVMODE_HORIZONTAL_FIXED": {
+      "type": "number",
+      "description": "Horizontal fixed field of view mode"
+    },
+    "FOVMODE_VERTICAL_FIXED": {
+      "type": "number",
+      "description": "Vertical fixed field of view mode"
+    },
+    "ORTHOGRAPHIC_CAMERA": {
+      "type": "number",
+      "description": "Orthographic camera projection mode"
+    },
+    "PERSPECTIVE_CAMERA": {
+      "type": "number",
+      "description": "Perspective camera projection mode"
+    },
+    "RIG_MODE_CUSTOM": {
+      "type": "number",
+      "description": "Custom rig mode"
+    },
+    "RIG_MODE_NONE": {
+      "type": "number",
+      "description": "No rig mode"
+    },
+    "RIG_MODE_STEREOSCOPIC_ANAGLYPH": {
+      "type": "number",
+      "description": "Stereoscopic anaglyph rig mode"
+    },
+    "RIG_MODE_STEREOSCOPIC_INTERLACED": {
+      "type": "number",
+      "description": "Stereoscopic interlaced rig mode"
+    },
+    "RIG_MODE_STEREOSCOPIC_OVERUNDER": {
+      "type": "number",
+      "description": "Stereoscopic over-under rig mode"
+    },
+    "RIG_MODE_STEREOSCOPIC_SIDEBYSIDE_CROSSEYED": {
+      "type": "number",
+      "description": "Stereoscopic side-by-side cross-eyed rig mode"
+    },
+    "RIG_MODE_STEREOSCOPIC_SIDEBYSIDE_PARALLEL": {
+      "type": "number",
+      "description": "Stereoscopic side-by-side parallel rig mode"
+    },
+    "RIG_MODE_VR": {
+      "type": "number",
+      "description": "VR rig mode"
+    }
+  },
+  "accessors": {
+    "absoluteRotation": {
+      "type": "Quaternion",
+      "readonly": true,
+      "description": "Gets the absolute rotation of the camera"
+    },
+    "accessibilityTag": {
+      "type": "string",
+      "description": "Gets or sets the accessibility tag"
+    },
+    "angularSensibility": {
+      "type": "number",
+      "description": "Gets or sets the angular sensitivity for mouse/touch rotation"
+    },
+    "animationPropertiesOverride": {
+      "type": "AnimationPropertiesOverride",
+      "description": "Gets or sets animation properties override"
+    },
+    "behaviors": {
+      "type": "Behavior<Node>[]",
+      "readonly": true,
+      "description": "Gets the list of attached behaviors"
+    },
+    "collisionMask": {
+      "type": "number",
+      "description": "Gets or sets the collision mask"
+    },
+    "doNotSerialize": {
+      "type": "boolean",
+      "description": "Gets or sets whether the camera should be serialized"
+    },
+    "gamepadAngularSensibility": {
+      "type": "number",
+      "description": "Gets or sets the gamepad angular sensitivity"
+    },
+    "gamepadMoveSensibility": {
+      "type": "number",
+      "description": "Gets or sets the gamepad movement sensitivity"
+    },
+    "globalPosition": {
+      "type": "Vector3",
+      "readonly": true,
+      "description": "Gets the global position of the camera"
+    },
+    "hasMoved": {
+      "type": "boolean",
+      "readonly": true,
+      "description": "Gets whether the camera has moved since last frame"
+    },
+    "isLeftCamera": {
+      "type": "boolean",
+      "readonly": true,
+      "description": "Gets whether this is the left camera in a stereoscopic setup"
+    },
+    "isRightCamera": {
+      "type": "boolean",
+      "readonly": true,
+      "description": "Gets whether this is the right camera in a stereoscopic setup"
+    },
+    "keysDown": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for moving down"
+    },
+    "keysDownward": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for moving downward"
+    },
+    "keysLeft": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for moving left"
+    },
+    "keysRight": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for moving right"
+    },
+    "keysRotateDown": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for rotating down"
+    },
+    "keysRotateLeft": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for rotating left"
+    },
+    "keysRotateRight": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for rotating right"
+    },
+    "keysRotateUp": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for rotating up"
+    },
+    "keysUp": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for moving up"
+    },
+    "keysUpward": {
+      "type": "number[]",
+      "description": "Gets or sets the key codes for moving upward"
+    },
+    "leftCamera": {
+      "type": "FreeCamera",
+      "readonly": true,
+      "description": "Gets the left camera in a stereoscopic setup"
+    },
+    "mode": {
+      "type": "number",
+      "description": "Gets or sets the camera mode (perspective/orthographic)"
+    },
+    "needMoveForGravity": {
+      "type": "boolean",
+      "description": "Gets or sets whether movement is needed for gravity"
+    },
+    "onClonedObservable": {
+      "type": "Observable<Node>",
+      "readonly": true,
+      "description": "Gets the observable triggered when the camera is cloned"
+    },
+    "onDispose": {
+      "type": "function",
+      "description": "Gets or sets the dispose callback"
+    },
+    "onEnabledStateChangedObservable": {
+      "type": "Observable<boolean>",
+      "readonly": true,
+      "description": "Gets the observable triggered when enabled state changes"
+    },
+    "orthoBottom": {
+      "type": "number",
+      "description": "Gets or sets the bottom boundary for orthographic projection"
+    },
+    "orthoLeft": {
+      "type": "number",
+      "description": "Gets or sets the left boundary for orthographic projection"
+    },
+    "orthoRight": {
+      "type": "number",
+      "description": "Gets or sets the right boundary for orthographic projection"
+    },
+    "orthoTop": {
+      "type": "number",
+      "description": "Gets or sets the top boundary for orthographic projection"
+    },
+    "parent": {
+      "type": "Node",
+      "description": "Gets or sets the parent node"
+    },
+    "position": {
+      "type": "Vector3",
+      "description": "Gets or sets the position of the camera"
+    },
+    "rightCamera": {
+      "type": "FreeCamera",
+      "readonly": true,
+      "description": "Gets the right camera in a stereoscopic setup"
+    },
+    "rigPostProcess": {
+      "type": "PostProcess",
+      "readonly": true,
+      "description": "Gets the post-process for the rig"
+    },
+    "screenArea": {
+      "type": "number",
+      "readonly": true,
+      "description": "Gets the screen area covered by the camera"
+    },
+    "target": {
+      "type": "Vector3",
+      "description": "Gets or sets the target position the camera is looking at"
+    },
+    "touchAngularSensibility": {
+      "type": "number",
+      "description": "Gets or sets the touch angular sensitivity"
+    },
+    "touchMoveSensibility": {
+      "type": "number",
+      "description": "Gets or sets the touch movement sensitivity"
+    },
+    "upVector": {
+      "type": "Vector3",
+      "description": "Gets or sets the up vector of the camera"
+    },
+    "worldMatrixFromCache": {
+      "type": "Matrix",
+      "readonly": true,
+      "description": "Gets the world matrix from cache"
+    }
+  },
+  "methods": {
+    "_getFirstPostProcess": {
+      "description": "Gets the first post-process in the chain",
+      "returns": "PostProcess"
+    },
+    "addBehavior": {
+      "description": "Adds a behavior to the camera",
+      "parameters": [
+        {
+          "name": "behavior",
+          "type": "Behavior<Node>",
+          "description": "The behavior to add"
+        },
+        {
+          "name": "attachImmediately",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to attach immediately"
+        }
+      ],
+      "returns": "Node"
+    },
+    "applyVerticalCorrection": {
+      "description": "Applies vertical correction to the camera",
+      "returns": "void"
+    },
+    "attachControl": {
+      "description": "Attaches input controls to the camera",
+      "parameters": [
+        {
+          "name": "noPreventDefault",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to prevent default behavior"
+        }
+      ],
+      "returns": "void"
+    },
+    "attachPostProcess": {
+      "description": "Attaches a post-process to the camera",
+      "parameters": [
+        {
+          "name": "postProcess",
+          "type": "PostProcess",
+          "description": "The post-process to attach"
+        },
+        {
+          "name": "insertAt",
+          "type": "number",
+          "optional": true,
+          "description": "Index to insert at"
+        }
+      ],
+      "returns": "number"
+    },
+    "beginAnimation": {
+      "description": "Begins an animation on the camera",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the animation"
+        },
+        {
+          "name": "loop",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to loop the animation"
+        },
+        {
+          "name": "speedRatio",
+          "type": "number",
+          "optional": true,
+          "description": "Speed ratio for the animation"
+        },
+        {
+          "name": "onAnimationEnd",
+          "type": "function",
+          "optional": true,
+          "description": "Callback when animation ends"
+        }
+      ],
+      "returns": "Animatable"
+    },
+    "clone": {
+      "description": "Clones the camera",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name for the cloned camera"
+        },
+        {
+          "name": "newParent",
+          "type": "Node",
+          "optional": true,
+          "description": "New parent for the cloned camera"
+        }
+      ],
+      "returns": "Camera"
+    },
+    "computeWorldMatrix": {
+      "description": "Computes the world matrix for the camera",
+      "parameters": [
+        {
+          "name": "force",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to force computation"
+        }
+      ],
+      "returns": "Matrix"
+    },
+    "createAnimationRange": {
+      "description": "Creates an animation range",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the animation range"
+        },
+        {
+          "name": "from",
+          "type": "number",
+          "description": "Start frame"
+        },
+        {
+          "name": "to",
+          "type": "number",
+          "description": "End frame"
+        }
+      ],
+      "returns": "void"
+    },
+    "deleteAnimationRange": {
+      "description": "Deletes an animation range",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the animation range to delete"
+        },
+        {
+          "name": "deleteFrames",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to delete the frames"
+        }
+      ],
+      "returns": "void"
+    },
+    "detachControl": {
+      "description": "Detaches input controls from the camera",
+      "returns": "void"
+    },
+    "detachPostProcess": {
+      "description": "Detaches a post-process from the camera",
+      "parameters": [
+        {
+          "name": "postProcess",
+          "type": "PostProcess",
+          "description": "The post-process to detach"
+        }
+      ],
+      "returns": "void"
+    },
+    "dispose": {
+      "description": "Disposes the camera and releases resources",
+      "parameters": [
+        {
+          "name": "doNotRecurse",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to recurse to children"
+        },
+        {
+          "name": "disposeMaterialAndTextures",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to dispose materials and textures"
+        }
+      ],
+      "returns": "void"
+    },
+    "freezeProjectionMatrix": {
+      "description": "Freezes the projection matrix to prevent updates",
+      "parameters": [
+        {
+          "name": "projection",
+          "type": "Matrix",
+          "optional": true,
+          "description": "Custom projection matrix"
+        }
+      ],
+      "returns": "void"
+    },
+    "getActiveMeshes": {
+      "description": "Gets the active meshes for this camera",
+      "returns": "SmartArray<AbstractMesh>"
+    },
+    "getAnimationByName": {
+      "description": "Gets an animation by name",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the animation"
+        }
+      ],
+      "returns": "Animation"
+    },
+    "getAnimationRange": {
+      "description": "Gets an animation range by name",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the animation range"
+        }
+      ],
+      "returns": "AnimationRange"
+    },
+    "getAnimationRanges": {
+      "description": "Gets all animation ranges",
+      "returns": "AnimationRange[]"
+    },
+    "getBehaviorByName": {
+      "description": "Gets a behavior by name",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the behavior"
+        }
+      ],
+      "returns": "Behavior<Node>"
+    },
+    "getChildMeshes": {
+      "description": "Gets child meshes",
+      "parameters": [
+        {
+          "name": "directDescendantsOnly",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to get direct descendants only"
+        },
+        {
+          "name": "predicate",
+          "type": "function",
+          "optional": true,
+          "description": "Predicate function to filter meshes"
+        }
+      ],
+      "returns": "AbstractMesh[]"
+    },
+    "getChildren": {
+      "description": "Gets child nodes",
+      "parameters": [
+        {
+          "name": "predicate",
+          "type": "function",
+          "optional": true,
+          "description": "Predicate function to filter children"
+        },
+        {
+          "name": "directDescendantsOnly",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to get direct descendants only"
+        }
+      ],
+      "returns": "Node[]"
+    },
+    "getClassName": {
+      "description": "Gets the class name",
+      "returns": "string"
+    },
+    "getDescendants": {
+      "description": "Gets descendant nodes",
+      "parameters": [
+        {
+          "name": "directDescendantsOnly",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to get direct descendants only"
+        },
+        {
+          "name": "predicate",
+          "type": "function",
+          "optional": true,
+          "description": "Predicate function to filter descendants"
+        }
+      ],
+      "returns": "Node[]"
+    },
+    "getDirection": {
+      "description": "Gets the direction vector from the camera",
+      "parameters": [
+        {
+          "name": "localAxis",
+          "type": "Vector3",
+          "description": "Local axis vector"
+        }
+      ],
+      "returns": "Vector3"
+    },
+    "getDirectionToRef": {
+      "description": "Gets the direction vector and stores it in a reference",
+      "parameters": [
+        {
+          "name": "localAxis",
+          "type": "Vector3",
+          "description": "Local axis vector"
+        },
+        {
+          "name": "result",
+          "type": "Vector3",
+          "description": "Vector to store the result"
+        }
+      ],
+      "returns": "void"
+    },
+    "getEngine": {
+      "description": "Gets the engine instance",
+      "returns": "Engine"
+    },
+    "getForwardRay": {
+      "description": "Gets a forward ray from the camera",
+      "parameters": [
+        {
+          "name": "length",
+          "type": "number",
+          "optional": true,
+          "description": "Length of the ray"
+        },
+        {
+          "name": "transform",
+          "type": "Matrix",
+          "optional": true,
+          "description": "Transform matrix"
+        },
+        {
+          "name": "origin",
+          "type": "Vector3",
+          "optional": true,
+          "description": "Origin point"
+        }
+      ],
+      "returns": "Ray"
+    },
+    "getForwardRayToRef": {
+      "description": "Gets a forward ray and stores it in a reference",
+      "parameters": [
+        {
+          "name": "refRay",
+          "type": "Ray",
+          "description": "Ray to store the result"
+        },
+        {
+          "name": "length",
+          "type": "number",
+          "optional": true,
+          "description": "Length of the ray"
+        },
+        {
+          "name": "transform",
+          "type": "Matrix",
+          "optional": true,
+          "description": "Transform matrix"
+        },
+        {
+          "name": "origin",
+          "type": "Vector3",
+          "optional": true,
+          "description": "Origin point"
+        }
+      ],
+      "returns": "void"
+    },
+    "getFrontPosition": {
+      "description": "Gets a position in front of the camera",
+      "parameters": [
+        {
+          "name": "distance",
+          "type": "number",
+          "description": "Distance in front of the camera"
+        }
+      ],
+      "returns": "Vector3"
+    },
+    "getHierarchyBoundingVectors": {
+      "description": "Gets bounding vectors for the hierarchy",
+      "parameters": [
+        {
+          "name": "includeDescendants",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to include descendants"
+        },
+        {
+          "name": "predicate",
+          "type": "function",
+          "optional": true,
+          "description": "Predicate function"
+        }
+      ],
+      "returns": "{ min: Vector3, max: Vector3 }"
+    },
+    "getLeftTarget": {
+      "description": "Gets the left target for stereoscopic rendering",
+      "returns": "Vector3"
+    },
+    "getProjectionMatrix": {
+      "description": "Gets the projection matrix",
+      "parameters": [
+        {
+          "name": "force",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to force computation"
+        }
+      ],
+      "returns": "Matrix"
+    },
+    "getRightTarget": {
+      "description": "Gets the right target for stereoscopic rendering",
+      "returns": "Vector3"
+    },
+    "getScene": {
+      "description": "Gets the scene the camera belongs to",
+      "returns": "Scene"
+    },
+    "getTarget": {
+      "description": "Gets the target position",
+      "returns": "Vector3"
+    },
+    "getTransformationMatrix": {
+      "description": "Gets the transformation matrix",
+      "returns": "Matrix"
+    },
+    "getViewMatrix": {
+      "description": "Gets the view matrix",
+      "parameters": [
+        {
+          "name": "force",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to force computation"
+        }
+      ],
+      "returns": "Matrix"
+    },
+    "getWorldMatrix": {
+      "description": "Gets the world matrix",
+      "returns": "Matrix"
+    },
+    "hasStateStored": {
+      "description": "Checks if the camera has stored state",
+      "returns": "boolean"
+    },
+    "isActiveMesh": {
+      "description": "Checks if a mesh is active for this camera",
+      "parameters": [
+        {
+          "name": "mesh",
+          "type": "AbstractMesh",
+          "description": "The mesh to check"
+        }
+      ],
+      "returns": "boolean"
+    },
+    "isCompletelyInFrustum": {
+      "description": "Checks if a mesh is completely in the camera frustum",
+      "parameters": [
+        {
+          "name": "target",
+          "type": "ICullable",
+          "description": "The target to check"
+        }
+      ],
+      "returns": "boolean"
+    },
+    "isDescendantOf": {
+      "description": "Checks if this camera is a descendant of another node",
+      "parameters": [
+        {
+          "name": "ancestor",
+          "type": "Node",
+          "description": "The potential ancestor"
+        }
+      ],
+      "returns": "boolean"
+    },
+    "isDisposed": {
+      "description": "Checks if the camera is disposed",
+      "returns": "boolean"
+    },
+    "isEnabled": {
+      "description": "Checks if the camera is enabled",
+      "parameters": [
+        {
+          "name": "checkAncestors",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to check ancestors"
+        }
+      ],
+      "returns": "boolean"
+    },
+    "isInFrustum": {
+      "description": "Checks if a target is in the camera frustum",
+      "parameters": [
+        {
+          "name": "target",
+          "type": "ICullable",
+          "description": "The target to check"
+        }
+      ],
+      "returns": "boolean"
+    },
+    "isReady": {
+      "description": "Checks if the camera is ready",
+      "parameters": [
+        {
+          "name": "completeCheck",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to perform complete check"
+        }
+      ],
+      "returns": "boolean"
+    },
+    "markAsDirty": {
+      "description": "Marks the camera as dirty for updates",
+      "parameters": [
+        {
+          "name": "property",
+          "type": "string",
+          "optional": true,
+          "description": "Specific property that changed"
+        }
+      ],
+      "returns": "Node"
+    },
+    "removeBehavior": {
+      "description": "Removes a behavior from the camera",
+      "parameters": [
+        {
+          "name": "behavior",
+          "type": "Behavior<Node>",
+          "description": "The behavior to remove"
+        }
+      ],
+      "returns": "Node"
+    },
+    "restoreState": {
+      "description": "Restores the camera state",
+      "returns": "boolean"
+    },
+    "serialize": {
+      "description": "Serializes the camera",
+      "returns": "any"
+    },
+    "serializeAnimationRanges": {
+      "description": "Serializes animation ranges",
+      "returns": "any"
+    },
+    "setEnabled": {
+      "description": "Sets the enabled state of the camera",
+      "parameters": [
+        {
+          "name": "value",
+          "type": "boolean",
+          "description": "Whether to enable the camera"
+        }
+      ],
+      "returns": "void"
+    },
+    "setFocalLength": {
+      "description": "Sets the focal length of the camera",
+      "parameters": [
+        {
+          "name": "focalLength",
+          "type": "number",
+          "description": "The focal length value"
+        }
+      ],
+      "returns": "void"
+    },
+    "setTarget": {
+      "description": "Sets the target position for the camera",
+      "parameters": [
+        {
+          "name": "target",
+          "type": "Vector3",
+          "description": "The target position"
+        }
+      ],
+      "returns": "void"
+    },
+    "storeState": {
+      "description": "Stores the current camera state",
+      "returns": "Node"
+    },
+    "toString": {
+      "description": "Returns a string representation of the camera",
+      "parameters": [
+        {
+          "name": "fullDetails",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether to include full details"
+        }
+      ],
+      "returns": "string"
+    },
+    "unfreezeProjectionMatrix": {
+      "description": "Unfreezes the projection matrix to allow updates",
+      "returns": "void"
+    }
+  },
+  "staticMethods": {
+    "AddNodeConstructor": {
+      "description": "Adds a node constructor",
+      "parameters": [
+        {
+          "name": "type",
+          "type": "string",
+          "description": "The node type"
+        },
+        {
+          "name": "constructorFunc",
+          "type": "function",
+          "description": "The constructor function"
+        }
+      ],
+      "returns": "void"
+    },
+    "Construct": {
+      "description": "Constructs a camera from serialized data",
+      "parameters": [
+        {
+          "name": "type",
+          "type": "string",
+          "description": "The camera type"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "The camera name"
+        },
+        {
+          "name": "scene",
+          "type": "Scene",
+          "description": "The scene"
+        },
+        {
+          "name": "options",
+          "type": "any",
+          "optional": true,
+          "description": "Construction options"
+        }
+      ],
+      "returns": "Camera"
+    },
+    "GetConstructorFromName": {
+      "description": "Gets a constructor function by name",
+      "parameters": [
+        {
+          "name": "type",
+          "type": "string",
+          "description": "The constructor type"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "The constructor name"
+        },
+        {
+          "name": "scene",
+          "type": "Scene",
+          "description": "The scene"
+        },
+        {
+          "name": "interaxial_distance",
+          "type": "number",
+          "optional": true,
+          "description": "Interaxial distance for stereoscopic cameras"
+        },
+        {
+          "name": "isStereoscopicSideBySide",
+          "type": "boolean",
+          "optional": true,
+          "description": "Whether it's stereoscopic side-by-side"
+        }
+      ],
+      "returns": "function"
+    },
+    "Parse": {
+      "description": "Parses a camera from serialized data",
+      "parameters": [
+        {
+          "name": "parsedCamera",
+          "type": "any",
+          "description": "The parsed camera data"
+        },
+        {
+          "name": "scene",
+          "type": "Scene",
+          "description": "The scene"
+        }
+      ],
+      "returns": "Camera"
+    },
+    "ParseAnimationRanges": {
+      "description": "Parses animation ranges from serialized data",
+      "parameters": [
+        {
+          "name": "node",
+          "type": "Node",
+          "description": "The target node"
+        },
+        {
+          "name": "parsedNode",
+          "type": "any",
+          "description": "The parsed node data"
+        },
+        {
+          "name": "scene",
+          "type": "Scene",
+          "description": "The scene"
+        }
+      ],
+      "returns": "void"
+    }
+  },
+  "usage": {
+    "basicSetup": {
+      "description": "Basic setup for a Universal Camera",
+      "example": "const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(0, 5, -10), scene);\ncamera.setTarget(BABYLON.Vector3.Zero());\ncamera.attachControl(canvas, true);"
+    },
+    "firstPersonShooter": {
+      "description": "Configuration for first-person shooter games",
+      "example": "camera.speed = 0.5;\ncamera.angularSensibility = 2000;\ncamera.keysUp = [87]; // W\ncamera.keysDown = [83]; // S\ncamera.keysLeft = [65]; // A\ncamera.keysRight = [68]; // D"
+    },
+    "collisionDetection": {
+      "description": "Enable collision detection",
+      "example": "camera.checkCollisions = true;\ncamera.applyGravity = true;\ncamera.ellipsoid = new BABYLON.Vector3(1, 1, 1);\ncamera.ellipsoidOffset = new BABYLON.Vector3(0, 1, 0);"
+    },
+    "inputCustomization": {
+      "description": "Customize input controls",
+      "example": "camera.inputs.removeByType('UniversalCameraKeyboardMoveInput');\ncamera.inputs.add(new BABYLON.UniversalCameraKeyboardMoveInput());"
+    }
+  },
+  "notes": [
+    "The UniversalCamera replaces the older FreeCamera and provides better input handling",
+    "It supports keyboard, mouse, touch, and gamepad inputs out of the box",
+    "Ideal for first-person shooter and exploration games",
+    "Collision detection and gravity can be easily enabled",
+    "Input controls are fully customizable through the inputs manager"
+  ]
+}

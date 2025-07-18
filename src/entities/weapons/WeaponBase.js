@@ -10,9 +10,7 @@ import MathUtils from '../../utils/MathUtils.js';
 
 export class WeaponBase {
     constructor(config, scene, effectsManager, accuracySystem = null, game = null) {
-        if (this.constructor === WeaponBase) {
-            throw new Error('WeaponBase is an abstract class and cannot be instantiated directly');
-        }
+        // WeaponBase is now a concrete class that handles all weapon types generically
         
         this.config = config;
         this.scene = scene;
@@ -57,16 +55,56 @@ export class WeaponBase {
     }
     
     /**
-     * Initialize the weapon (must be implemented by subclasses)
+     * Initialize the weapon - now generic for all weapon types
      */
-    async initialize() {
-        throw new Error('initialize() must be implemented by subclass');
+    async initialize(assetManager = null) {
+        console.log(`Initializing weapon: ${this.name}`);
+        
+        // Load weapon model and animations
+        await this.loadModel(assetManager);
+        
+        // Set up weapon-specific configurations
+        this.setupWeaponSpecifics();
+        
+        // Initialize to idle state
+        this.pauseAtIdle();
+        
+        console.log(`${this.name} initialized successfully`);
+        return true;
     }
     
     /**
-     * Fire the weapon (template method with common logic)
+     * Setup weapon-specific configurations
      */
-    fire(origin, direction, game = null) {
+    setupWeaponSpecifics() {
+        // Use recoil pattern from config if available
+        if (this.config.recoilPattern) {
+            this.recoilPattern = {
+                horizontal: this.config.recoilPattern.horizontal,
+                vertical: this.config.recoilPattern.vertical,
+                recovery: this.config.recoilPattern.recovery
+            };
+        }
+        
+        // Set up weapon-specific properties
+        if (this.config.pelletCount) {
+            this.pelletCount = this.config.pelletCount;
+            this.spreadAngle = this.config.spreadAngle || 15;
+        }
+        
+        if (this.config.range) {
+            this.meleeRange = this.config.range;
+            this.swingAngle = this.config.swingAngle || 60;
+        }
+    }
+    
+    /**
+     * Fire the weapon (generic method handling all weapon types)
+     */
+    fire(origin, direction, gameInstance = null) {
+        // Use the game instance passed in or fall back to this.game
+        const game = gameInstance || this.game;
+        
         // Check if weapon can fire
         if (!this.canFireWeapon()) {
             console.log(`${this.name}: Cannot fire - weapon not ready`);
@@ -81,57 +119,281 @@ export class WeaponBase {
 
         console.log(`${this.name}: Firing - Ammo: ${this.getCurrentAmmo()}/${this.getMaxAmmo()}`);
 
+        // Handle different weapon types
+        let success = false;
+        switch (this.type) {
+            case 'shotgun':
+                success = this.fireShotgun(origin, direction, game);
+                break;
+            case 'knife':
+                success = this.performMeleeAttack(origin, direction, game);
+                break;
+            default:
+                success = this.fireProjectile(origin, direction, game);
+                break;
+        }
+
+        if (success) {
+            // Play firing animation
+            this.playFiringAnimation();
+            
+            // Create muzzle flash effect (not for melee)
+            if (this.type !== 'knife') {
+                this.createMuzzleFlash(origin, direction);
+            }
+
+            // Play weapon fire sound
+            this.playFireSound();
+
+            // Apply recoil effects (not for melee)
+            if (this.type !== 'knife') {
+                this.applyRecoil();
+                this.addRecoilToAccuracy();
+            }
+
+            // Consume ammunition
+            this.consumeAmmo(1);
+
+            // Set firing cooldown
+            this.setFiringCooldown();
+            this.lastFireTime = currentTime;
+
+            // Trigger fire event
+            if (this.onFire) {
+                this.onFire(this.getWeaponInfo());
+            }
+
+            console.log(`${this.name}: Attack completed - Remaining ammo: ${this.getCurrentAmmo()}`);
+        }
+
+        return success;
+    }
+    
+    /**
+     * Fire a single projectile (rifles, pistols, SMGs, snipers)
+     */
+    fireProjectile(origin, direction, game) {
         // Apply accuracy to shot direction
         const accurateDirection = this.applyAccuracyToDirection(direction);
 
-        // Create projectile data (can be overridden by subclasses)
+        // Create projectile data
         const projectileData = this.createProjectileData(origin, accurateDirection, game);
 
         // Create projectile through game's projectile manager
         if (game && game.projectileManager) {
-            game.projectileManager.createProjectile(projectileData);
+            game.projectileManager.fireProjectile(projectileData);
+            return true;
         } else {
             console.warn(`${this.name}: No projectile manager available`);
+            return false;
+        }
+    }
+    
+    /**
+     * Fire shotgun pellets
+     */
+    fireShotgun(origin, direction, game) {
+        if (!game || !game.projectileManager) {
+            console.warn(`${this.name}: No projectile manager available for shotgun`);
+            return false;
         }
 
-        // Create muzzle flash effect
-        this.createMuzzleFlash(origin, direction);
+        const pelletCount = this.pelletCount || 10;
+        const spreadAngle = this.spreadAngle || 15;
+        
+        // Fire multiple pellets with spread
+        for (let i = 0; i < pelletCount; i++) {
+            // Calculate spread for this pellet
+            const spreadDirection = this.calculateShotgunSpread(direction, spreadAngle);
+            
+            // Create projectile data for this pellet
+            const projectileData = this.createProjectileData(origin, spreadDirection, game);
+            projectileData.damage = this.damage; // Each pellet does full damage
+            
+            // Fire the pellet
+            game.projectileManager.fireProjectile(projectileData);
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Perform melee attack (knife)
+     */
+    performMeleeAttack(origin, direction, game) {
+        if (!game || !game.raycastManager) {
+            console.warn(`${this.name}: No raycast manager available for melee attack`);
+            return false;
+        }
 
-        // Play weapon fire sound
-        this.playFireSound();
-
-        // Apply recoil effects
-        this.applyRecoil();
-        this.addRecoilToAccuracy();
-
-        // Consume ammunition
-        this.consumeAmmo(1);
-
-        // Set firing cooldown
-        this.setFiringCooldown();
-        this.lastFireTime = currentTime;
-
-        // Trigger fire event with projectile data
-        if (this.onFire) {
-            this.onFire({
-                ...this.getWeaponInfo(),
-                projectileData: projectileData
+        const meleeRange = this.meleeRange || 2.0;
+        const swingAngle = this.swingAngle || 60;
+        
+        // Perform raycast for melee hit detection
+        const hitInfo = game.raycastManager.bulletRaycast(
+            origin,
+            direction,
+            meleeRange,
+            [] // No exclusions for melee
+        );
+        
+        if (hitInfo && hitInfo.hit) {
+            // Check if target is within swing angle
+            const targetDirection = hitInfo.point.subtract(origin).normalize();
+            const angle = Math.acos(BABYLON.Vector3.Dot(direction, targetDirection));
+            const angleDegrees = MathUtils.radToDeg(angle);
+            
+            if (angleDegrees <= swingAngle / 2) {
+                // Valid hit - apply damage
+                this.processMeleeHit(hitInfo, game);
+                return true;
+            }
+        }
+        
+        // No hit, but still a valid attack
+        return true;
+    }
+    
+    /**
+     * Process melee hit
+     */
+    processMeleeHit(hitInfo, game) {
+        // Create hit effect
+        if (game.particleManager) {
+            game.particleManager.createHitSpark(hitInfo.point, hitInfo.normal);
+        }
+        
+        // Handle player hits
+        if (hitInfo.mesh && hitInfo.mesh.metadata && hitInfo.mesh.metadata.type === 'player') {
+            const playerId = hitInfo.mesh.metadata.playerId;
+            
+            if (game.playerManager) {
+                game.playerManager.applyDamage(playerId, this.damage, {
+                    source: 'melee',
+                    attackerId: 'local',
+                    position: hitInfo.point
+                });
+            }
+            
+            // Create blood effects
+            if (game.particleManager) {
+                game.particleManager.createBloodSplatter(hitInfo.point, hitInfo.normal);
+            }
+        }
+        
+        // Emit melee hit event
+        if (game.eventEmitter) {
+            game.eventEmitter.emit('melee.hit', {
+                weapon: this.name,
+                damage: this.damage,
+                position: hitInfo.point,
+                target: hitInfo.mesh
             });
         }
-
-        // Emit weapon fire event for projectile system
-        if (game && game.eventEmitter) {
-            game.eventEmitter.emit('weapon.fire', projectileData);
-        }
-
-        console.log(`${this.name}: Shot fired - Remaining ammo: ${this.getCurrentAmmo()}`);
-        return true;
+    }
+    
+    /**
+     * Calculate shotgun pellet spread
+     */
+    calculateShotgunSpread(baseDirection, spreadAngle) {
+        const spreadRadians = MathUtils.degToRad(spreadAngle);
+        
+        // Generate random spread within cone
+        const randomAngle = MathUtils.random(0, MathUtils.TWO_PI);
+        const randomRadius = MathUtils.random(0, spreadRadians / 2);
+        
+        // Create perpendicular vectors for spread
+        const up = new BABYLON.Vector3(0, 1, 0);
+        const right = BABYLON.Vector3.Cross(baseDirection, up).normalize();
+        const actualUp = BABYLON.Vector3.Cross(right, baseDirection).normalize();
+        
+        // Apply spread
+        const spreadX = Math.cos(randomAngle) * randomRadius;
+        const spreadY = Math.sin(randomAngle) * randomRadius;
+        
+        const spreadDirection = baseDirection.clone();
+        spreadDirection.addInPlace(right.scale(spreadX));
+        spreadDirection.addInPlace(actualUp.scale(spreadY));
+        spreadDirection.normalize();
+        
+        return spreadDirection;
+    }
+    
+    /**
+     * Play firing animation (manual animation for firing/swapping)
+     */
+    playFiringAnimation() {
+        if (!this.model) return;
+        
+        // For firing, we manually animate the weapon position
+        const originalPosition = this.model.position.clone();
+        const recoilOffset = new BABYLON.Vector3(0, 0, -0.1); // Pull back slightly
+        
+        // Quick recoil animation
+        const recoilAnim = BABYLON.Animation.CreateAndStartAnimation(
+            'weaponRecoil',
+            this.model,
+            'position',
+            60, // 60 FPS
+            3, // 3 frames
+            originalPosition,
+            originalPosition.add(recoilOffset),
+            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,
+            null,
+            () => {
+                // Return to original position
+                BABYLON.Animation.CreateAndStartAnimation(
+                    'weaponReturn',
+                    this.model,
+                    'position',
+                    60,
+                    5, // 5 frames to return
+                    this.model.position,
+                    originalPosition,
+                    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+                );
+            }
+        );
+    }
+    
+    /**
+     * Play weapon swap animation (manual animation)
+     */
+    playSwapAnimation(isDrawing = true) {
+        if (!this.model) return;
+        
+        const startY = isDrawing ? -2.0 : 0.0; // Start below screen or at normal position
+        const endY = isDrawing ? 0.0 : -2.0;   // End at normal position or below screen
+        
+        const startPos = new BABYLON.Vector3(this.model.position.x, startY, this.model.position.z);
+        const endPos = new BABYLON.Vector3(this.model.position.x, endY, this.model.position.z);
+        
+        this.model.position = startPos;
+        
+        // Animate weapon swap
+        BABYLON.Animation.CreateAndStartAnimation(
+            isDrawing ? 'weaponDraw' : 'weaponHolster',
+            this.model,
+            'position',
+            60, // 60 FPS
+            15, // 15 frames (0.25 seconds)
+            startPos,
+            endPos,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,
+            null,
+            () => {
+                if (!isDrawing) {
+                    // Hide weapon after holstering
+                    this.setVisible(false);
+                }
+            }
+        );
     }
 
     /**
      * Create projectile data (can be overridden by subclasses)
      */
-    createProjectileData(origin, direction, game = null) {
+    createProjectileData(origin, direction, gameInstance = null) {
         return {
             origin: origin.clone(),
             direction: direction,
@@ -149,31 +411,40 @@ export class WeaponBase {
     }
 
     /**
-     * Create muzzle flash effect (can be overridden by subclasses)
+     * Create muzzle flash effect using configuration
      */
     createMuzzleFlash(origin, direction) {
-        if (!this.effectsManager) {
-            console.warn(`${this.name}: No effects manager available for muzzle flash`);
+        // Skip muzzle flash for melee weapons
+        if (!this.config.muzzleFlash) {
             return;
         }
 
-        // Calculate world muzzle position
+        if (!this.effectsManager || !this.effectsManager.muzzleFlash) {
+            console.warn(`${this.name}: No muzzle flash system available`);
+            return;
+        }
+
+        // Calculate muzzle position
         let muzzleWorldPos = origin.clone();
         let muzzleWorldDir = direction.clone();
 
         if (this.model && this.model.isEnabled()) {
-            // Transform muzzle position to world coordinates if muzzle position is defined
-            if (this.muzzlePosition) {
-                const worldMatrix = this.model.getWorldMatrix();
-                muzzleWorldPos = BABYLON.Vector3.TransformCoordinates(this.muzzlePosition, worldMatrix);
-                muzzleWorldDir = BABYLON.Vector3.TransformNormal(this.muzzleDirection || direction, worldMatrix);
-            }
+            // Use configured muzzle position relative to weapon
+            const muzzleConfig = this.config.muzzleFlash.position;
+            const muzzleOffset = new BABYLON.Vector3(muzzleConfig.x, muzzleConfig.y, muzzleConfig.z);
+            
+            const worldMatrix = this.model.getWorldMatrix();
+            muzzleWorldPos = BABYLON.Vector3.TransformCoordinates(muzzleOffset, worldMatrix);
+            muzzleWorldDir = BABYLON.Vector3.TransformNormal(direction, worldMatrix);
         }
 
-        // Create basic muzzle flash - subclasses can override for specific effects
-        if (this.effectsManager.createMuzzleFlash) {
-            this.effectsManager.createMuzzleFlash(muzzleWorldPos, muzzleWorldDir, 'default', this.model);
-        }
+        // Create muzzle flash with weapon-specific configuration
+        this.effectsManager.muzzleFlash.createMuzzleFlash(
+            muzzleWorldPos, 
+            muzzleWorldDir, 
+            this.model,
+            this.config.muzzleFlash
+        );
     }
 
     /**
@@ -544,6 +815,27 @@ export class WeaponBase {
     setVisible(visible) {
         if (this.model) {
             this.model.setEnabled(visible);
+        }
+    }
+    
+    /**
+     * Set aiming state for weapon
+     */
+    setAiming(aiming) {
+        this.isAiming = aiming;
+        
+        // Could adjust weapon position, FOV, or accuracy when aiming
+        if (this.accuracySystem) {
+            this.accuracySystem.setAiming(aiming);
+        }
+        
+        // Visual feedback for aiming (could be overridden by subclasses)
+        if (this.model && aiming) {
+            // Slightly adjust weapon position when aiming
+            this.model.position.z += 0.1;
+        } else if (this.model && !aiming) {
+            // Return to normal position
+            this.model.position.z -= 0.1;
         }
     }
     

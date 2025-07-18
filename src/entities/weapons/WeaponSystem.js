@@ -24,5 +24,4 @@ export { AccuracySystem } from './AccuracySystem.js';
 // Export projectile system
 export { Projectile, ProjectileManager } from '../Projectile.js';
 
-// Export weapon effects
-export { WeaponEffects } from './WeaponEffects.js';
+// WeaponEffects removed - using different approach

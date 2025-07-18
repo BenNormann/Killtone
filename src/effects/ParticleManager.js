@@ -79,44 +79,6 @@ export class ParticleManager {
             textureUrl: null // Will use default particle texture
         });
 
-        // Muzzle flash effect template (purple donut disk)
-        this.effectTemplates.set('muzzleFlash', {
-            name: 'muzzleFlash',
-            particleCount: 30,
-            emitRate: 100,
-            lifetime: { min: 0.1, max: 0.3 },
-            size: { min: 0.2, max: 0.8 },
-            color1: new BABYLON.Color4(0.8, 0.2, 1.0, 1.0), // Bright purple
-            color2: new BABYLON.Color4(0.6, 0.1, 0.8, 1.0), // Purple
-            colorDead: new BABYLON.Color4(0.3, 0.0, 0.4, 0.0), // Fade to transparent
-            gravity: new BABYLON.Vector3(0, 0, 0), // No gravity for muzzle flash
-            direction1: new BABYLON.Vector3(-0.5, -0.5, 0.8),
-            direction2: new BABYLON.Vector3(0.5, 0.5, 1.2),
-            minEmitPower: 0.5,
-            maxEmitPower: 1.5,
-            blendMode: BABYLON.ParticleSystem.BLENDMODE_ADD,
-            textureUrl: null
-        });
-
-        // Shell ejection effect template
-        this.effectTemplates.set('shellEjection', {
-            name: 'shellEjection',
-            particleCount: 5,
-            emitRate: 20,
-            lifetime: { min: 2.0, max: 4.0 },
-            size: { min: 0.05, max: 0.1 },
-            color1: new BABYLON.Color4(0.8, 0.7, 0.3, 1.0), // Brass color
-            color2: new BABYLON.Color4(0.6, 0.5, 0.2, 1.0), // Darker brass
-            colorDead: new BABYLON.Color4(0.4, 0.3, 0.1, 0.0), // Fade to transparent
-            gravity: new BABYLON.Vector3(0, -9.81, 0),
-            direction1: new BABYLON.Vector3(0.8, 0.5, -0.2),
-            direction2: new BABYLON.Vector3(1.2, 1.0, 0.2),
-            minEmitPower: 2,
-            maxEmitPower: 4,
-            blendMode: BABYLON.ParticleSystem.BLENDMODE_STANDARD,
-            textureUrl: null
-        });
-
         // Hit spark effect template
         this.effectTemplates.set('hitSpark', {
             name: 'hitSpark',
@@ -389,30 +351,6 @@ export class ParticleManager {
         }
         
         return this.createParticleSystem('bloodSplatter', position, options);
-    }
-
-    /**
-     * Create muzzle flash effect
-     */
-    createMuzzleFlash(position, direction, weaponType = 'default') {
-        const options = {
-            direction: direction,
-            scale: weaponType === 'sniper' ? 1.5 : 1.0,
-            intensity: weaponType === 'sniper' ? 1.2 : 1.0
-        };
-        
-        return this.createParticleSystem('muzzleFlash', position, options);
-    }
-
-    /**
-     * Create shell ejection effect
-     */
-    createShellEjection(position, direction) {
-        const options = {
-            direction: direction
-        };
-        
-        return this.createParticleSystem('shellEjection', position, options);
     }
 
     /**

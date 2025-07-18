@@ -13,6 +13,6 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Files have been edited. You must now run the generate_method_catalog.py script to update the method catalog. Execute: python generate_method_catalog.py"
+    "prompt": "Files have been edited. You must now run the generate_method_catalog.py script to update the method catalog. Execute:\"python generate_method_catalog.py\""
   }
 }

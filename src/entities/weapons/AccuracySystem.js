@@ -3,7 +3,7 @@
  * Manages weapon accuracy with movement and recoil penalties
  */
 
-import { WeaponConstants } from '../WeaponConfig.js';
+import { WeaponConstants } from './WeaponConfig.js';
 import MathUtils from '../../utils/MathUtils.js';
 
 export class AccuracySystem {

@@ -1,44 +1,23 @@
 /**
- * KILLtONE Game Framework - WeaponEffects Manager
- * Manages all visual effects for weapons including muzzle flashes and knife trails
+ * KILLtONE Game Framework - Knife Effect System
+ * Handles knife trail effects and melee attack visuals
  */
 
-// BABYLON is loaded globally from CDN in index.html
-import { MuzzleFlashType, WeaponConstants } from './WeaponConfig.js';
-import CommonUtils from '../../utils/CommonUtils.js';
-import MathUtils from '../../utils/MathUtils.js';
+import { WeaponConstants } from '../entities/weapons/WeaponConfig.js';
+import CommonUtils from '../utils/CommonUtils.js';
+import MathUtils from '../utils/MathUtils.js';
 
-export class WeaponEffects {
+export class KnifeEffect {
     constructor(scene) {
         this.scene = scene;
         
         // Effect pools for performance optimization
-        this.muzzleFlashPool = {
-            donut: [],
-            spikey: []
-        };
         this.knifeTrailPool = [];
         
         // Active effects tracking
-        this.activeMuzzleFlashes = new Set();
         this.activeKnifeTrails = new Set();
         
         // Effect configuration
-        this.muzzleFlashConfig = {
-            donut: {
-                size: 0.8,
-                duration: 0.1, // seconds
-                color: WeaponConstants.MUZZLE_FLASH_COLORS.PRIMARY,
-                fadeSpeed: 10.0
-            },
-            spikey: {
-                size: 1.2,
-                duration: 0.08, // slightly faster for full-auto
-                color: WeaponConstants.MUZZLE_FLASH_COLORS.PRIMARY,
-                fadeSpeed: 12.0
-            }
-        };
-        
         this.knifeTrailConfig = {
             width: 0.1,
             duration: 0.5, // seconds
@@ -49,81 +28,10 @@ export class WeaponEffects {
         
         // Pool sizes for optimization
         this.maxPoolSize = {
-            muzzleFlash: 20,
             knifeTrail: 5
         };
         
-        console.log('WeaponEffects manager initialized');
-    }
-    
-    /**
-     * Create a muzzle flash effect at the specified position
-     * @param {BABYLON.Vector3} position - World position for the muzzle flash
-     * @param {BABYLON.Vector3} direction - Direction the weapon is facing
-     * @param {string} type - Type of muzzle flash ('donut' or 'spikey')
-     * @param {BABYLON.Mesh} weaponMesh - Weapon mesh to attach effect to (optional)
-     * @returns {Object} Effect object for tracking
-     */
-    createMuzzleFlash(position, direction, type = MuzzleFlashType.DONUT, weaponMesh = null) {
-        if (!this.scene || !position || !direction) {
-            console.warn('WeaponEffects: Invalid parameters for muzzle flash creation');
-            return null;
-        }
-        
-        // Get or create muzzle flash mesh
-        const flashMesh = this.getMuzzleFlashFromPool(type);
-        if (!flashMesh) {
-            console.warn('WeaponEffects: Failed to get muzzle flash from pool');
-            return null;
-        }
-        
-        // Configure the flash
-        const config = this.muzzleFlashConfig[type];
-        const effect = {
-            id: CommonUtils.generateMuzzleFlashId(),
-            mesh: flashMesh,
-            type: type,
-            startTime: performance.now() / 1000,
-            duration: config.duration,
-            fadeSpeed: config.fadeSpeed,
-            weaponMesh: weaponMesh,
-            originalPosition: position.clone(),
-            originalDirection: direction.clone()
-        };
-        
-        // Position and orient the flash
-        flashMesh.position = position.clone();
-        flashMesh.lookAt(position.add(direction));
-        
-        // Attach to weapon if provided
-        if (weaponMesh) {
-            flashMesh.parent = weaponMesh;
-            // Convert to local coordinates
-            const localPosition = BABYLON.Vector3.TransformCoordinates(
-                position, 
-                BABYLON.Matrix.Invert(weaponMesh.getWorldMatrix())
-            );
-            flashMesh.position = localPosition;
-        }
-        
-        // Set initial properties
-        flashMesh.setEnabled(true);
-        flashMesh.scaling = new BABYLON.Vector3(config.size, config.size, config.size);
-        
-        // Set material properties
-        if (flashMesh.material) {
-            flashMesh.material.alpha = 1.0;
-            flashMesh.material.emissiveColor = new BABYLON.Color3(
-                config.color.r,
-                config.color.g,
-                config.color.b
-            );
-        }
-        
-        // Add to active effects
-        this.activeMuzzleFlashes.add(effect);
-        
-        return effect;
+        console.log('KnifeEffect system initialized');
     }
     
     /**
@@ -135,14 +43,14 @@ export class WeaponEffects {
      */
     createKnifeTrail(startPosition, endPosition, knifeMesh = null) {
         if (!this.scene || !startPosition || !endPosition) {
-            console.warn('WeaponEffects: Invalid parameters for knife trail creation');
+            console.warn('KnifeEffect: Invalid parameters for knife trail creation');
             return null;
         }
         
         // Get or create trail mesh
         const trailMesh = this.getKnifeTrailFromPool();
         if (!trailMesh) {
-            console.warn('WeaponEffects: Failed to get knife trail from pool');
+            console.warn('KnifeEffect: Failed to get knife trail from pool');
             return null;
         }
         
@@ -232,7 +140,7 @@ export class WeaponEffects {
      */
     createContinuousKnifeTrail(knifeMesh, swingDuration = 4.83) {
         if (!knifeMesh) {
-            console.warn('WeaponEffects: No knife mesh provided for continuous trail');
+            console.warn('KnifeEffect: No knife mesh provided for continuous trail');
             return null;
         }
         
@@ -280,31 +188,11 @@ export class WeaponEffects {
     }
     
     /**
-     * Update all active effects
+     * Update all active knife trail effects
      * @param {number} deltaTime - Time elapsed since last update in seconds
      */
-    updateEffects(deltaTime) {
+    update(deltaTime) {
         const currentTime = performance.now() / 1000;
-        
-        // Update muzzle flashes
-        const expiredMuzzleFlashes = [];
-        this.activeMuzzleFlashes.forEach(effect => {
-            const elapsed = currentTime - effect.startTime;
-            const progress = elapsed / effect.duration;
-            
-            if (progress >= 1.0) {
-                // Effect expired
-                expiredMuzzleFlashes.push(effect);
-            } else {
-                // Update fade
-                this.updateMuzzleFlashFade(effect, progress);
-            }
-        });
-        
-        // Clean up expired muzzle flashes
-        expiredMuzzleFlashes.forEach(effect => {
-            this.disposeMuzzleFlash(effect);
-        });
         
         // Update knife trails
         const expiredKnifeTrails = [];
@@ -328,160 +216,6 @@ export class WeaponEffects {
         expiredKnifeTrails.forEach(effect => {
             this.disposeKnifeTrail(effect);
         });
-    }
-    
-    /**
-     * Get a muzzle flash mesh from the pool or create a new one
-     * @param {string} type - Type of muzzle flash ('donut' or 'spikey')
-     * @returns {BABYLON.Mesh} Muzzle flash mesh
-     */
-    getMuzzleFlashFromPool(type) {
-        const pool = this.muzzleFlashPool[type];
-        
-        // Try to get from pool
-        for (let i = 0; i < pool.length; i++) {
-            const mesh = pool[i];
-            if (!mesh.isEnabled()) {
-                return mesh;
-            }
-        }
-        
-        // Create new mesh if pool is not at capacity
-        if (pool.length < this.maxPoolSize.muzzleFlash) {
-            const mesh = this.createMuzzleFlashMesh(type);
-            if (mesh) {
-                pool.push(mesh);
-                return mesh;
-            }
-        }
-        
-        // Pool is full, reuse oldest active mesh
-        return pool[0];
-    }
-    
-    /**
-     * Create a new muzzle flash mesh
-     * @param {string} type - Type of muzzle flash ('donut' or 'spikey')
-     * @returns {BABYLON.Mesh} New muzzle flash mesh
-     */
-    createMuzzleFlashMesh(type) {
-        let mesh;
-        const config = this.muzzleFlashConfig[type];
-        
-        if (type === MuzzleFlashType.DONUT) {
-            // Create donut/disk shape for semi-auto weapons
-            // Use a combination of torus and disk for better visual effect
-            const outerDisk = BABYLON.MeshBuilder.CreateDisc(`muzzleFlash_donut_outer_${Date.now()}`, {
-                radius: 0.6,
-                tessellation: 12
-            }, this.scene);
-            
-            const innerTorus = BABYLON.MeshBuilder.CreateTorus(`muzzleFlash_donut_inner_${Date.now()}`, {
-                diameter: 0.8,
-                thickness: 0.2,
-                tessellation: 8
-            }, this.scene);
-            
-            // Merge the meshes for better performance
-            mesh = BABYLON.Mesh.MergeMeshes([outerDisk, innerTorus], true, true);
-            if (mesh) {
-                mesh.name = `muzzleFlash_donut_${Date.now()}`;
-            }
-            
-        } else if (type === MuzzleFlashType.SPIKEY) {
-            // Create spikey shape for full-auto weapons using multiple star-like projections
-            const centerSphere = BABYLON.MeshBuilder.CreateSphere(`muzzleFlash_spikey_center_${Date.now()}`, {
-                diameter: 0.4,
-                segments: 8
-            }, this.scene);
-            
-            // Create spikes around the center
-            const spikes = [];
-            const spikeCount = 8;
-            for (let i = 0; i < spikeCount; i++) {
-                const angle = (i / spikeCount) * MathUtils.TWO_PI;
-                const spike = BABYLON.MeshBuilder.CreateCylinder(`spike_${i}`, {
-                    height: 0.8,
-                    diameterTop: 0.02,
-                    diameterBottom: 0.15,
-                    tessellation: 6
-                }, this.scene);
-                
-                // Position and rotate spike
-                const distance = 0.3;
-                spike.position.x = Math.cos(angle) * distance;
-                spike.position.y = Math.sin(angle) * distance;
-                spike.rotation.z = angle + MathUtils.HALF_PI;
-                
-                // Add some randomness to spike length and angle
-                const randomScale = MathUtils.random(0.8, 1.2);
-                spike.scaling.y = randomScale;
-                spike.rotation.z += MathUtils.random(-0.15, 0.15);
-                
-                spikes.push(spike);
-            }
-            
-            // Add some random smaller spikes
-            for (let i = 0; i < 4; i++) {
-                const smallSpike = BABYLON.MeshBuilder.CreateCylinder(`smallSpike_${i}`, {
-                    height: 0.4,
-                    diameterTop: 0.01,
-                    diameterBottom: 0.08,
-                    tessellation: 4
-                }, this.scene);
-                
-                // Random position around center
-                const angle = MathUtils.random(0, MathUtils.TWO_PI);
-                const distance = MathUtils.random(0.15, 0.35);
-                smallSpike.position.x = Math.cos(angle) * distance;
-                smallSpike.position.y = Math.sin(angle) * distance;
-                smallSpike.rotation.z = angle + MathUtils.HALF_PI + MathUtils.random(-0.25, 0.25);
-                
-                spikes.push(smallSpike);
-            }
-            
-            // Merge all spike meshes with center
-            const allMeshes = [centerSphere, ...spikes];
-            mesh = BABYLON.Mesh.MergeMeshes(allMeshes, true, true);
-            if (mesh) {
-                mesh.name = `muzzleFlash_spikey_${Date.now()}`;
-            }
-        }
-        
-        if (!mesh) {
-            console.warn(`WeaponEffects: Failed to create muzzle flash mesh of type ${type}`);
-            return null;
-        }
-        
-        // Create bright pink-purple material
-        const material = new BABYLON.StandardMaterial(`muzzleFlashMat_${type}_${Date.now()}`, this.scene);
-        
-        // Bright pink-purple emissive color
-        material.emissiveColor = new BABYLON.Color3(
-            config.color.r * 1.2, // Boost brightness
-            config.color.g * 0.3, // Keep some pink
-            config.color.b * 1.1  // Strong purple
-        );
-        
-        // Add some diffuse for depth
-        material.diffuseColor = new BABYLON.Color3(
-            config.color.r * 0.8,
-            config.color.g * 0.2,
-            config.color.b * 0.9
-        );
-        
-        material.disableLighting = false; // Enable lighting for better depth
-        material.alpha = 1.0;
-        material.alphaMode = BABYLON.Engine.ALPHA_ADD; // Additive blending for bright effect
-        
-        // Add some glow effect
-        material.useEmissiveAsIllumination = true;
-        
-        mesh.material = material;
-        mesh.setEnabled(false); // Start disabled
-        mesh.renderingGroupId = 1; // Render after opaque objects
-        
-        return mesh;
     }
     
     /**
@@ -527,7 +261,7 @@ export class WeaponEffects {
         }, this.scene);
         
         if (!mesh) {
-            console.warn('WeaponEffects: Failed to create knife trail mesh');
+            console.warn('KnifeEffect: Failed to create knife trail mesh');
             return null;
         }
         
@@ -545,24 +279,6 @@ export class WeaponEffects {
         mesh.renderingGroupId = 1; // Render after opaque objects
         
         return mesh;
-    }
-    
-    /**
-     * Update muzzle flash fade effect
-     * @param {Object} effect - Muzzle flash effect object
-     * @param {number} progress - Progress from 0 to 1
-     */
-    updateMuzzleFlashFade(effect, progress) {
-        if (!effect.mesh || !effect.mesh.material) return;
-        
-        // Quick fade out
-        const alpha = MathUtils.clamp(1.0 - (progress * effect.fadeSpeed), 0, 1);
-        effect.mesh.material.alpha = alpha;
-        
-        // Scale down slightly as it fades
-        const config = this.muzzleFlashConfig[effect.type];
-        const scale = config.size * (0.8 + 0.2 * (1.0 - progress));
-        effect.mesh.scaling = new BABYLON.Vector3(scale, scale, scale);
     }
     
     /**
@@ -585,7 +301,6 @@ export class WeaponEffects {
     updateKnifeTrailPath(effect) {
         if (!effect.mesh || !effect.previousPositions || effect.previousPositions.length < 2) return;
         
-        const config = this.knifeTrailConfig;
         const pathArray = [];
         const positions = effect.previousPositions;
         
@@ -639,41 +354,8 @@ export class WeaponEffects {
                 });
             }
         } catch (error) {
-            console.warn('WeaponEffects: Error updating knife trail path:', error);
+            console.warn('KnifeEffect: Error updating knife trail path:', error);
         }
-    }
-    
-    /**
-     * Update knife trail position if attached to knife mesh
-     * @param {Object} effect - Knife trail effect object
-     */
-    updateKnifeTrailPosition(effect) {
-        if (!effect.knifeMesh || !effect.mesh) return;
-        
-        // Update trail position based on knife movement
-        // This would be called during knife swing animation
-        const knifePosition = effect.knifeMesh.getAbsolutePosition();
-        const offset = knifePosition.subtract(effect.startPosition);
-        
-        // Update trail positions
-        effect.startPosition.addInPlace(offset);
-        effect.endPosition.addInPlace(offset);
-        
-        // Recreate path with new positions
-        this.updateKnifeTrailPath(effect);
-    }
-    
-    /**
-     * Dispose of a muzzle flash effect
-     * @param {Object} effect - Muzzle flash effect object
-     */
-    disposeMuzzleFlash(effect) {
-        if (effect.mesh) {
-            effect.mesh.setEnabled(false);
-            effect.mesh.parent = null; // Detach from weapon
-        }
-        
-        this.activeMuzzleFlashes.delete(effect);
     }
     
     /**
@@ -699,14 +381,6 @@ export class WeaponEffects {
      * @param {string} effectId - Effect ID to dispose
      */
     disposeEffect(effectId) {
-        // Find and dispose muzzle flash
-        for (const effect of this.activeMuzzleFlashes) {
-            if (effect.id === effectId) {
-                this.disposeMuzzleFlash(effect);
-                return true;
-            }
-        }
-        
         // Find and dispose knife trail
         for (const effect of this.activeKnifeTrails) {
             if (effect.id === effectId) {
@@ -724,11 +398,8 @@ export class WeaponEffects {
      */
     getActiveEffectCounts() {
         return {
-            muzzleFlashes: this.activeMuzzleFlashes.size,
             knifeTrails: this.activeKnifeTrails.size,
             poolSizes: {
-                donutFlashes: this.muzzleFlashPool.donut.length,
-                spikeyFlashes: this.muzzleFlashPool.spikey.length,
                 knifeTrails: this.knifeTrailPool.length
             }
         };
@@ -738,25 +409,14 @@ export class WeaponEffects {
      * Clean up all effects and dispose resources
      */
     dispose() {
-        console.log('WeaponEffects: Disposing all effects');
+        console.log('KnifeEffect: Disposing all effects');
         
         // Dispose active effects
-        this.activeMuzzleFlashes.forEach(effect => {
-            this.disposeMuzzleFlash(effect);
-        });
         this.activeKnifeTrails.forEach(effect => {
             this.disposeKnifeTrail(effect);
         });
         
         // Dispose pooled meshes
-        Object.values(this.muzzleFlashPool).forEach(pool => {
-            pool.forEach(mesh => {
-                if (mesh && mesh.dispose) {
-                    mesh.dispose();
-                }
-            });
-        });
-        
         this.knifeTrailPool.forEach(mesh => {
             if (mesh && mesh.dispose) {
                 mesh.dispose();
@@ -764,16 +424,13 @@ export class WeaponEffects {
         });
         
         // Clear collections
-        this.activeMuzzleFlashes.clear();
         this.activeKnifeTrails.clear();
-        this.muzzleFlashPool.donut = [];
-        this.muzzleFlashPool.spikey = [];
         this.knifeTrailPool = [];
         
         this.scene = null;
         
-        console.log('WeaponEffects: Disposal complete');
+        console.log('KnifeEffect: Disposal complete');
     }
 }
 
-export default WeaponEffects;
+export default KnifeEffect;

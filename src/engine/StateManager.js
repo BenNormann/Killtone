@@ -98,8 +98,6 @@ export class StateManager extends BaseManager {
                     this.game.uiManager.hideSettingsOverlay();
                     await this.game.uiManager.showGameHUD();
                 }
-                // Resume game systems
-                this._resumeGameSystems();
             },
             exit: async () => {
                 console.log('Exiting IN_GAME state');
@@ -108,8 +106,6 @@ export class StateManager extends BaseManager {
                 if (document.pointerLockElement) {
                     document.exitPointerLock();
                 }
-                // Pause game systems when leaving
-                this._pauseGameSystems();
             }
         });
 
@@ -130,8 +126,6 @@ export class StateManager extends BaseManager {
                 if (this.game.inputManager) {
                     this.game.inputManager.disableGameControls();
                 }
-                // Pause game systems
-                this._pauseGameSystems();
             },
             exit: async () => {
                 console.log('Exiting PAUSED state');
@@ -246,6 +240,9 @@ export class StateManager extends BaseManager {
             if (newHandler && newHandler.enter) {
                 await newHandler.enter();
             }
+
+            // Emit state change event
+            this.emit('stateChanged', newState, this.previousState);
 
             // Notify UIManager of state change
             if (this.game.uiManager && this.game.uiManager.onStateChange) {
@@ -381,46 +378,6 @@ export class StateManager extends BaseManager {
 
         const allowedTransitions = validTransitions[fromState] || [];
         return allowedTransitions.includes(toState);
-    }
-
-    /**
-     * Pause game systems (physics, audio, etc.)
-     */
-    _pauseGameSystems() {
-        // Pause physics
-        if (this.game.physicsManager) {
-            this.game.physicsManager.pause();
-        }
-
-        // Pause audio (but keep UI sounds)
-        if (this.game.audioManager) {
-            this.game.audioManager.pauseGameAudio();
-        }
-
-        // Pause game entities
-        if (this.game.entityManager) {
-            this.game.entityManager.pauseAll();
-        }
-    }
-
-    /**
-     * Resume game systems
-     */
-    _resumeGameSystems() {
-        // Resume physics
-        if (this.game.physicsManager) {
-            this.game.physicsManager.resume();
-        }
-
-        // Resume audio
-        if (this.game.audioManager) {
-            this.game.audioManager.resume();
-        }
-
-        // Resume game entities
-        if (this.game.entityManager) {
-            this.game.entityManager.resumeAll();
-        }
     }
 
     /**

@@ -1,9 +1,10 @@
 /**
- * KILLtONE Game Framework - Physics Module Exports
+ * KILLtONE Game Framework - Physics System Exports
+ * Central export point for all physics-related components
  */
 
 export { PhysicsManager } from './PhysicsManager.js';
 export { RaycastManager } from './RaycastManager.js';
 
-// Re-export as default for convenience
+// Re-export for convenience
 export { PhysicsManager as default } from './PhysicsManager.js';

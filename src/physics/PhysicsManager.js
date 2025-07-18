@@ -41,11 +41,18 @@ export class PhysicsManager {
                 throw new Error(`Unsupported physics engine: ${config.engine}`);
             }
 
-            // Enable physics on the scene
-            this.scene.enablePhysics(
-                new BABYLON.Vector3(0, config.gravity, 0),
-                this.physicsPlugin
-            );
+            // Only enable physics if we have a valid plugin
+            if (this.physicsPlugin) {
+                // Enable physics on the scene
+                this.scene.enablePhysics(
+                    new BABYLON.Vector3(0, config.gravity, 0),
+                    this.physicsPlugin
+                );
+            } else {
+                console.warn('Physics plugin not available, running without physics');
+                this.isInitialized = true;
+                return;
+            }
 
             // Set up collision detection
             this.setupCollisionDetection();
@@ -68,9 +75,10 @@ export class PhysicsManager {
      * Initialize CannonJS physics plugin
      */
     async initializeCannonJS() {
-        // Check if CannonJS is available
+        // Check if cannon-es is available
         if (typeof CANNON === 'undefined') {
-            throw new Error('CannonJS library not found. Please include cannon.min.js');
+            console.warn('cannon-es library not found. Skipping physics initialization.');
+            return;
         }
 
         this.physicsPlugin = new BABYLON.CannonJSPlugin(true, 10, CANNON);
@@ -91,7 +99,8 @@ export class PhysicsManager {
     async initializeAmmoJS() {
         // Check if AmmoJS is available
         if (typeof Ammo === 'undefined') {
-            throw new Error('AmmoJS library not found. Please include ammo.js');
+            console.warn('AmmoJS library not found. Skipping physics initialization.');
+            return;
         }
 
         // Wait for Ammo to be ready

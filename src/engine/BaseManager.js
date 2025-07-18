@@ -10,6 +10,9 @@ export class BaseManager {
         this.isInitialized = false;
         this.isDisposed = false;
         
+        // Event emitter functionality
+        this.eventListeners = new Map();
+        
         // Common event callbacks
         this.onInitialized = null;
         this.onDisposed = null;
@@ -115,6 +118,9 @@ export class BaseManager {
      * @protected
      */
     _doDispose() {
+        // Clean up event listeners
+        this.removeAllListeners();
+        
         // Override in subclasses
     }
 
@@ -137,5 +143,59 @@ export class BaseManager {
             disposed: this.isDisposed,
             ready: this.isReady()
         };
+    }
+
+    /**
+     * Add event listener
+     * @param {string} event - Event name
+     * @param {Function} listener - Event listener function
+     */
+    on(event, listener) {
+        if (!this.eventListeners.has(event)) {
+            this.eventListeners.set(event, []);
+        }
+        this.eventListeners.get(event).push(listener);
+    }
+
+    /**
+     * Remove event listener
+     * @param {string} event - Event name
+     * @param {Function} listener - Event listener function
+     */
+    off(event, listener) {
+        if (!this.eventListeners.has(event)) {
+            return;
+        }
+        const listeners = this.eventListeners.get(event);
+        const index = listeners.indexOf(listener);
+        if (index > -1) {
+            listeners.splice(index, 1);
+        }
+    }
+
+    /**
+     * Emit event to all listeners
+     * @param {string} event - Event name
+     * @param {...any} args - Arguments to pass to listeners
+     */
+    emit(event, ...args) {
+        if (!this.eventListeners.has(event)) {
+            return;
+        }
+        const listeners = this.eventListeners.get(event);
+        listeners.forEach(listener => {
+            try {
+                listener(...args);
+            } catch (error) {
+                console.error(`Error in event listener for ${event}:`, error);
+            }
+        });
+    }
+
+    /**
+     * Remove all event listeners
+     */
+    removeAllListeners() {
+        this.eventListeners.clear();
     }
 }

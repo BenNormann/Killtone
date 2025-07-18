@@ -4,229 +4,157 @@
       "name": "constructor",
       "description": "No description available",
       "file": "src\\Game.js",
-      "line": 12
+      "line": 21
     },
     {
       "name": "initialize",
       "description": "Initialize the game engine and core systems",
       "file": "src\\Game.js",
-      "line": 51
+      "line": 60
     },
     {
       "name": "initializeEngine",
       "description": "Initialize Babylon.js engine with configuration",
       "file": "src\\Game.js",
-      "line": 81
+      "line": 96
     },
     {
       "name": "initializeScene",
       "description": "Initialize the main Babylon.js scene",
       "file": "src\\Game.js",
-      "line": 112
+      "line": 121
     },
     {
       "name": "createGroundPlane",
       "description": "Create a default ground plane for the game",
       "file": "src\\Game.js",
-      "line": 140
+      "line": 146
+    },
+    {
+      "name": "initializeManagers",
+      "description": "Initialize all game managers",
+      "file": "src\\Game.js",
+      "line": 167
     },
     {
       "name": "setupErrorHandling",
-      "description": "Set up global error handling",
+      "description": "Setup error handling",
       "file": "src\\Game.js",
-      "line": 166
+      "line": 210
     },
     {
       "name": "setupEventListeners",
-      "description": "Set up window event listeners",
+      "description": "Setup event listeners",
       "file": "src\\Game.js",
-      "line": 184
+      "line": 223
     },
     {
       "name": "start",
       "description": "Start the game loop",
       "file": "src\\Game.js",
-      "line": 201
+      "line": 242
     },
     {
       "name": "update",
       "description": "Main game update loop",
       "file": "src\\Game.js",
-      "line": 220
+      "line": 272
     },
     {
       "name": "updateManagers",
       "description": "Update all game managers",
       "file": "src\\Game.js",
-      "line": 243
+      "line": 294
+    },
+    {
+      "name": "updateFPS",
+      "description": "Update FPS counter",
+      "file": "src\\Game.js",
+      "line": 307
     },
     {
       "name": "render",
       "description": "Render the scene",
       "file": "src\\Game.js",
-      "line": 303
+      "line": 321
     },
     {
-      "name": "pause",
-      "description": "Pause the game",
+      "name": "onStateChanged",
+      "description": "Handle state changes",
       "file": "src\\Game.js",
-      "line": 312
-    },
-    {
-      "name": "resume",
-      "description": "Resume the game",
-      "file": "src\\Game.js",
-      "line": 325
-    },
-    {
-      "name": "stop",
-      "description": "Stop the game and cleanup",
-      "file": "src\\Game.js",
-      "line": 339
-    },
-    {
-      "name": "disposeManagers",
-      "description": "Dispose of all managers and resources",
-      "file": "src\\Game.js",
-      "line": 355
-    },
-    {
-      "name": "dispose",
-      "description": "Complete cleanup and disposal",
-      "file": "src\\Game.js",
-      "line": 384
-    },
-    {
-      "name": "onResize",
-      "description": "Handle window resize",
-      "file": "src\\Game.js",
-      "line": 415
-    },
-    {
-      "name": "onError",
-      "description": "Handle errors",
-      "file": "src\\Game.js",
-      "line": 424
-    },
-    {
-      "name": "getScalingLevel",
-      "description": "Get hardware scaling level based on performance settings",
-      "file": "src\\Game.js",
-      "line": 445
-    },
-    {
-      "name": "initializeFlowstateIntegration",
-      "description": "Initialize FlowstateAdapter with existing FlowstateManager This method should be called after both systems are available",
-      "file": "src\\Game.js",
-      "line": 459
-    },
-    {
-      "name": "initializeFlowstateManager",
-      "description": "Initialize the existing FlowstateManager This method should be called when the game systems are ready",
-      "file": "src\\Game.js",
-      "line": 487
-    },
-    {
-      "name": "getFPS",
-      "description": "Get current FPS",
-      "file": "src\\Game.js",
-      "line": 505
-    },
-    {
-      "name": "getEngineInfo",
-      "description": "Get engine information",
-      "file": "src\\Game.js",
-      "line": 512
-    },
-    {
-      "name": "initializeStateManager",
-      "description": "Initialize State Manager",
-      "file": "src\\Game.js",
-      "line": 526
-    },
-    {
-      "name": "initializeNetworking",
-      "description": "Initialize multiplayer networking",
-      "file": "src\\Game.js",
-      "line": 548
-    },
-    {
-      "name": "initializeUIManager",
-      "description": "Initialize UI Manager",
-      "file": "src\\Game.js",
-      "line": 573
+      "line": 330
     },
     {
       "name": "initializePlayer",
       "description": "Initialize local player",
       "file": "src\\Game.js",
-      "line": 595
+      "line": 353
     },
     {
       "name": "setupPlayerEventHandlers",
       "description": "Set up player event handlers",
       "file": "src\\Game.js",
-      "line": 628
+      "line": 379
     },
     {
-      "name": "initializeAssetManager",
-      "description": "Initialize Asset Manager",
+      "name": "onResize",
+      "description": "Handle window resize",
       "file": "src\\Game.js",
-      "line": 677
+      "line": 431
     },
     {
-      "name": "initializeAudioManager",
-      "description": "Initialize Audio System",
+      "name": "onFocusLost",
+      "description": "Handle window focus loss",
       "file": "src\\Game.js",
-      "line": 699
+      "line": 440
     },
     {
-      "name": "initializeInputManager",
-      "description": "Initialize Input Manager",
+      "name": "onFocusGained",
+      "description": "Handle window focus gain",
       "file": "src\\Game.js",
-      "line": 718
+      "line": 449
     },
     {
-      "name": "initializeMapManager",
-      "description": "Initialize Map Manager",
+      "name": "onError",
+      "description": "Handle errors",
       "file": "src\\Game.js",
-      "line": 737
+      "line": 458
     },
     {
-      "name": "initializePerformanceMonitor",
-      "description": "Initialize Performance Monitor",
+      "name": "getScalingLevel",
+      "description": "Get hardware scaling level based on performance settings",
       "file": "src\\Game.js",
-      "line": 756
+      "line": 470
     },
     {
-      "name": "startMultiplayer",
-      "description": "Start the game with networking",
+      "name": "getFPS",
+      "description": "Get current FPS",
       "file": "src\\Game.js",
-      "line": 775
+      "line": 483
     },
     {
-      "name": "handleRemoteShot",
-      "description": "Handle remote player shooting",
+      "name": "getEngineInfo",
+      "description": "Get engine information",
       "file": "src\\Game.js",
-      "line": 818
+      "line": 490
     },
     {
-      "name": "handlePlayerHit",
-      "description": "Handle player hit events",
+      "name": "stop",
+      "description": "Stop the game and cleanup",
       "file": "src\\Game.js",
-      "line": 834
+      "line": 502
     },
     {
-      "name": "handlePlayerDeath",
-      "description": "Handle player death events",
+      "name": "dispose",
+      "description": "Complete cleanup and disposal",
       "file": "src\\Game.js",
-      "line": 842
+      "line": 529
     },
     {
-      "name": "updateUI",
-      "description": "Update UI elements with current game state",
+      "name": "disposeManagers",
+      "description": "Dispose of all managers and resources",
       "file": "src\\Game.js",
-      "line": 850
+      "line": 557
     }
   ],
   "src\\audio\\AudioSystem.js": [
@@ -234,361 +162,373 @@
       "name": "constructor",
       "description": "No description available",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 10
+      "line": 11
     },
     {
       "name": "initialize",
       "description": "Initialize the audio system - sets up core audio and framework listeners",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 75
+      "line": 76
     },
     {
       "name": "initAudioContext",
       "description": "Initialize Web Audio API context for 3D spatial audio",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 95
+      "line": 96
     },
     {
       "name": "resumeAudioContext",
       "description": "Resume suspended audio context (required for user interaction)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 124
+      "line": 125
     },
     {
       "name": "updateListener",
       "description": "Update 3D audio listener position and orientation",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 137
+      "line": 138
     },
     {
       "name": "isSoundPreloaded",
       "description": "Check if a sound file has been preloaded into cache",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 165
+      "line": 166
     },
     {
       "name": "playSound",
       "description": "Play a sound file with volume and loop options",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 172
+      "line": 173
     },
     {
       "name": "calculateDistanceVolume",
       "description": "Calculate volume based on 3D distance with exponential falloff",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 219
+      "line": 220
     },
     {
       "name": "play3DSound",
       "description": "Play 3D positioned sound with distance-based volume falloff",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 237
+      "line": 238
     },
     {
       "name": "playPositionalAudio",
       "description": "Play positional audio using Web Audio API panner node @param {string} soundPath - Path to sound file @param {Object} sourcePosition - 3D position of sound source @param {number} baseVolume - Base volume level @param {number} maxDistance - Maximum audible distance @param {boolean} loop - Whether to loop the sound @returns {AudioBufferSourceNode|null} Audio source node",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 257
+      "line": 258
     },
     {
       "name": "playPositionalAudioWithPanner",
       "description": "Play positional audio with full Web Audio API setup including panner and gain nodes @param {string} soundPath - Path to sound file @param {Object} sourcePosition - 3D position of sound source @param {number} baseVolume - Base volume level @param {number} maxDistance - Maximum audible distance @param {boolean} loop - Whether to loop the sound @returns {Object|null} Object containing source and panner nodes",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 271
+      "line": 272
     },
     {
       "name": "playWeaponSound",
       "description": "Play weapon firing sound for local player @param {Object} weaponConfig - Weapon configuration containing audio settings @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 351
+      "line": 352
     },
     {
       "name": "playRemoteWeaponSound",
       "description": "Play 3D positioned weapon sound for remote players @param {Object} weaponConfig - Weapon configuration containing audio settings @param {Object} listenerPosition - Position of the audio listener @param {Object} sourcePosition - Position where the weapon was fired @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 366
+      "line": 367
     },
     {
       "name": "playDamageSound",
       "description": "Play damage sound when local player takes damage @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 375
+      "line": 376
     },
     {
       "name": "playRemoteDamageSound",
       "description": "Play 3D positioned damage sound for remote players @param {Object} listenerPosition - Position of the audio listener @param {Object} sourcePosition - Position where damage occurred @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 385
+      "line": 386
     },
     {
       "name": "playReloadSound",
       "description": "Play weapon reload sound @param {Object} weaponConfig - Weapon configuration containing audio settings @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 394
+      "line": 395
     },
     {
       "name": "playWalkingSound",
       "description": "Start playing walking/footstep sounds for local player @param {boolean} isSprinting - Whether the player is sprinting @returns {Promise<void>}",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 404
+      "line": 405
     },
     {
       "name": "playLocalStepSequence",
       "description": "Play sequence of randomized footstep sounds for local player @param {boolean} isSprinting - Whether the player is sprinting (affects timing and volume)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 416
+      "line": 417
     },
     {
       "name": "stopWalkingSound",
       "description": "Stop all walking/footstep sounds for local player",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 488
+      "line": 489
     },
     {
       "name": "playRemoteWalkingSound",
       "description": "Play 3D positioned walking sound for remote players @param {string} playerId - Unique identifier for the remote player @param {Object} sourcePosition - 3D position of the remote player @param {boolean} isSprinting - Whether the remote player is sprinting @returns {Promise<HTMLAudioElement|null>} Audio element or null if rate limited",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 516
+      "line": 517
     },
     {
       "name": "updateWalkingSoundPosition",
       "description": "Update the 3D position of a remote player's walking sound @param {string} playerId - Unique identifier for the remote player @param {Object} newPosition - New 3D position of the remote player",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 539
+      "line": 540
     },
     {
       "name": "stopRemoteWalkingSound",
       "description": "Stop walking sound for a specific remote player @param {string} playerId - Unique identifier for the remote player",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 555
+      "line": 556
     },
     {
       "name": "playMusic",
       "description": "Play music file with specified volume and loop settings @param {string} musicPath - Path to music file @param {number} volume - Volume level (0.0 to 1.0) @param {boolean} loop - Whether to loop the music @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 581
+      "line": 582
     },
     {
       "name": "stopAudio",
       "description": "Stop and reset an audio element @param {HTMLAudioElement} audio - Audio element to stop",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 589
+      "line": 590
     },
     {
       "name": "setupFrameworkListeners",
       "description": "Set up event listeners for framework integration",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 605
+      "line": 606
     },
     {
       "name": "onStateChange",
       "description": "Handle game state changes and adjust audio accordingly @param {string} newState - New game state @param {string} oldState - Previous game state",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 663
+      "line": 664
     },
     {
       "name": "handleLoadingState",
       "description": "Handle loading state - stop music and start preloading sounds",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 691
+      "line": 692
     },
     {
       "name": "handleMainMenuState",
       "description": "Handle main menu state - stop flowstate music and reduce volume",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 705
+      "line": 706
     },
     {
       "name": "handleInGameState",
       "description": "Handle in-game state - restore full volume and resume audio context",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 714
+      "line": 715
     },
     {
       "name": "handlePausedState",
       "description": "Handle paused state - reduce music volume and stop walking sounds",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 722
+      "line": 723
     },
     {
       "name": "handleMapEditorState",
       "description": "Handle map editor state - stop flowstate music and set moderate volume",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 732
+      "line": 733
     },
     {
       "name": "onMusicTrackSelected",
       "description": "Handle music track selection from UI @param {string} trackPath - Path to selected music track",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 742
+      "line": 743
     },
     {
       "name": "onSettingsChange",
       "description": "Handle settings changes from UI @param {Object} newSettings - New audio settings",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 751
+      "line": 752
     },
     {
       "name": "applySettings",
       "description": "Apply audio settings to the system @param {Object} settings - Audio settings to apply",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 765
+      "line": 766
     },
     {
       "name": "onPlayerKill",
       "description": "Handle player kill events - play kill sound effect @param {Object} data - Kill event data",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 780
+      "line": 781
     },
     {
       "name": "onPlayerDeath",
       "description": "Handle player death events - play damage sound and stop flowstate @param {Object} data - Death event data",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 788
+      "line": 789
     },
     {
       "name": "onPlayerMove",
       "description": "Handle player movement events - update listener position and walking sounds @param {Object} data - Movement event data containing position, direction, and movement state",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 802
+      "line": 803
     },
     {
       "name": "onWeaponFired",
       "description": "Handle weapon fired events - play appropriate weapon sound @param {Object} data - Weapon fire event data containing weapon config and position",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 820
+      "line": 821
     },
     {
       "name": "onWeaponReload",
       "description": "Handle weapon reload events - play reload sound @param {Object} data - Weapon reload event data",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 835
+      "line": 836
     },
     {
       "name": "onFlowstateChange",
       "description": "Handle flowstate intensity changes - start/stop/adjust flowstate music @param {number} intensity - Flowstate intensity (0-1) @param {boolean} isActive - Whether flowstate is currently active",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 845
+      "line": 846
     },
     {
       "name": "startFlowstateMusic",
       "description": "Start flowstate music using the selected track @returns {Promise<void>}",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 865
+      "line": 866
     },
     {
       "name": "stopFlowstateMusic",
       "description": "Stop flowstate music and reset music reference",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 904
+      "line": 905
     },
     {
       "name": "adjustFlowstateMusicVolume",
       "description": "Adjust flowstate music volume based on intensity level @param {number} intensity - Flowstate intensity (0-1)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 916
+      "line": 917
     },
     {
       "name": "handleRemotePlayerAudio",
       "description": "Handle remote player audio events for multiplayer @param {string} playerId - Remote player ID @param {string} eventType - Type of audio event @param {Object} data - Event data",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 930
+      "line": 931
     },
     {
       "name": "getAvailableTracks",
       "description": "Get array of available music tracks for UI selection @returns {Array<string>} Array of available track paths",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 958
+      "line": 959
     },
     {
       "name": "getSelectedTrack",
       "description": "Get currently selected flowstate track @returns {string|null} Currently selected track path or null",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 966
+      "line": 967
     },
     {
       "name": "setFlowstateTrack",
       "description": "Set flowstate music track (called from UI) @param {string} trackPath - Path to music track",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 974
+      "line": 975
     },
     {
       "name": "getSettings",
       "description": "Get current audio settings @returns {Object} Copy of current audio settings",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 987
+      "line": 988
     },
     {
       "name": "updateSetting",
       "description": "Update specific audio setting and apply changes @param {string} key - Setting key @param {*} value - Setting value",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 996
+      "line": 997
     },
     {
       "name": "isEnabled",
       "description": "Check if audio system is enabled @returns {boolean} True if audio is enabled",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1005
+      "line": 1006
     },
     {
       "name": "isFlowstateActive",
       "description": "Check if currently in flowstate mode @returns {boolean} True if in flowstate",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1013
+      "line": 1014
     },
     {
       "name": "setMasterVolume",
       "description": "Set master volume level @param {number} volume - Volume level (0.0 to 1.0)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1021
+      "line": 1022
     },
     {
       "name": "setEnabled",
       "description": "Enable or disable the audio system @param {boolean} enabled - Whether to enable audio",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1029
+      "line": 1030
+    },
+    {
+      "name": "resume",
+      "description": "Resume the audio system (called from game pause/resume)",
+      "file": "src\\audio\\AudioSystem.js",
+      "line": 1040
+    },
+    {
+      "name": "pause",
+      "description": "Pause the audio system (called from game pause/resume)",
+      "file": "src\\audio\\AudioSystem.js",
+      "line": 1047
     },
     {
       "name": "isPreloadingComplete",
       "description": "Check if sound preloading is complete @returns {boolean} True if preloading is complete",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1042
+      "line": 1063
     },
     {
       "name": "waitForPreloading",
       "description": "Wait for sound preloading to complete @returns {Promise<boolean>} Promise that resolves when preloading is complete",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1050
+      "line": 1071
     },
     {
       "name": "preloadSounds",
       "description": "Preload all game sounds for better performance @returns {Promise<Object>} Promise that resolves with preloading results",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1067
+      "line": 1088
     },
     {
       "name": "cleanupStuckSounds",
       "description": "Clean up stuck or orphaned audio sources and expired step sounds",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1211
+      "line": 1232
     },
     {
       "name": "stopAllSounds",
       "description": "Stop all active audio sources and clear sound pools",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1256
+      "line": 1277
     },
     {
       "name": "update",
       "description": "Update method called from game loop for periodic maintenance @param {number} deltaTime - Time elapsed since last update",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1287
+      "line": 1308
     },
     {
       "name": "dispose",
       "description": "Cleanup and dispose of all audio resources",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1297
+      "line": 1318
     }
   ],
   "src\\effects\\BloodEffects.js": [
@@ -596,103 +536,103 @@
       "name": "constructor",
       "description": "No description available",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 10
+      "line": 11
     },
     {
       "name": "initialize",
       "description": "Initialize blood effects system",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 37
+      "line": 38
     },
     {
       "name": "createBloodMaterials",
       "description": "Create blood materials for different effects",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 55
+      "line": 56
     },
     {
       "name": "createBloodSplatter",
       "description": "Create blood splatter effect when player is hit",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 78
+      "line": 79
     },
     {
       "name": "createBloodDecal",
       "description": "Create blood decal on surfaces",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 134
+      "line": 135
     },
     {
       "name": "createBloodDecalMesh",
       "description": "Create blood decal mesh",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 165
+      "line": 166
     },
     {
       "name": "animateDecalAppearance",
       "description": "Animate decal appearance",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 212
+      "line": 213
     },
     {
       "name": "removeBloodDecal",
       "description": "Remove blood decal",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 231
+      "line": 232
     },
     {
       "name": "createBloodTrail",
       "description": "Create blood trail effect for moving wounded players",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 270
+      "line": 271
     },
     {
       "name": "createBloodPool",
       "description": "Create blood pool effect for stationary wounded players",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 308
+      "line": 309
     },
     {
       "name": "animatePoolGrowth",
       "description": "Animate blood pool growth",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 361
+      "line": 362
     },
     {
       "name": "cleanupOldEffects",
       "description": "Clean up old blood effects",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 380
+      "line": 381
     },
     {
       "name": "update",
       "description": "Update blood effects (called from game loop)",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 407
+      "line": 408
     },
     {
       "name": "clearAllBloodEffects",
       "description": "Clear all blood effects",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 417
+      "line": 418
     },
     {
       "name": "setSettings",
       "description": "Set blood effects settings",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 440
+      "line": 441
     },
     {
       "name": "getStats",
       "description": "Get blood effects statistics",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 448
+      "line": 449
     },
     {
       "name": "dispose",
       "description": "Dispose of blood effects system",
       "file": "src\\effects\\BloodEffects.js",
-      "line": 459
+      "line": 460
     }
   ],
   "src\\effects\\FlowstateAdapter.js": [
@@ -1017,96 +957,140 @@
       "line": 1086
     }
   ],
+  "src\\effects\\KnifeEffect.js": [
+    {
+      "name": "constructor",
+      "description": "No description available",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 11
+    },
+    {
+      "name": "createKnifeTrail",
+      "description": "Create a knife trail effect following the blade movement @param {BABYLON.Vector3} startPosition - Starting position of the trail @param {BABYLON.Vector3} endPosition - Ending position of the trail @param {BABYLON.Mesh} knifeMesh - Knife mesh to follow (optional) @returns {Object} Effect object for tracking",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 44
+    },
+    {
+      "name": "updateKnifeTrailPosition",
+      "description": "Update knife trail with new blade position during swing @param {Object} effect - Knife trail effect object @param {BABYLON.Vector3} newPosition - New blade tip position",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 108
+    },
+    {
+      "name": "createContinuousKnifeTrail",
+      "description": "Create a continuous knife trail that follows the blade during swing animation This method should be called repeatedly during the knife swing to create a smooth trail @param {BABYLON.Mesh} knifeMesh - The knife mesh to track @param {number} swingDuration - Duration of the swing in seconds (default 4.83s) @returns {Object} Effect object for tracking",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 141
+    },
+    {
+      "name": "addPositionToKnifeTrail",
+      "description": "Add a position to an existing knife trail (for manual trail building) @param {Object} effect - Knife trail effect object @param {BABYLON.Vector3} position - New position to add to trail",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 176
+    },
+    {
+      "name": "update",
+      "description": "Update all active knife trail effects @param {number} deltaTime - Time elapsed since last update in seconds",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 194
+    },
+    {
+      "name": "getKnifeTrailFromPool",
+      "description": "Get a knife trail mesh from the pool or create a new one @returns {BABYLON.Mesh} Knife trail mesh",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 225
+    },
+    {
+      "name": "createKnifeTrailMesh",
+      "description": "Create a new knife trail mesh @returns {BABYLON.Mesh} New knife trail mesh",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 253
+    },
+    {
+      "name": "updateKnifeTrailFade",
+      "description": "Update knife trail fade effect @param {Object} effect - Knife trail effect object @param {number} progress - Progress from 0 to 1",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 289
+    },
+    {
+      "name": "updateKnifeTrailPath",
+      "description": "Update knife trail path based on blade movement @param {Object} effect - Knife trail effect object",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 301
+    },
+    {
+      "name": "disposeKnifeTrail",
+      "description": "Dispose of a knife trail effect @param {Object} effect - Knife trail effect object",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 365
+    },
+    {
+      "name": "disposeEffect",
+      "description": "Dispose of a specific effect by ID @param {string} effectId - Effect ID to dispose",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 383
+    },
+    {
+      "name": "getActiveEffectCounts",
+      "description": "Get count of active effects for debugging @returns {Object} Effect counts",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 399
+    },
+    {
+      "name": "dispose",
+      "description": "Clean up all effects and dispose resources",
+      "file": "src\\effects\\KnifeEffect.js",
+      "line": 411
+    }
+  ],
   "src\\effects\\MuzzleFlash.js": [
     {
       "name": "constructor",
       "description": "No description available",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 10
+      "line": 7
     },
     {
       "name": "initialize",
       "description": "Initialize muzzle flash system",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 39
+      "line": 23
     },
     {
-      "name": "createWeaponConfigs",
-      "description": "Create weapon-specific muzzle flash configurations",
+      "name": "createMaterials",
+      "description": "Create muzzle flash materials",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 57
+      "line": 31
     },
     {
       "name": "createMuzzleFlash",
-      "description": "Create muzzle flash effect",
+      "description": "Create muzzle flash effect attached to weapon",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 124
+      "line": 52
     },
     {
-      "name": "createMuzzleFlashParticles",
-      "description": "Create muzzle flash particle effect",
+      "name": "removeMuzzleFlash",
+      "description": "Remove muzzle flash",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 184
-    },
-    {
-      "name": "createMuzzleFlashLight",
-      "description": "Create muzzle flash light",
-      "file": "src\\effects\\MuzzleFlash.js",
-      "line": 258
-    },
-    {
-      "name": "animateMuzzleFlashLight",
-      "description": "Animate muzzle flash light",
-      "file": "src\\effects\\MuzzleFlash.js",
-      "line": 289
-    },
-    {
-      "name": "createShellEjection",
-      "description": "Create shell ejection effect",
-      "file": "src\\effects\\MuzzleFlash.js",
-      "line": 316
-    },
-    {
-      "name": "getMuzzleFlashTexture",
-      "description": "Get muzzle flash texture",
-      "file": "src\\effects\\MuzzleFlash.js",
-      "line": 345
-    },
-    {
-      "name": "createSuppressedFlash",
-      "description": "Create suppressed weapon flash (smaller, dimmer)",
-      "file": "src\\effects\\MuzzleFlash.js",
-      "line": 375
-    },
-    {
-      "name": "cleanupMuzzleFlash",
-      "description": "Cleanup muzzle flash effect",
-      "file": "src\\effects\\MuzzleFlash.js",
-      "line": 406
+      "line": 119
     },
     {
       "name": "update",
-      "description": "Update muzzle flash system (called from game loop)",
+      "description": "Update muzzle flashes (called from game loop)",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 425
+      "line": 132
     },
     {
-      "name": "setSettings",
-      "description": "Set muzzle flash settings",
+      "name": "clearAll",
+      "description": "Clear all muzzle flashes",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 445
-    },
-    {
-      "name": "getStats",
-      "description": "Get muzzle flash statistics",
-      "file": "src\\effects\\MuzzleFlash.js",
-      "line": 453
+      "line": 152
     },
     {
       "name": "dispose",
       "description": "Dispose of muzzle flash system",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 465
+      "line": 161
     }
   ],
   "src\\effects\\ParticleManager.js": [
@@ -1132,115 +1116,103 @@
       "name": "createParticleSystem",
       "description": "Create a particle system from a template",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 164
+      "line": 126
     },
     {
       "name": "createNewParticleSystem",
       "description": "Create a new particle system from template",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 213
+      "line": 175
     },
     {
       "name": "configureParticleSystem",
       "description": "Configure particle system with position and options",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 266
+      "line": 228
     },
     {
       "name": "getParticleTexture",
       "description": "Get particle texture (default or custom)",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 301
+      "line": 263
     },
     {
       "name": "getFromPool",
       "description": "Get particle system from pool",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 317
+      "line": 279
     },
     {
       "name": "returnToPool",
       "description": "Return particle system to pool",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 331
+      "line": 293
     },
     {
       "name": "setupAutoCleanup",
       "description": "Setup auto-cleanup for particle system",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 367
+      "line": 329
     },
     {
       "name": "createBloodSplatter",
       "description": "Create blood splatter effect",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 381
-    },
-    {
-      "name": "createMuzzleFlash",
-      "description": "Create muzzle flash effect",
-      "file": "src\\effects\\ParticleManager.js",
-      "line": 397
-    },
-    {
-      "name": "createShellEjection",
-      "description": "Create shell ejection effect",
-      "file": "src\\effects\\ParticleManager.js",
-      "line": 410
+      "line": 343
     },
     {
       "name": "createHitSpark",
       "description": "Create hit spark effect",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 421
+      "line": 359
     },
     {
       "name": "createExplosion",
       "description": "Create explosion effect",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 435
+      "line": 373
     },
     {
       "name": "setupPerformanceMonitoring",
       "description": "Setup performance monitoring",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 447
+      "line": 385
     },
     {
       "name": "startCleanupInterval",
       "description": "Start cleanup interval",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 472
+      "line": 410
     },
     {
       "name": "performCleanup",
       "description": "Perform cleanup of inactive particle systems",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 481
+      "line": 419
     },
     {
       "name": "update",
       "description": "Update particle manager (called from game loop)",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 507
+      "line": 445
     },
     {
       "name": "stopAllParticles",
       "description": "Stop all particle systems",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 515
+      "line": 453
     },
     {
       "name": "dispose",
       "description": "Dispose of the particle manager",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 528
+      "line": 466
     },
     {
       "name": "getStats",
       "description": "Get performance statistics",
       "file": "src\\effects\\ParticleManager.js",
-      "line": 574
+      "line": 512
     }
   ],
   "src\\engine\\AssetManager.js": [
@@ -1376,49 +1348,73 @@
       "name": "initialize",
       "description": "Initialize the manager - override in subclasses @returns {Promise<void>}",
       "file": "src\\engine\\BaseManager.js",
-      "line": 23
+      "line": 26
     },
     {
       "name": "_doInitialize",
       "description": "Subclass-specific initialization - override in subclasses @protected",
       "file": "src\\engine\\BaseManager.js",
-      "line": 55
+      "line": 58
     },
     {
       "name": "update",
       "description": "Update method called from game loop - override in subclasses @param {number} deltaTime - Time elapsed since last update",
       "file": "src\\engine\\BaseManager.js",
-      "line": 63
+      "line": 66
     },
     {
       "name": "_doUpdate",
       "description": "Subclass-specific update - override in subclasses @param {number} deltaTime - Time elapsed since last update @protected",
       "file": "src\\engine\\BaseManager.js",
-      "line": 77
+      "line": 80
     },
     {
       "name": "dispose",
       "description": "Dispose of the manager and clean up resources",
       "file": "src\\engine\\BaseManager.js",
-      "line": 84
+      "line": 87
     },
     {
       "name": "_doDispose",
       "description": "Subclass-specific disposal - override in subclasses @protected",
       "file": "src\\engine\\BaseManager.js",
-      "line": 117
+      "line": 120
     },
     {
       "name": "isReady",
       "description": "Check if manager is ready for use @returns {boolean}",
       "file": "src\\engine\\BaseManager.js",
-      "line": 125
+      "line": 131
     },
     {
       "name": "getStatus",
       "description": "Get manager status information @returns {Object}",
       "file": "src\\engine\\BaseManager.js",
-      "line": 133
+      "line": 139
+    },
+    {
+      "name": "on",
+      "description": "Add event listener @param {string} event - Event name @param {Function} listener - Event listener function",
+      "file": "src\\engine\\BaseManager.js",
+      "line": 153
+    },
+    {
+      "name": "off",
+      "description": "Remove event listener @param {string} event - Event name @param {Function} listener - Event listener function",
+      "file": "src\\engine\\BaseManager.js",
+      "line": 165
+    },
+    {
+      "name": "emit",
+      "description": "Emit event to all listeners @param {string} event - Event name @param {...any} args - Arguments to pass to listeners",
+      "file": "src\\engine\\BaseManager.js",
+      "line": 181
+    },
+    {
+      "name": "removeAllListeners",
+      "description": "Remove all event listeners",
+      "file": "src\\engine\\BaseManager.js",
+      "line": 198
     }
   ],
   "src\\engine\\InputManager.js": [
@@ -2233,6 +2229,86 @@
       "line": 393
     }
   ],
+  "src\\engine\\ProjectileManager.js": [
+    {
+      "name": "constructor",
+      "description": "No description available",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 12
+    },
+    {
+      "name": "initialize",
+      "description": "Initialize the projectile manager",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 38
+    },
+    {
+      "name": "fireProjectile",
+      "description": "Fire a projectile from a position in a direction",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 55
+    },
+    {
+      "name": "update",
+      "description": "Update all active projectiles",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 88
+    },
+    {
+      "name": "checkProjectileCollisions",
+      "description": "Check collisions for a specific projectile",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 113
+    },
+    {
+      "name": "isValidTarget",
+      "description": "Check if a mesh is a valid target for the projectile",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 145
+    },
+    {
+      "name": "processHit",
+      "description": "Process hit effects and damage",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 169
+    },
+    {
+      "name": "handlePlayerHit",
+      "description": "Handle hits on players",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 192
+    },
+    {
+      "name": "removeProjectile",
+      "description": "Remove a projectile by ID",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 213
+    },
+    {
+      "name": "clearAllProjectiles",
+      "description": "Clear all projectiles",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 225
+    },
+    {
+      "name": "getStats",
+      "description": "Get projectile statistics",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 236
+    },
+    {
+      "name": "configure",
+      "description": "Configure projectile manager settings",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 249
+    },
+    {
+      "name": "dispose",
+      "description": "Dispose of the projectile manager and clean up resources",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 256
+    }
+  ],
   "src\\engine\\StateManager.js": [
     {
       "name": "constructor",
@@ -2250,79 +2326,67 @@
       "name": "registerStateHandler",
       "description": "Register a state handler @param {string} state - The state name @param {Object} handler - Handler with enter/exit methods",
       "file": "src\\engine\\StateManager.js",
-      "line": 198
+      "line": 192
     },
     {
       "name": "transitionTo",
       "description": "Transition to a new state @param {string} newState - The target state @returns {Promise<boolean>} - Success of transition",
       "file": "src\\engine\\StateManager.js",
-      "line": 210
+      "line": 204
     },
     {
       "name": "getCurrentState",
       "description": "Get current state @returns {string} Current state",
       "file": "src\\engine\\StateManager.js",
-      "line": 272
+      "line": 269
     },
     {
       "name": "getPreviousState",
       "description": "Get previous state @returns {string} Previous state",
       "file": "src\\engine\\StateManager.js",
-      "line": 280
+      "line": 277
     },
     {
       "name": "isInState",
       "description": "Check if currently in a specific state @param {string} state - State to check @returns {boolean}",
       "file": "src\\engine\\StateManager.js",
-      "line": 289
+      "line": 286
     },
     {
       "name": "update",
       "description": "Update method for game loop @param {number} deltaTime - Time since last frame",
       "file": "src\\engine\\StateManager.js",
-      "line": 297
+      "line": 294
     },
     {
       "name": "_handleEscapeKey",
       "description": "Handle ESC key for pausing/unpausing",
       "file": "src\\engine\\StateManager.js",
-      "line": 305
+      "line": 302
     },
     {
       "name": "_handleEscapePress",
       "description": "Handle escape key press",
       "file": "src\\engine\\StateManager.js",
-      "line": 322
+      "line": 319
     },
     {
       "name": "_isValidState",
       "description": "Check if state is valid @param {string} state - State to validate @returns {boolean}",
       "file": "src\\engine\\StateManager.js",
-      "line": 343
+      "line": 340
     },
     {
       "name": "_isValidTransition",
       "description": "Validate state transition @param {string} fromState - Current state @param {string} toState - Target state @returns {boolean}",
       "file": "src\\engine\\StateManager.js",
-      "line": 353
-    },
-    {
-      "name": "_pauseGameSystems",
-      "description": "Pause game systems (physics, audio, etc.)",
-      "file": "src\\engine\\StateManager.js",
-      "line": 389
-    },
-    {
-      "name": "_resumeGameSystems",
-      "description": "Resume game systems",
-      "file": "src\\engine\\StateManager.js",
-      "line": 409
+      "line": 350
     },
     {
       "name": "_doDispose",
       "description": "Cleanup resources",
       "file": "src\\engine\\StateManager.js",
-      "line": 429
+      "line": 386
     }
   ],
   "src\\engine\\UIManager.js": [
@@ -2937,166 +3001,172 @@
   ],
   "src\\entities\\Player.js": [
     {
-      "name": "initialize",
-      "description": "Initialize the player systems",
+      "name": "constructor",
+      "description": "No description available",
       "file": "src\\entities\\Player.js",
-      "line": 80
+      "line": 10
+    },
+    {
+      "name": "initialize",
+      "description": "Initialize the player",
+      "file": "src\\entities\\Player.js",
+      "line": 77
     },
     {
       "name": "createCamera",
-      "description": "Create and configure the first-person camera",
+      "description": "Create FPS camera using UniversalCamera",
       "file": "src\\entities\\Player.js",
-      "line": 105
+      "line": 110
     },
     {
-      "name": "setupInputHandling",
-      "description": "Set up input handling for player controls",
+      "name": "createWeaponAttachPoint",
+      "description": "Create weapon attachment point",
       "file": "src\\entities\\Player.js",
-      "line": 147
+      "line": 138
     },
     {
-      "name": "setupKeyBinding",
-      "description": "Set up key binding for a specific action",
+      "name": "loadDefaultWeapons",
+      "description": "Load default weapons",
       "file": "src\\entities\\Player.js",
-      "line": 191
+      "line": 152
     },
     {
-      "name": "setupPhysics",
-      "description": "Set up basic physics for the player",
+      "name": "equipWeapon",
+      "description": "Equip weapon by slot name",
       "file": "src\\entities\\Player.js",
-      "line": 216
+      "line": 200
     },
     {
-      "name": "update",
-      "description": "Update player logic each frame",
+      "name": "switchWeapon",
+      "description": "Switch to next weapon",
       "file": "src\\entities\\Player.js",
-      "line": 234
+      "line": 228
     },
     {
-      "name": "updateMovement",
-      "description": "Update player movement based on input",
+      "name": "setMovementInput",
+      "description": "Set movement input state",
       "file": "src\\entities\\Player.js",
-      "line": 253
+      "line": 239
     },
     {
-      "name": "checkGrounded",
-      "description": "Simple ground check",
+      "name": "handleMouseLook",
+      "description": "Handle mouse look for FPS camera",
       "file": "src\\entities\\Player.js",
-      "line": 337
+      "line": 248
     },
     {
-      "name": "updateCamera",
-      "description": "Update camera position and height",
+      "name": "jump",
+      "description": "Jump",
       "file": "src\\entities\\Player.js",
-      "line": 352
+      "line": 269
     },
     {
-      "name": "updateShooting",
-      "description": "Update shooting mechanics",
+      "name": "setCrouch",
+      "description": "Set crouch state",
       "file": "src\\entities\\Player.js",
-      "line": 372
+      "line": 279
     },
     {
-      "name": "shoot",
-      "description": "Perform shooting action",
+      "name": "setSprint",
+      "description": "Set sprint state",
       "file": "src\\entities\\Player.js",
-      "line": 390
+      "line": 293
+    },
+    {
+      "name": "setAiming",
+      "description": "Set aiming state",
+      "file": "src\\entities\\Player.js",
+      "line": 300
+    },
+    {
+      "name": "startFiring",
+      "description": "Start firing current weapon",
+      "file": "src\\entities\\Player.js",
+      "line": 312
+    },
+    {
+      "name": "stopFiring",
+      "description": "Stop firing current weapon",
+      "file": "src\\entities\\Player.js",
+      "line": 322
+    },
+    {
+      "name": "fireWeapon",
+      "description": "Fire current weapon",
+      "file": "src\\entities\\Player.js",
+      "line": 329
     },
     {
       "name": "reload",
       "description": "Reload current weapon",
       "file": "src\\entities\\Player.js",
-      "line": 452
+      "line": 352
     },
     {
-      "name": "getFireRate",
-      "description": "Get current weapon fire rate",
+      "name": "update",
+      "description": "Update player (called each frame)",
       "file": "src\\entities\\Player.js",
-      "line": 504
+      "line": 361
     },
     {
-      "name": "updateHealth",
-      "description": "Update health and status effects",
+      "name": "updateMovement",
+      "description": "Update player movement with smooth physics",
       "file": "src\\entities\\Player.js",
-      "line": 512
+      "line": 379
     },
     {
-      "name": "takeDamage",
-      "description": "Take damage",
+      "name": "updateGroundCheck",
+      "description": "Update ground check",
       "file": "src\\entities\\Player.js",
-      "line": 527
-    },
-    {
-      "name": "heal",
-      "description": "Heal the player",
-      "file": "src\\entities\\Player.js",
-      "line": 558
-    },
-    {
-      "name": "die",
-      "description": "Handle player death",
-      "file": "src\\entities\\Player.js",
-      "line": 576
-    },
-    {
-      "name": "respawn",
-      "description": "Respawn the player",
-      "file": "src\\entities\\Player.js",
-      "line": 601
-    },
-    {
-      "name": "clearInputState",
-      "description": "Clear all input states",
-      "file": "src\\entities\\Player.js",
-      "line": 650
-    },
-    {
-      "name": "setWeapon",
-      "description": "Set weapon using existing WeaponBase system @param {string} weaponType - Weapon type from WeaponType enum @param {Object} weaponConfig - Weapon configuration from WeaponConfigs",
-      "file": "src\\entities\\Player.js",
-      "line": 661
+      "line": 437
     },
     {
       "name": "getPosition",
       "description": "Get player position",
       "file": "src\\entities\\Player.js",
-      "line": 743
+      "line": 455
     },
     {
-      "name": "getCameraPosition",
-      "description": "Get camera position",
-      "file": "src\\entities\\Player.js",
-      "line": 750
-    },
-    {
-      "name": "getCameraDirection",
+      "name": "getDirection",
       "description": "Get camera direction",
       "file": "src\\entities\\Player.js",
-      "line": 757
+      "line": 462
     },
     {
-      "name": "isPlayerAlive",
-      "description": "Check if player is alive",
+      "name": "getCurrentWeapon",
+      "description": "Get current weapon",
       "file": "src\\entities\\Player.js",
-      "line": 764
+      "line": 470
     },
     {
-      "name": "getHealthPercentage",
-      "description": "Get player health percentage",
+      "name": "takeDamage",
+      "description": "Take damage",
       "file": "src\\entities\\Player.js",
-      "line": 771
+      "line": 477
     },
     {
-      "name": "getArmorPercentage",
-      "description": "Get player armor percentage",
+      "name": "heal",
+      "description": "Heal player",
       "file": "src\\entities\\Player.js",
-      "line": 778
+      "line": 495
+    },
+    {
+      "name": "onDeath",
+      "description": "Handle player death",
+      "file": "src\\entities\\Player.js",
+      "line": 503
+    },
+    {
+      "name": "respawn",
+      "description": "Respawn player",
+      "file": "src\\entities\\Player.js",
+      "line": 518
     },
     {
       "name": "dispose",
       "description": "Dispose of player resources",
       "file": "src\\entities\\Player.js",
-      "line": 785
+      "line": 540
     }
   ],
   "src\\entities\\Projectile.js": [
@@ -3104,193 +3174,43 @@
       "name": "constructor",
       "description": "No description available",
       "file": "src\\entities\\Projectile.js",
-      "line": 10
+      "line": 12
     },
     {
-      "name": "initialize",
-      "description": "Initialize the projectile",
+      "name": "createVisuals",
+      "description": "Create the visual representation of the projectile",
       "file": "src\\entities\\Projectile.js",
-      "line": 47
-    },
-    {
-      "name": "createTrail",
-      "description": "Create visual trail for the projectile",
-      "file": "src\\entities\\Projectile.js",
-      "line": 60
-    },
-    {
-      "name": "getTrailColor",
-      "description": "Get trail color based on weapon type",
-      "file": "src\\entities\\Projectile.js",
-      "line": 88
-    },
-    {
-      "name": "performRaycast",
-      "description": "Perform raycast for hit detection",
-      "file": "src\\entities\\Projectile.js",
-      "line": 106
-    },
-    {
-      "name": "isValidTarget",
-      "description": "Check if a mesh is a valid target for this projectile",
-      "file": "src\\entities\\Projectile.js",
-      "line": 128
-    },
-    {
-      "name": "handleHit",
-      "description": "Handle projectile hit",
-      "file": "src\\entities\\Projectile.js",
-      "line": 152
-    },
-    {
-      "name": "processHit",
-      "description": "Process the hit and apply appropriate effects",
-      "file": "src\\entities\\Projectile.js",
-      "line": 199
-    },
-    {
-      "name": "isPlayerHit",
-      "description": "Check if the hit mesh belongs to a player",
-      "file": "src\\entities\\Projectile.js",
-      "line": 219
-    },
-    {
-      "name": "isDestructibleHit",
-      "description": "Check if the hit mesh is destructible",
-      "file": "src\\entities\\Projectile.js",
-      "line": 230
-    },
-    {
-      "name": "handlePlayerHit",
-      "description": "Handle hit on a player",
-      "file": "src\\entities\\Projectile.js",
-      "line": 240
-    },
-    {
-      "name": "handleDestructibleHit",
-      "description": "Handle hit on a destructible object",
-      "file": "src\\entities\\Projectile.js",
-      "line": 269
-    },
-    {
-      "name": "handleSurfaceHit",
-      "description": "Handle hit on a regular surface",
-      "file": "src\\entities\\Projectile.js",
-      "line": 292
-    },
-    {
-      "name": "handleMiss",
-      "description": "Handle projectile miss (no hit)",
-      "file": "src\\entities\\Projectile.js",
-      "line": 304
-    },
-    {
-      "name": "createHitEffects",
-      "description": "Create hit effects based on hit type",
-      "file": "src\\entities\\Projectile.js",
-      "line": 314
-    },
-    {
-      "name": "createBloodEffect",
-      "description": "Create blood effect for player hits",
-      "file": "src\\entities\\Projectile.js",
-      "line": 325
-    },
-    {
-      "name": "createSparkEffect",
-      "description": "Create spark effect for surface impacts",
-      "file": "src\\entities\\Projectile.js",
-      "line": 347
-    },
-    {
-      "name": "createDebrisEffect",
-      "description": "Create debris effect for destructible hits",
-      "file": "src\\entities\\Projectile.js",
-      "line": 360
-    },
-    {
-      "name": "createBulletHole",
-      "description": "Create bullet hole decal",
-      "file": "src\\entities\\Projectile.js",
-      "line": 373
+      "line": 50
     },
     {
       "name": "update",
-      "description": "Update projectile (for non-hitscan projectiles)",
+      "description": "Update projectile position and check for collisions",
       "file": "src\\entities\\Projectile.js",
-      "line": 401
+      "line": 97
+    },
+    {
+      "name": "getRay",
+      "description": "Get the projectile's current ray for collision detection",
+      "file": "src\\entities\\Projectile.js",
+      "line": 136
+    },
+    {
+      "name": "onHit",
+      "description": "Handle collision with a target",
+      "file": "src\\entities\\Projectile.js",
+      "line": 144
     },
     {
       "name": "destroy",
-      "description": "Destroy the projectile",
+      "description": "Destroy the projectile and clean up resources",
       "file": "src\\entities\\Projectile.js",
-      "line": 434
+      "line": 165
     },
     {
-      "name": "getInfo",
-      "description": "Get projectile info",
+      "name": "getNetworkData",
+      "description": "Get projectile info for networking",
       "file": "src\\entities\\Projectile.js",
-      "line": 461
-    },
-    {
-      "name": "constructor",
-      "description": "No description available",
-      "file": "src\\entities\\Projectile.js",
-      "line": 481
-    },
-    {
-      "name": "initializePool",
-      "description": "Initialize object pool for projectiles",
-      "file": "src\\entities\\Projectile.js",
-      "line": 510
-    },
-    {
-      "name": "setupEventListeners",
-      "description": "Set up event listeners",
-      "file": "src\\entities\\Projectile.js",
-      "line": 519
-    },
-    {
-      "name": "createProjectile",
-      "description": "Create a new projectile",
-      "file": "src\\entities\\Projectile.js",
-      "line": 531
-    },
-    {
-      "name": "removeProjectile",
-      "description": "Remove a projectile from the manager",
-      "file": "src\\entities\\Projectile.js",
-      "line": 556
-    },
-    {
-      "name": "update",
-      "description": "Update all projectiles (optimized)",
-      "file": "src\\entities\\Projectile.js",
-      "line": 566
-    },
-    {
-      "name": "getStats",
-      "description": "Get performance statistics",
-      "file": "src\\entities\\Projectile.js",
-      "line": 589
-    },
-    {
-      "name": "getActiveProjectileCount",
-      "description": "Get active projectile count",
-      "file": "src\\entities\\Projectile.js",
-      "line": 600
-    },
-    {
-      "name": "clearAllProjectiles",
-      "description": "Clear all projectiles",
-      "file": "src\\entities\\Projectile.js",
-      "line": 607
-    },
-    {
-      "name": "dispose",
-      "description": "Dispose of projectile manager",
-      "file": "src\\entities\\Projectile.js",
-      "line": 617
+      "line": 188
     }
   ],
   "src\\entities\\RemotePlayer.js": [
@@ -3763,178 +3683,6 @@
       "line": 416
     }
   ],
-  "src\\entities\\weapons\\Carbine.js": [
-    {
-      "name": "constructor",
-      "description": "No description available",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 11
-    },
-    {
-      "name": "initialize",
-      "description": "Initialize the carbine weapon",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 32
-    },
-    {
-      "name": "loadWeaponModel",
-      "description": "Load weapon model with proper animation handling",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 54
-    },
-    {
-      "name": "calculateMuzzlePosition",
-      "description": "Calculate muzzle position relative to weapon model",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 109
-    },
-    {
-      "name": "createProjectileData",
-      "description": "Create carbine-specific projectile data",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 124
-    },
-    {
-      "name": "createMuzzleFlash",
-      "description": "Create carbine-specific muzzle flash effect",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 144
-    },
-    {
-      "name": "playReloadAnimation",
-      "description": "Play reload animation with proper skeleton handling",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 169
-    },
-    {
-      "name": "pauseAtIdle",
-      "description": "Pause animation at idle (beginning of sequence)",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 187
-    },
-    {
-      "name": "resumeAnimation",
-      "description": "Resume animation from current frame",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 204
-    },
-    {
-      "name": "finishReload",
-      "description": "Finish reloading the weapon (override to handle animation)",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 217
-    },
-    {
-      "name": "setVisible",
-      "description": "Show/hide weapon model (override to handle animation state)",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 228
-    },
-    {
-      "name": "update",
-      "description": "Update weapon logic each frame",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 240
-    },
-    {
-      "name": "getWeaponInfo",
-      "description": "Get carbine-specific weapon information",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 251
-    },
-    {
-      "name": "dispose",
-      "description": "Dispose of carbine resources",
-      "file": "src\\entities\\weapons\\Carbine.js",
-      "line": 268
-    }
-  ],
-  "src\\entities\\weapons\\Pistol.js": [
-    {
-      "name": "constructor",
-      "description": "No description available",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 10
-    },
-    {
-      "name": "initialize",
-      "description": "Initialize the pistol weapon",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 31
-    },
-    {
-      "name": "loadWeaponModel",
-      "description": "Load weapon model with proper animation handling",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 53
-    },
-    {
-      "name": "calculateMuzzlePosition",
-      "description": "Calculate muzzle position relative to weapon model",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 108
-    },
-    {
-      "name": "createProjectileData",
-      "description": "Create pistol-specific projectile data",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 123
-    },
-    {
-      "name": "createMuzzleFlash",
-      "description": "Create pistol-specific muzzle flash effect",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 143
-    },
-    {
-      "name": "playReloadAnimation",
-      "description": "Play reload animation with proper skeleton handling",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 176
-    },
-    {
-      "name": "pauseAtIdle",
-      "description": "Pause animation at idle (beginning of sequence)",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 194
-    },
-    {
-      "name": "resumeAnimation",
-      "description": "Resume animation from current frame",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 211
-    },
-    {
-      "name": "finishReload",
-      "description": "Finish reloading the weapon (override to handle animation)",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 224
-    },
-    {
-      "name": "setVisible",
-      "description": "Show/hide weapon model (override to handle animation state)",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 235
-    },
-    {
-      "name": "update",
-      "description": "Update weapon logic each frame",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 247
-    },
-    {
-      "name": "getWeaponInfo",
-      "description": "Get pistol-specific weapon information",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 258
-    },
-    {
-      "name": "dispose",
-      "description": "Dispose of pistol resources",
-      "file": "src\\entities\\weapons\\Pistol.js",
-      "line": 275
-    }
-  ],
   "src\\entities\\weapons\\WeaponBase.js": [
     {
       "name": "constructor",
@@ -3944,305 +3692,237 @@
     },
     {
       "name": "initialize",
-      "description": "Initialize the weapon (must be implemented by subclasses)",
+      "description": "Initialize the weapon - now generic for all weapon types",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 62
+      "line": 60
+    },
+    {
+      "name": "setupWeaponSpecifics",
+      "description": "Setup weapon-specific configurations",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 79
     },
     {
       "name": "fire",
-      "description": "Fire the weapon (template method with common logic)",
+      "description": "Fire the weapon (generic method handling all weapon types)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 69
+      "line": 104
+    },
+    {
+      "name": "fireProjectile",
+      "description": "Fire a single projectile (rifles, pistols, SMGs, snipers)",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 175
+    },
+    {
+      "name": "fireShotgun",
+      "description": "Fire shotgun pellets",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 195
+    },
+    {
+      "name": "performMeleeAttack",
+      "description": "Perform melee attack (knife)",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 223
+    },
+    {
+      "name": "processMeleeHit",
+      "description": "Process melee hit",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 260
+    },
+    {
+      "name": "calculateShotgunSpread",
+      "description": "Calculate shotgun pellet spread",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 298
+    },
+    {
+      "name": "playFiringAnimation",
+      "description": "Play firing animation (manual animation for firing/swapping)",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 325
+    },
+    {
+      "name": "playSwapAnimation",
+      "description": "Play weapon swap animation (manual animation)",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 362
     },
     {
       "name": "createProjectileData",
       "description": "Create projectile data (can be overridden by subclasses)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 134
+      "line": 396
     },
     {
       "name": "createMuzzleFlash",
-      "description": "Create muzzle flash effect (can be overridden by subclasses)",
+      "description": "Create muzzle flash effect using configuration",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 154
+      "line": 416
     },
     {
       "name": "playFireSound",
       "description": "Play weapon fire sound",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 182
+      "line": 453
     },
     {
       "name": "canFireWeapon",
       "description": "Check if weapon can fire",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 193
+      "line": 464
     },
     {
       "name": "reload",
       "description": "Start reloading the weapon",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 205
+      "line": 476
     },
     {
       "name": "finishReload",
       "description": "Finish reloading the weapon",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 248
+      "line": 519
     },
     {
       "name": "playReloadSound",
       "description": "Play reload sound",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 280
+      "line": 551
     },
     {
       "name": "update",
       "description": "Update weapon logic each frame",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 291
+      "line": 562
     },
     {
       "name": "loadModel",
       "description": "Load weapon model and animations using AssetManager",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 312
+      "line": 583
     },
     {
       "name": "playReloadAnimation",
       "description": "Play reload animation",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 397
+      "line": 668
     },
     {
       "name": "pauseAtIdle",
       "description": "Pause animation at idle (beginning of sequence)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 422
+      "line": 693
     },
     {
       "name": "applyRecoil",
       "description": "Apply visual recoil effects to weapon model",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 443
+      "line": 714
     },
     {
       "name": "createRecoilPattern",
       "description": "Create weapon-specific recoil pattern",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 477
+      "line": 748
     },
     {
       "name": "updateAnimations",
       "description": "Update animations",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 489
+      "line": 760
     },
     {
       "name": "getCurrentAmmo",
       "description": "Get current ammunition count (delegated to AmmoRegistry)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 497
+      "line": 768
     },
     {
       "name": "getMaxAmmo",
       "description": "Get maximum ammunition capacity (delegated to AmmoRegistry)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 508
+      "line": 779
     },
     {
       "name": "isCurrentlyReloading",
       "description": "Check if weapon is currently reloading",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 519
+      "line": 790
     },
     {
       "name": "getWeaponInfo",
       "description": "Get weapon information for UI",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 526
+      "line": 797
     },
     {
       "name": "setVisible",
       "description": "Show/hide weapon model",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 544
+      "line": 815
+    },
+    {
+      "name": "setAiming",
+      "description": "Set aiming state for weapon",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 824
     },
     {
       "name": "consumeAmmo",
       "description": "Consume ammunition (delegated to AmmoRegistry)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 553
+      "line": 845
     },
     {
       "name": "setFiringCooldown",
       "description": "Set firing cooldown",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 601
+      "line": 893
     },
     {
       "name": "updateMovementPenalty",
       "description": "Update movement penalty for accuracy system",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 609
+      "line": 901
     },
     {
       "name": "addRecoilToAccuracy",
       "description": "Add recoil to accuracy system when firing",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 618
+      "line": 910
     },
     {
       "name": "getCurrentAccuracy",
       "description": "Get current effective accuracy",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 627
+      "line": 919
     },
     {
       "name": "applyAccuracyToDirection",
       "description": "Apply accuracy and recoil to shot direction",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 637
+      "line": 929
     },
     {
       "name": "getAccuracyState",
       "description": "Get accuracy system state for debugging",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 680
+      "line": 972
     },
     {
       "name": "resetAccuracy",
       "description": "Reset accuracy system (useful for weapon switching)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 690
+      "line": 982
     },
     {
       "name": "dispose",
       "description": "Dispose of weapon resources",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 699
-    }
-  ],
-  "src\\entities\\weapons\\WeaponEffects.js": [
-    {
-      "name": "constructor",
-      "description": "No description available",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 12
-    },
-    {
-      "name": "createMuzzleFlash",
-      "description": "Create a muzzle flash effect at the specified position @param {BABYLON.Vector3} position - World position for the muzzle flash @param {BABYLON.Vector3} direction - Direction the weapon is facing @param {string} type - Type of muzzle flash ('donut' or 'spikey') @param {BABYLON.Mesh} weaponMesh - Weapon mesh to attach effect to (optional) @returns {Object} Effect object for tracking",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 67
-    },
-    {
-      "name": "createKnifeTrail",
-      "description": "Create a knife trail effect following the blade movement @param {BABYLON.Vector3} startPosition - Starting position of the trail @param {BABYLON.Vector3} endPosition - Ending position of the trail @param {BABYLON.Mesh} knifeMesh - Knife mesh to follow (optional) @returns {Object} Effect object for tracking",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 136
-    },
-    {
-      "name": "updateKnifeTrailPosition",
-      "description": "Update knife trail with new blade position during swing @param {Object} effect - Knife trail effect object @param {BABYLON.Vector3} newPosition - New blade tip position",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 200
-    },
-    {
-      "name": "createContinuousKnifeTrail",
-      "description": "Create a continuous knife trail that follows the blade during swing animation This method should be called repeatedly during the knife swing to create a smooth trail @param {BABYLON.Mesh} knifeMesh - The knife mesh to track @param {number} swingDuration - Duration of the swing in seconds (default 4.83s) @returns {Object} Effect object for tracking",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 233
-    },
-    {
-      "name": "addPositionToKnifeTrail",
-      "description": "Add a position to an existing knife trail (for manual trail building) @param {Object} effect - Knife trail effect object @param {BABYLON.Vector3} position - New position to add to trail",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 268
-    },
-    {
-      "name": "updateEffects",
-      "description": "Update all active effects @param {number} deltaTime - Time elapsed since last update in seconds",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 286
-    },
-    {
-      "name": "getMuzzleFlashFromPool",
-      "description": "Get a muzzle flash mesh from the pool or create a new one @param {string} type - Type of muzzle flash ('donut' or 'spikey') @returns {BABYLON.Mesh} Muzzle flash mesh",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 338
-    },
-    {
-      "name": "createMuzzleFlashMesh",
-      "description": "Create a new muzzle flash mesh @param {string} type - Type of muzzle flash ('donut' or 'spikey') @returns {BABYLON.Mesh} New muzzle flash mesh",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 367
-    },
-    {
-      "name": "getKnifeTrailFromPool",
-      "description": "Get a knife trail mesh from the pool or create a new one @returns {BABYLON.Mesh} Knife trail mesh",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 491
-    },
-    {
-      "name": "createKnifeTrailMesh",
-      "description": "Create a new knife trail mesh @returns {BABYLON.Mesh} New knife trail mesh",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 519
-    },
-    {
-      "name": "updateMuzzleFlashFade",
-      "description": "Update muzzle flash fade effect @param {Object} effect - Muzzle flash effect object @param {number} progress - Progress from 0 to 1",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 555
-    },
-    {
-      "name": "updateKnifeTrailFade",
-      "description": "Update knife trail fade effect @param {Object} effect - Knife trail effect object @param {number} progress - Progress from 0 to 1",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 573
-    },
-    {
-      "name": "updateKnifeTrailPath",
-      "description": "Update knife trail path based on blade movement @param {Object} effect - Knife trail effect object",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 585
-    },
-    {
-      "name": "updateKnifeTrailPosition",
-      "description": "Update knife trail position if attached to knife mesh @param {Object} effect - Knife trail effect object",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 650
-    },
-    {
-      "name": "disposeMuzzleFlash",
-      "description": "Dispose of a muzzle flash effect @param {Object} effect - Muzzle flash effect object",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 670
-    },
-    {
-      "name": "disposeKnifeTrail",
-      "description": "Dispose of a knife trail effect @param {Object} effect - Knife trail effect object",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 683
-    },
-    {
-      "name": "disposeEffect",
-      "description": "Dispose of a specific effect by ID @param {string} effectId - Effect ID to dispose",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 701
-    },
-    {
-      "name": "getActiveEffectCounts",
-      "description": "Get count of active effects for debugging @returns {Object} Effect counts",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 725
-    },
-    {
-      "name": "dispose",
-      "description": "Clean up all effects and dispose resources",
-      "file": "src\\entities\\weapons\\WeaponEffects.js",
-      "line": 740
+      "line": 991
     }
   ],
   "src\\hud\\PerformanceMonitor.js": [

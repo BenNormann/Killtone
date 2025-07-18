@@ -1034,6 +1034,26 @@ export class AudioSystem {
         }
     }
 
+    /**
+     * Resume the audio system (called from game pause/resume)
+     */
+    resume() {
+        this.resumeAudioContext();
+    }
+
+    /**
+     * Pause the audio system (called from game pause/resume)
+     */
+    pause() {
+        // Stop walking sounds when paused
+        this.stopWalkingSound();
+        
+        // Reduce music volume when paused
+        if (this.flowstateMusic) {
+            this.flowstateMusic.volume = this.settings.musicVolume * 0.3;
+        }
+    }
+
     // ===== PRELOADING =====
 
     /**
