@@ -82,8 +82,8 @@ export class Projectile {
         console.log('Projectile: Creating capsule mesh...');
         // Create capsule mesh (horizontal pill shape) - make it larger for visibility
         this.mesh = BABYLON.MeshBuilder.CreateCapsule("projectile_" + this.id, {
-            height: 0.3,
-            radius: 0.05,
+            height: 0.5,
+            radius: 0.07,
             orientation: BABYLON.Vector3.Right()
         }, this.scene);
         
