@@ -148,19 +148,19 @@
       "name": "stop",
       "description": "Stop the game and cleanup",
       "file": "src\\Game.js",
-      "line": 525
+      "line": 523
     },
     {
       "name": "dispose",
       "description": "Complete cleanup and disposal",
       "file": "src\\Game.js",
-      "line": 552
+      "line": 550
     },
     {
       "name": "disposeManagers",
       "description": "Dispose of all managers and resources",
       "file": "src\\Game.js",
-      "line": 580
+      "line": 578
     }
   ],
   "src\\audio\\AudioSystem.js": [
