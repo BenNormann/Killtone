@@ -8,40 +8,39 @@ import { BaseManager } from './BaseManager.js';
 export class InputManager extends BaseManager {
     constructor(game) {
         super(game);
-        this.canvas = game.canvas;
+        
+        this.canvas = null;
+        this.keyBindings = new Map();
+        this.actionHandlers = new Map();
+        this.contextHandlers = new Map();
+        this.activeKeys = new Set();
+        this.boundEventHandlers = new Map();
         
         // Input state
-        this.activeKeys = new Set();
+        this.currentContext = 'menu';
+        this.gameControlsEnabled = false;
+        this.editorControlsEnabled = false;
+        
+        // Mouse state
         this.mouseState = {
             x: 0,
             y: 0,
             deltaX: 0,
             deltaY: 0,
-            buttons: 0,
-            wheel: 0
+            wheel: 0,
+            buttons: 0
         };
         
-        // Key bindings - configurable
-        this.keyBindings = new Map();
-        this.actionHandlers = new Map();
-        
-        // Input contexts
-        this.currentContext = 'menu'; // 'menu', 'game', 'editor'
-        this.contextHandlers = new Map();
-        
-        // Control states
-        this.gameControlsEnabled = false;
-        this.editorControlsEnabled = false;
+        // Pointer lock state management
         this.pointerLocked = false;
+        this.pointerLockRequested = false;
+        this.pointerLockRequestTimeout = null;
+        this.pointerLockRequestDelay = 100; // ms delay between requests
         
-        // Event listeners
-        this.boundEventHandlers = new Map();
-        
-        // Initialize default key bindings
-        this._initializeDefaultBindings();
-        
-        // Setup event listeners
-        this._setupEventListeners();
+        // Control state management
+        this.enablingGameControls = false;
+        this.lastManualRequestTime = 0;
+        this.manualRequestDebounceTime = 200; // ms
     }
 
     /**
@@ -85,6 +84,21 @@ export class InputManager extends BaseManager {
     }
 
     /**
+     * Initialize the input manager
+     */
+    async initialize() {
+        this.canvas = this.game.canvas;
+        
+        // Initialize default key bindings
+        this._initializeDefaultBindings();
+        
+        // Setup event listeners
+        this._setupEventListeners();
+        
+        console.log('InputManager initialized');
+    }
+
+    /**
      * Setup event listeners for input capture
      */
     _setupEventListeners() {
@@ -111,8 +125,14 @@ export class InputManager extends BaseManager {
         this.canvas.addEventListener('wheel', mouseWheelHandler);
         
         document.addEventListener('pointerlockchange', pointerLockChangeHandler);
-        document.addEventListener('pointerlockerror', () => {
-            console.error('Pointer lock failed');
+        document.addEventListener('pointerlockerror', (event) => {
+            console.warn('Pointer lock error:', event);
+            // Reset request state on error
+            this.pointerLockRequested = false;
+            if (this.pointerLockRequestTimeout) {
+                clearTimeout(this.pointerLockRequestTimeout);
+                this.pointerLockRequestTimeout = null;
+            }
         });
         
         // Store bound handlers for cleanup
@@ -177,14 +197,68 @@ export class InputManager extends BaseManager {
     /**
      * Enable game controls (FPS movement, shooting)
      */
-    enableGameControls() {
-        this.gameControlsEnabled = true;
-        this.setContext('game');
+    async enableGameControls() {
+        // Prevent multiple simultaneous calls
+        if (this.enablingGameControls) {
+            console.log('Game controls already being enabled, skipping...');
+            return;
+        }
         
-        // Request pointer lock for FPS controls
-        this._requestPointerLock();
+        this.enablingGameControls = true;
         
-        console.log('Game controls enabled');
+        try {
+            this.gameControlsEnabled = true;
+            this.setContext('game');
+            
+            console.log('Game controls enabled');
+            
+            // Wait for UI to be fully ready before requesting pointer lock
+            const uiReady = await this._waitForUIReady();
+            
+            // Only request pointer lock if UI is ready and we're still in the correct state
+            if (uiReady) {
+                this._requestPointerLock();
+            } else {
+                console.log('UI not ready for pointer lock, skipping request');
+            }
+        } finally {
+            this.enablingGameControls = false;
+        }
+    }
+
+    /**
+     * Wait for UI to be fully ready before requesting pointer lock
+     */
+    async _waitForUIReady() {
+        // Wait a bit for UI state changes to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Additional check: wait for any ongoing state transitions to complete
+        if (this.game.stateManager && this.game.stateManager.isTransitioning) {
+            console.log('Waiting for state transition to complete...');
+            let attempts = 0;
+            const maxAttempts = 100; // 1 second max wait
+            
+            while (this.game.stateManager.isTransitioning && attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+                attempts++;
+            }
+            
+            if (attempts >= maxAttempts) {
+                console.warn('State transition timeout, proceeding anyway...');
+            }
+        }
+        
+        // Wait a bit more for UI updates to settle
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Final check: ensure we're still in the correct state
+        if (this.game.stateManager && this.game.stateManager.getCurrentState() !== 'IN_GAME') {
+            console.log('State changed during wait, aborting pointer lock request');
+            return false;
+        }
+        
+        return true;
     }
 
     /**
@@ -314,9 +388,9 @@ export class InputManager extends BaseManager {
             }
         }
         
-        // Request pointer lock on first click in game mode
+        // Request pointer lock on first click in game mode (debounced)
         if (this.currentContext === 'game' && !this.pointerLocked) {
-            this._requestPointerLock();
+            this.requestPointerLockManual();
         }
         
         event.preventDefault();
@@ -502,20 +576,123 @@ export class InputManager extends BaseManager {
     }
 
     /**
-     * Request pointer lock
+     * Public method to manually enable pointer lock (for UI use)
+     */
+    enablePointerLock() {
+        if (this.game.stateManager?.getCurrentState() === 'IN_GAME') {
+            this.requestPointerLockManual();
+        }
+    }
+
+    /**
+     * Manually request pointer lock (can be called by user interaction)
+     */
+    requestPointerLockManual() {
+        const now = Date.now();
+        
+        // Debounce rapid requests
+        if (now - this.lastManualRequestTime < this.manualRequestDebounceTime) {
+            console.log('Manual pointer lock request debounced');
+            return;
+        }
+        
+        this.lastManualRequestTime = now;
+        
+        // Only allow manual requests when in game state and controls are enabled
+        if (this.game.stateManager?.getCurrentState() === 'IN_GAME' && 
+            this.gameControlsEnabled && 
+            !this.pointerLocked) {
+            console.log('Manual pointer lock request');
+            this._requestPointerLock();
+        }
+    }
+
+    /**
+     * Safely request pointer lock (public method)
+     */
+    requestPointerLock() {
+        this._requestPointerLock();
+    }
+
+    /**
+     * Safely exit pointer lock (public method)
+     */
+    exitPointerLock() {
+        this._exitPointerLock();
+    }
+
+    /**
+     * Check if pointer lock is currently active
+     */
+    isPointerLocked() {
+        return this.pointerLocked;
+    }
+
+    /**
+     * Check if pointer lock is supported
+     */
+    isPointerLockSupported() {
+        return !!(this.canvas && this.canvas.requestPointerLock && document.exitPointerLock);
+    }
+
+    /**
+     * Request pointer lock with debouncing
      */
     _requestPointerLock() {
-        if (this.canvas.requestPointerLock) {
-            this.canvas.requestPointerLock();
+        // Check if pointer lock is supported
+        if (!this.isPointerLockSupported()) {
+            console.warn('Pointer lock not supported');
+            return;
         }
+
+        // If already locked or request in progress, don't make another request
+        if (this.pointerLocked || this.pointerLockRequested) {
+            console.log('Pointer lock request skipped - already locked or request in progress');
+            return;
+        }
+
+        // Clear any existing timeout
+        if (this.pointerLockRequestTimeout) {
+            clearTimeout(this.pointerLockRequestTimeout);
+        }
+
+        // Set request flag
+        this.pointerLockRequested = true;
+        console.log('Requesting pointer lock...');
+
+        // Make the request
+        try {
+            this.canvas.requestPointerLock();
+        } catch (error) {
+            console.warn('Pointer lock request failed:', error);
+            this.pointerLockRequested = false;
+        }
+
+        // Clear request flag after delay to prevent rapid requests
+        this.pointerLockRequestTimeout = setTimeout(() => {
+            this.pointerLockRequested = false;
+            console.log('Pointer lock request timeout cleared');
+        }, this.pointerLockRequestDelay);
     }
 
     /**
      * Exit pointer lock
      */
     _exitPointerLock() {
-        if (document.exitPointerLock) {
-            document.exitPointerLock();
+        // Clear any pending request
+        if (this.pointerLockRequestTimeout) {
+            clearTimeout(this.pointerLockRequestTimeout);
+            this.pointerLockRequestTimeout = null;
+        }
+        
+        this.pointerLockRequested = false;
+        
+        if (this.isPointerLockSupported()) {
+            try {
+                document.exitPointerLock();
+            } catch (error) {
+                console.warn('Pointer lock exit failed:', error);
+            }
         }
     }
 
@@ -525,6 +702,14 @@ export class InputManager extends BaseManager {
     _handlePointerLockChange() {
         const wasLocked = this.pointerLocked;
         this.pointerLocked = document.pointerLockElement === this.canvas;
+        
+        // Clear request flag when lock state changes
+        this.pointerLockRequested = false;
+        if (this.pointerLockRequestTimeout) {
+            clearTimeout(this.pointerLockRequestTimeout);
+            this.pointerLockRequestTimeout = null;
+        }
+        
         console.log(`Pointer lock: ${this.pointerLocked ? 'enabled' : 'disabled'}`);
         
         // If pointer lock was disabled and we're in game, show settings (ESC was pressed)
@@ -589,6 +774,12 @@ export class InputManager extends BaseManager {
      * Cleanup resources
      */
     _doDispose() {
+        // Clear any pending pointer lock timeout
+        if (this.pointerLockRequestTimeout) {
+            clearTimeout(this.pointerLockRequestTimeout);
+            this.pointerLockRequestTimeout = null;
+        }
+        
         // Remove event listeners
         for (const [eventType, handler] of this.boundEventHandlers) {
             if (eventType === 'keydown' || eventType === 'keyup') {

@@ -36,7 +36,7 @@ export class ProjectileManager {
     initialize() {
         // Create glow layer for projectile effects
         this.glowLayer = new BABYLON.GlowLayer('projectileGlow', this.scene);
-        this.glowLayer.intensity = 0.8;
+        this.glowLayer.intensity = 0.4; // Reduced intensity to prevent overpowering
         
         // Add to scene effect layers
         if (!this.scene.effectLayers) {

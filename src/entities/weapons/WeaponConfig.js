@@ -61,6 +61,10 @@ export const WeaponConfigs = {
             vertical: 0.1,
             recovery: 2.0
         },
+        projectile: {
+            speed: 800, // m/s - moderate speed for carbine
+            maxDistance: 500
+        },
         audio: {
             fireSound: 'assets/sounds/GenericGunshot.wav',
             reloadSound: 'assets/sounds/Reload.wav',
@@ -98,6 +102,10 @@ export const WeaponConfigs = {
             horizontal: 0.04,
             vertical: 0.08,
             recovery: 2.5
+        },
+        projectile: {
+            speed: 400, // m/s - slower speed for pistol
+            maxDistance: 300
         },
         audio: {
             fireSound: 'assets/sounds/GenericGunshot.wav',
@@ -139,6 +147,10 @@ export const WeaponConfigs = {
             vertical: 0.25,
             recovery: 1.5
         },
+        projectile: {
+            speed: 450, // m/s - moderate speed for shotgun pellets
+            maxDistance: 200
+        },
         audio: {
             fireSound: 'assets/sounds/GenericGunshot.wav',
             reloadSound: 'assets/sounds/Reload.wav',
@@ -177,6 +189,10 @@ export const WeaponConfigs = {
             vertical: 0.12,
             recovery: 2.2
         },
+        projectile: {
+            speed: 600, // m/s - fast speed for SMG
+            maxDistance: 400
+        },
         audio: {
             fireSound: 'assets/sounds/GenericGunshot.wav',
             reloadSound: 'assets/sounds/Reload.wav',
@@ -214,6 +230,10 @@ export const WeaponConfigs = {
             horizontal: 0.15,
             vertical: 0.3,
             recovery: 1.2
+        },
+        projectile: {
+            speed: 1200, // m/s - very fast speed for sniper
+            maxDistance: 800
         },
         audio: {
             fireSound: 'assets/sounds/Sniper.wav',

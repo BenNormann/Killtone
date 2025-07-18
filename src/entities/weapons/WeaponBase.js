@@ -397,18 +397,18 @@ export class WeaponBase {
      */
     createProjectileData(origin, direction, gameInstance = null) {
         return {
-            origin: origin.clone(),
+            position: origin.clone(), // Changed from 'origin' to 'position' to match ProjectileManager
             direction: direction,
+            speed: this.config.projectile?.speed || 700, // Use weapon-specific speed from config
+            damage: this.damage,
+            maxDistance: this.config.projectile?.maxDistance || 400, // Use weapon-specific max distance
+            ownerId: 'local', // Changed from 'playerId' to 'ownerId' to match ProjectileManager
             weapon: {
                 name: this.name,
                 type: this.type,
                 damage: this.damage
             },
-            damage: this.damage,
-            range: 400, // Default range
-            speed: 700, // Default speed
-            showTrail: true,
-            playerId: 'local' // TODO: Get from player system
+            showTrail: true
         };
     }
 

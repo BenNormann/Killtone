@@ -236,8 +236,8 @@ export class Game {
 
         // State change events
         if (this.stateManager) {
-            this.stateManager.on('stateChanged', (newState, oldState) => {
-                this.onStateChanged(newState, oldState);
+            this.stateManager.on('stateChanged', async (newState, oldState) => {
+                await this.onStateChanged(newState, oldState);
             });
         }
     }
@@ -330,11 +330,11 @@ export class Game {
     /**
      * Handle state changes
      */
-    onStateChanged(newState, oldState) {
+    async onStateChanged(newState, oldState) {
         switch (newState) {
             case 'IN_GAME':
-                this.initializePlayer();
-                this.inputManager.enableGameControls();
+                await this.initializePlayer();
+                await this.inputManager.enableGameControls();
                 break;
 
             case 'MAIN_MENU':
@@ -458,6 +458,20 @@ export class Game {
      */
     onError(error) {
         console.error('Game error:', error);
+
+        // Handle pointer lock errors gracefully
+        if (error.name === 'SecurityError' && error.message.includes('pointer lock')) {
+            console.warn('Pointer lock error handled gracefully:', error.message);
+            // Reset pointer lock state in input manager
+            if (this.inputManager) {
+                this.inputManager.pointerLockRequested = false;
+                if (this.inputManager.pointerLockRequestTimeout) {
+                    clearTimeout(this.inputManager.pointerLockRequestTimeout);
+                    this.inputManager.pointerLockRequestTimeout = null;
+                }
+            }
+            return; // Don't show error UI for pointer lock errors
+        }
 
         // Could show error UI or attempt recovery
         if (this.uiManager) {

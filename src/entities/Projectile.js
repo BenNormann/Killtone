@@ -15,7 +15,7 @@ export class Projectile {
         
         // Projectile properties
         this.position = options.position || new BABYLON.Vector3.Zero();
-        this.velocity = options.velocity || new BABYLON.Vector3(0, 0, 5);
+        this.velocity = options.velocity || new BABYLON.Vector3(0, 0, 0);
         this.speed = options.speed || 1200;
         this.damage = options.damage || 25;
         this.maxDistance = options.maxDistance || 2000;
@@ -58,6 +58,10 @@ export class Projectile {
         // Position the mesh
         this.mesh.position = this.position.clone();
         
+        // Rotate capsule to be horizontal (default is vertical along Y-axis)
+        // Rotate 90 degrees around X-axis to make it point forward (along Z-axis)
+        this.mesh.rotation.x = Math.PI / 2;
+        
         // Create glowing material
         this.material = new BABYLON.StandardMaterial(`projectile_mat_${this.id}`, this.scene);
         this.material.emissiveColor = this.color;
@@ -66,6 +70,9 @@ export class Projectile {
         this.material.disableLighting = true;
         
         this.mesh.material = this.material;
+        
+        // Set rendering group for proper depth sorting
+        this.mesh.renderingGroupId = 0; // Same as most other objects for proper depth testing
         
         // Add glow effect
         if (this.scene.effectLayers) {
