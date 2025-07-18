@@ -4,7 +4,7 @@
  */
 
 // BABYLON is loaded globally from CDN in index.html
-import GameConfig from '../mainConfig.js';
+import { GameConfig } from '../mainConfig.js';
 
 export class ParticleManager {
     constructor(game) {

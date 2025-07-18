@@ -153,5 +153,3 @@ export class PlayerUtils {
         return new BABYLON.Vector3(0, 0, 1);
     }
 }
-
-export default PlayerUtils;

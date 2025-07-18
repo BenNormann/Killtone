@@ -4,7 +4,7 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
-import MathUtils from '../utils/MathUtils.js';
+import { MathUtils } from '../utils/MathUtils.js';
 
 export class RaycastManager {
     constructor(scene, physicsManager = null) {
@@ -426,5 +426,3 @@ export class RaycastManager {
         console.log('RaycastManager disposed');
     }
 }
-
-export default RaycastManager;

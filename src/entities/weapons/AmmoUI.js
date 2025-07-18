@@ -436,5 +436,3 @@ export class AmmoUI {
         console.log('AmmoUI disposed');
     }
 }
-
-export default AmmoUI;

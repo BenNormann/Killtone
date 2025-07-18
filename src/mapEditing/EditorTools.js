@@ -3,7 +3,7 @@
  * Tools for placing and manipulating objects in the map editor
  */
 
-import CommonUtils from '../utils/CommonUtils.js';
+import { CommonUtils } from '../utils/CommonUtils.js';
 
 export class EditorTools {
     constructor(mapEditor) {

@@ -5,7 +5,7 @@
 
 import { GameConfig } from '../mainConfig.js';
 import { BaseManager } from './BaseManager.js';
-import CommonUtils from '../utils/CommonUtils.js';
+import { CommonUtils } from '../utils/CommonUtils.js';
 
 export class MapManager extends BaseManager {
     constructor(game) {

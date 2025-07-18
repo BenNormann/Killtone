@@ -445,5 +445,3 @@ export class PerformanceMonitor {
         console.log('PerformanceMonitor disposed');
     }
 }
-
-export default PerformanceMonitor;

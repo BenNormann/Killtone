@@ -3,7 +3,7 @@
  * Handles projectile physics, rendering, and hit detection
  */
 
-import MathUtils from '../utils/MathUtils.js';
+import { MathUtils } from '../utils/MathUtils.js';
 
 /**
  * Individual Projectile class
@@ -204,5 +204,3 @@ export class Projectile {
         };
     }
 }
-
-export default Projectile;

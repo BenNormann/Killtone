@@ -5,8 +5,8 @@
 
 import { GameConfig } from '../mainConfig.js';
 import { EditorTools } from './EditorTools.js';
-import CommonUtils from '../utils/CommonUtils.js';
-import MathUtils from '../utils/MathUtils.js';
+import { CommonUtils } from '../utils/CommonUtils.js';
+import { MathUtils } from '../utils/MathUtils.js';
 
 export class MapEditor {
     constructor(game) {

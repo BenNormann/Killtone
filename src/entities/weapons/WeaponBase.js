@@ -6,7 +6,7 @@
 // BABYLON is loaded globally from CDN in index.html
 import { WeaponConstants } from './WeaponConfig.js';
 import { AccuracySystem } from './AccuracySystem.js';
-import MathUtils from '../../utils/MathUtils.js';
+import { MathUtils } from '../../utils/MathUtils.js';
 
 export class WeaponBase {
     constructor(config, scene, effectsManager, accuracySystem = null, game = null) {
@@ -1019,5 +1019,3 @@ export class WeaponBase {
         console.log(`Weapon ${this.name} disposed`);
     }
 }
-
-export default WeaponBase;

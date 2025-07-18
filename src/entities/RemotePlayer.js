@@ -3,8 +3,8 @@
  * Represents other players in multiplayer sessions
  */
 
-import GameConfig from '../mainConfig.js';
-import PlayerUtils from './PlayerUtils.js';
+import { GameConfig } from '../mainConfig.js';
+import { PlayerUtils } from './PlayerUtils.js';
 
 export class RemotePlayer {
     constructor(game, scene, playerData) {
@@ -470,5 +470,3 @@ export class RemotePlayer {
         console.log(`RemotePlayer ${this.username} disposed`);
     }
 }
-
-export default RemotePlayer;

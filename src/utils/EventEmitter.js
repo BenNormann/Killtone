@@ -137,5 +137,3 @@ export class EventEmitter {
         this.events = null;
     }
 }
-
-export default EventEmitter;

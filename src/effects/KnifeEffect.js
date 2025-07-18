@@ -4,8 +4,8 @@
  */
 
 import { WeaponConstants } from '../entities/weapons/WeaponConfig.js';
-import CommonUtils from '../utils/CommonUtils.js';
-import MathUtils from '../utils/MathUtils.js';
+import { CommonUtils } from '../utils/CommonUtils.js';
+import { MathUtils } from '../utils/MathUtils.js';
 
 export class KnifeEffect {
     constructor(scene) {

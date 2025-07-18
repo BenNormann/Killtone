@@ -4,8 +4,8 @@
  * Handles 3D audio, music playback, state management, and event coordination
  */
 
-import CommonUtils from '../utils/CommonUtils.js';
-import MathUtils from '../utils/MathUtils.js';
+import { CommonUtils } from '../utils/CommonUtils.js';
+import { MathUtils } from '../utils/MathUtils.js';
 
 export class AudioSystem {
     constructor(game) {

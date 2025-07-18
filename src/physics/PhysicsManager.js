@@ -4,7 +4,7 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
-import CommonUtils from '../utils/CommonUtils.js';
+import { CommonUtils } from '../utils/CommonUtils.js';
 
 export class PhysicsManager {
     constructor(scene) {
@@ -372,5 +372,3 @@ export class PhysicsManager {
         console.log('PhysicsManager disposed');
     }
 }
-
-export default PhysicsManager;

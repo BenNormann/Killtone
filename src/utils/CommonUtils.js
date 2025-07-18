@@ -255,5 +255,3 @@ export class CommonUtils {
         return current;
     }
 }
-
-export default CommonUtils;

@@ -3,7 +3,7 @@
  * Manages remote players and player state synchronization
  */
 
-import RemotePlayer from '../../entities/RemotePlayer.js';
+import { RemotePlayer } from '../../entities/RemotePlayer.js';
 
 export class NetworkPlayerManager {
     constructor(game) {

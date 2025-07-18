@@ -4,7 +4,7 @@
  */
 
 import { WeaponConstants } from './WeaponConfig.js';
-import MathUtils from '../../utils/MathUtils.js';
+import { MathUtils } from '../../utils/MathUtils.js';
 
 export class AccuracySystem {
     constructor() {
@@ -318,5 +318,3 @@ export class AccuracySystem {
         console.log('AccuracySystem disposed');
     }
 }
-
-export default AccuracySystem;

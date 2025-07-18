@@ -344,5 +344,3 @@ export class MathUtils {
         return outMin + (outMax - outMin) * ((value - inMin) / (inMax - inMin));
     }
 }
-
-export default MathUtils;

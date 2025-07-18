@@ -4,7 +4,7 @@
  */
 
 import { WeaponType, WeaponConfigs } from './WeaponConfig.js';
-import MathUtils from '../../utils/MathUtils.js';
+import { MathUtils } from '../../utils/MathUtils.js';
 
 export class AmmoRegistry {
     constructor() {
@@ -333,5 +333,3 @@ export class AmmoRegistry {
         console.log('AmmoRegistry disposed');
     }
 }
-
-export default AmmoRegistry;

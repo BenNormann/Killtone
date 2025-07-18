@@ -4,8 +4,8 @@
  */
 
 // BABYLON is loaded globally from CDN in index.html
-import GameConfig from '../mainConfig.js';
-import MathUtils from '../utils/MathUtils.js';
+import { GameConfig } from '../mainConfig.js';
+import { MathUtils } from '../utils/MathUtils.js';
 
 export class BloodEffects {
     constructor(game, particleManager) {

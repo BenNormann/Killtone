@@ -238,5 +238,3 @@ if (GameConfig.debug.enabled) {
     GameConfig.debug.showFPS = true;
     GameConfig.debug.logLevel = 'debug';
 }
-
-export default GameConfig;

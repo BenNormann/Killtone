@@ -4,7 +4,7 @@
  */
 
 import { GameConfig } from '../mainConfig.js';
-import RemotePlayer from '../entities/RemotePlayer.js';
+import { RemotePlayer } from '../entities/RemotePlayer.js';
 import { BaseManager } from './BaseManager.js';
 
 export class NetworkManager extends BaseManager {

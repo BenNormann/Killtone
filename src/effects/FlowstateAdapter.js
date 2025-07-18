@@ -3,7 +3,7 @@
  * Connects the kill-streak system to the new event system and player management
  */
 
-import EventEmitter from '../utils/EventEmitter.js';
+import { EventEmitter } from '../utils/EventEmitter.js';
 
 export class FlowstateAdapter extends EventEmitter {
     constructor(game, flowstateManager) {
