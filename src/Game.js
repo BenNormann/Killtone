@@ -424,6 +424,19 @@ export class Game {
         this.inputManager.registerActionHandler('reload', (pressed) => {
             if (pressed) this.player.reload();
         });
+
+        // Weapon switching handlers
+        this.inputManager.registerActionHandler('weapon1', (pressed) => {
+            if (pressed) this.player.equipWeapon('primary');
+        });
+
+        this.inputManager.registerActionHandler('weapon2', (pressed) => {
+            if (pressed) this.player.equipWeapon('pistol');
+        });
+
+        this.inputManager.registerActionHandler('weapon3', (pressed) => {
+            if (pressed) this.player.equipWeapon('knife');
+        });
     }
 
     /**

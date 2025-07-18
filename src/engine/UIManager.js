@@ -5,6 +5,8 @@
 
 import { GameConfig } from '../mainConfig.js';
 import { BaseManager } from './BaseManager.js';
+// Dropdowns & weapon selector need weapon data
+import WeaponConfigs, { WeaponConstants } from '../entities/weapons/WeaponConfig.js';
 
 export class UIManager extends BaseManager {
     constructor(game) {
@@ -28,6 +30,9 @@ export class UIManager extends BaseManager {
 
         // Settings state
         this.settingsVisible = false;
+
+        // Track which dropdown (if any) is currently open so only one is visible at a time
+        this.openDropdown = null;
 
         // Initialize GUI system
         this._initializeGUI();
@@ -181,8 +186,10 @@ export class UIManager extends BaseManager {
         try {
             const backgroundImage = new BABYLON.GUI.Image("menuBackground", "assets/Images/LoadingImage.png");
             backgroundImage.stretch = BABYLON.GUI.Image.STRETCH_UNIFORM;
-            backgroundImage.widthInPixels = this.engine.getRenderWidth();
+            const bgWidth = Math.floor(this.engine.getRenderWidth() * 2 / 3);
+            backgroundImage.widthInPixels = bgWidth;
             backgroundImage.heightInPixels = this.engine.getRenderHeight();
+            backgroundImage.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
             this.mainMenu.addControl(backgroundImage);
         } catch (error) {
             console.warn('Could not load LoadingImage.png for main menu:', error);
@@ -282,11 +289,11 @@ export class UIManager extends BaseManager {
         this.settingsOverlay.background = GameConfig.theme.colors.backgroundOverlay;
         this.fullscreenUI.addControl(this.settingsOverlay);
         
-        // Add click handler to close settings when clicking outside the panel
-        this.settingsOverlay.onPointerClickObservable.add((eventData) => {
-            // Close settings and return to game
-            if (this.game.stateManager) {
-                this.game.stateManager.transitionTo('IN_GAME');
+        // Add click-to-close on the overlay background (but not on the settings panel)
+        this.settingsOverlay.onPointerClickObservable.add((evt) => {
+            // Only close if clicking on the overlay itself, not on child controls
+            if (evt.target === this.settingsOverlay) {
+                this.hideSettingsOverlay();
             }
         });
 
@@ -299,6 +306,7 @@ export class UIManager extends BaseManager {
         settingsPanel.background = GameConfig.theme.colors.backgroundPanel;
         settingsPanel.thickness = 2;
         settingsPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        settingsPanel.clipChildren = false; // allow dropdowns to overflow
         this.settingsOverlay.addControl(settingsPanel);
 
         // Settings title
@@ -318,49 +326,19 @@ export class UIManager extends BaseManager {
         contentContainer.heightInPixels = 500;
         contentContainer.spacing = 10;
         contentContainer.top = "-50px";
+        contentContainer.clipChildren = false; // allow overflow inside stackpanel
         settingsPanel.addControl(contentContainer);
 
-        // Audio settings section
-        this._createCleanSettingsSection(contentContainer, "AUDIO");
-        this._createCleanSliderSetting(contentContainer, "Master Volume", 1.0, (value) => {
-            if (this.game.audioManager) {
-                this.game.audioManager.setMasterVolume(value);
-            }
-        });
-        this._createCleanSliderSetting(contentContainer, "Music Volume", 0.8, (value) => {
-            if (this.game.audioManager) {
-                this.game.audioManager.setMusicVolume(value);
-            }
-        });
-        this._createCleanSliderSetting(contentContainer, "Effects Volume", 1.0, (value) => {
-            if (this.game.audioManager) {
-                this.game.audioManager.setEffectsVolume(value);
-            }
-        });
-
-        // Graphics settings section
-        this._createCleanSettingsSection(contentContainer, "GRAPHICS");
-        this._createCleanSliderSetting(contentContainer, "FOV", 90, (value) => {
-            if (this.game.player && this.game.player.camera) {
-                this.game.player.camera.fov = (value * Math.PI) / 180;
-            }
-        }, 60, 120);
-
-        // Controls settings section
-        this._createCleanSettingsSection(contentContainer, "CONTROLS");
-        this._createCleanSliderSetting(contentContainer, "Mouse Sensitivity", 1.0, (value) => {
-            if (this.game.inputManager) {
-                this.game.inputManager.mouseSensitivity = value;
-            }
-        }, 0.1, 3.0);
-
-        // Weapon settings section
-        this._createCleanSettingsSection(contentContainer, "WEAPONS");
-        this._createWeaponSelector(contentContainer);
+        // Build revamped settings UI
+        this._populateSettingsContent(contentContainer);
 
         // Close button
         const closeButton = this._createCleanMenuButton("CLOSE", () => {
             this.hideSettingsOverlay();
+            // Transition back to IN_GAME state to restore pointer lock
+            if (this.game.stateManager) {
+                this.game.stateManager.transitionTo('IN_GAME');
+            }
         });
         closeButton.top = "250px";
         settingsPanel.addControl(closeButton);
@@ -804,151 +782,6 @@ export class UIManager extends BaseManager {
         sectionTitle.paddingTop = "10px";
         sectionTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         container.addControl(sectionTitle);
-    }
-
-    /**
-     * Create weapon selector dropdown
-     * @param {BABYLON.GUI.Container} container - Parent container
-     */
-    _createWeaponSelector(container) {
-        // Import weapon configurations
-        import('../entities/weapons/WeaponConfig.js').then(({ WeaponConfigs, WeaponConstants }) => {
-            const weaponContainer = new BABYLON.GUI.Rectangle("weaponSelectorContainer");
-            weaponContainer.heightInPixels = 60;
-            weaponContainer.color = "transparent";
-            weaponContainer.background = "transparent";
-            container.addControl(weaponContainer);
-
-            // Weapon label
-            const weaponLabel = new BABYLON.GUI.TextBlock("weaponLabel");
-            weaponLabel.text = "Primary Weapon";
-            weaponLabel.color = GameConfig.theme.colors.textSecondary;
-            weaponLabel.fontSize = 14;
-            weaponLabel.fontFamily = GameConfig.theme.fonts.primary;
-            weaponLabel.heightInPixels = 20;
-            weaponLabel.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-            weaponLabel.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-            weaponLabel.topInPixels = 5;
-            weaponContainer.addControl(weaponLabel);
-
-            // Get primary weapons only
-            const primaryWeapons = WeaponConstants.PRIMARY_WEAPONS.map(weaponType => ({
-                type: weaponType,
-                config: WeaponConfigs[weaponType]
-            }));
-
-            let currentWeaponIndex = 0;
-            let dropdownOpen = false;
-
-            // Main selector button
-            const weaponSelector = new BABYLON.GUI.Rectangle("weaponSelector");
-            weaponSelector.widthInPixels = 200;
-            weaponSelector.heightInPixels = 30;
-            weaponSelector.color = GameConfig.theme.colors.border;
-            weaponSelector.background = GameConfig.theme.colors.backgroundButton;
-            weaponSelector.cornerRadius = 4;
-            weaponSelector.thickness = 1;
-            weaponSelector.topInPixels = 15;
-            weaponContainer.addControl(weaponSelector);
-
-            // Current weapon text
-            const currentWeaponText = new BABYLON.GUI.TextBlock("currentWeaponText");
-            currentWeaponText.text = primaryWeapons[0].config.name;
-            currentWeaponText.color = GameConfig.theme.colors.textPrimary;
-            currentWeaponText.fontSize = 12;
-            currentWeaponText.fontFamily = GameConfig.theme.fonts.primary;
-            currentWeaponText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-            currentWeaponText.leftInPixels = 10;
-            weaponSelector.addControl(currentWeaponText);
-
-            // Dropdown arrow
-            const dropdownArrow = new BABYLON.GUI.TextBlock("dropdownArrow");
-            dropdownArrow.text = "▼";
-            dropdownArrow.color = GameConfig.theme.colors.textSecondary;
-            dropdownArrow.fontSize = 10;
-            dropdownArrow.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-            dropdownArrow.rightInPixels = 10;
-            weaponSelector.addControl(dropdownArrow);
-
-            // Dropdown menu container
-            const dropdownMenu = new BABYLON.GUI.Rectangle("dropdownMenu");
-            dropdownMenu.widthInPixels = 200;
-            dropdownMenu.heightInPixels = primaryWeapons.length * 35;
-            dropdownMenu.color = GameConfig.theme.colors.border;
-            dropdownMenu.background = GameConfig.theme.colors.backgroundPanel;
-            dropdownMenu.cornerRadius = 4;
-            dropdownMenu.thickness = 1;
-            dropdownMenu.topInPixels = 45;
-            dropdownMenu.isVisible = false;
-            weaponContainer.addControl(dropdownMenu);
-
-            // Create dropdown options
-            primaryWeapons.forEach((weapon, index) => {
-                const optionButton = new BABYLON.GUI.Rectangle(`weaponOption_${index}`);
-                optionButton.widthInPixels = 198;
-                optionButton.heightInPixels = 33;
-                optionButton.color = "transparent";
-                optionButton.background = "transparent";
-                optionButton.topInPixels = (index * 35) - (dropdownMenu.heightInPixels / 2) + 17;
-                dropdownMenu.addControl(optionButton);
-
-                const optionText = new BABYLON.GUI.TextBlock(`weaponOptionText_${index}`);
-                optionText.text = weapon.config.name;
-                optionText.color = GameConfig.theme.colors.textPrimary;
-                optionText.fontSize = 12;
-                optionText.fontFamily = GameConfig.theme.fonts.primary;
-                optionText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-                optionText.leftInPixels = 10;
-                optionButton.addControl(optionText);
-
-                // Option hover effects
-                optionButton.onPointerEnterObservable.add(() => {
-                    optionButton.background = GameConfig.theme.colors.backgroundButtonHover;
-                });
-
-                optionButton.onPointerOutObservable.add(() => {
-                    optionButton.background = "transparent";
-                });
-
-                // Option click handler
-                optionButton.onPointerClickObservable.add(() => {
-                    currentWeaponIndex = index;
-                    currentWeaponText.text = weapon.config.name;
-                    dropdownMenu.isVisible = false;
-                    dropdownOpen = false;
-                    dropdownArrow.text = "▼";
-
-                    // Update player weapon
-                    if (this.game.localPlayer) {
-                        this.game.localPlayer.setWeapon(weapon.type, weapon.config);
-                    }
-
-                    console.log(`Selected weapon: ${weapon.config.name}`);
-                });
-            });
-
-            // Main selector click handler
-            weaponSelector.onPointerClickObservable.add(() => {
-                dropdownOpen = !dropdownOpen;
-                dropdownMenu.isVisible = dropdownOpen;
-                dropdownArrow.text = dropdownOpen ? "▲" : "▼";
-            });
-
-            // Hover effects for main selector
-            weaponSelector.onPointerEnterObservable.add(() => {
-                weaponSelector.background = GameConfig.theme.colors.backgroundButtonHover;
-            });
-
-            weaponSelector.onPointerOutObservable.add(() => {
-                weaponSelector.background = GameConfig.theme.colors.backgroundButton;
-            });
-
-            // Set initial weapon
-            if (this.game.localPlayer) {
-                const initialWeapon = primaryWeapons[0];
-                this.game.localPlayer.setWeapon(initialWeapon.type, initialWeapon.config);
-            }
-        });
     }
 
     /**
@@ -1408,5 +1241,309 @@ export class UIManager extends BaseManager {
         this.fullscreenUI = null;
 
         this.engine = null;
+    }
+
+    /**
+     * Add a section title inside the settings panel
+     * @param {BABYLON.GUI.Container} container
+     * @param {string} title
+     */
+    _addSectionTitle(container, title) {
+        const sectionTitle = new BABYLON.GUI.TextBlock(`section_${title.toLowerCase().replace(/\s/g, '_')}`);
+        sectionTitle.text = title;
+        sectionTitle.color = GameConfig.theme.colors.primary;
+        sectionTitle.fontSize = 18;
+        sectionTitle.fontFamily = GameConfig.theme.fonts.primary;
+        sectionTitle.fontWeight = "bold";
+        sectionTitle.heightInPixels = 35;
+        sectionTitle.paddingTop = "10px";
+        sectionTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        container.addControl(sectionTitle);
+    }
+
+    /**
+     * Add an interactive slider setting row
+     * @param {BABYLON.GUI.Container} container
+     * @param {string} label
+     * @param {number} defaultValue
+     * @param {Function} onChange
+     * @param {number} min
+     * @param {number} max
+     */
+    _addSliderSetting(container, label, defaultValue, onChange, min = 0, max = 1) {
+        const row = new BABYLON.GUI.StackPanel(`slider_${label.toLowerCase().replace(/\s/g, '_')}`);
+        row.isVertical = false;
+        row.heightInPixels = 45;
+        row.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        container.addControl(row);
+
+        // Label
+        const labelText = new BABYLON.GUI.TextBlock();
+        labelText.text = label;
+        labelText.color = GameConfig.theme.colors.textPrimary;
+        labelText.fontSize = 14;
+        labelText.fontFamily = GameConfig.theme.fonts.primary;
+        labelText.widthInPixels = 110;
+        labelText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        row.addControl(labelText);
+
+        // Slider
+        const slider = new BABYLON.GUI.Slider();
+        slider.minimum = min;
+        slider.maximum = max;
+        slider.value = defaultValue;
+        slider.height = "20px";
+        slider.width = "150px";
+        slider.color = GameConfig.theme.colors.primary;
+        slider.background = GameConfig.theme.colors.progressBackground;
+        slider.paddingLeft = "10px";
+        slider.paddingRight = "10px";
+        row.addControl(slider);
+
+        // Value text
+        const valueText = new BABYLON.GUI.TextBlock();
+        valueText.text = defaultValue.toFixed(2);
+        valueText.color = GameConfig.theme.colors.primary;
+        valueText.fontSize = 14;
+        valueText.fontFamily = GameConfig.theme.fonts.primary;
+        valueText.widthInPixels = 50;
+        valueText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        row.addControl(valueText);
+
+        // Change handler
+        slider.onValueChangedObservable.add((v) => {
+            valueText.text = v.toFixed(2);
+            if (onChange) onChange(v);
+        });
+    }
+
+    /**
+     * Generic dropdown setting builder
+     * @param {BABYLON.GUI.Container} container
+     * @param {string} label
+     * @param {Array<{label: string, value: any}>} options
+     * @param {number} defaultIndex
+     * @param {Function} onSelect  (selectedOption) => void
+     */
+    _createDropdownSetting(container, label, options, defaultIndex = 0, onSelect) {
+        // Guard against empty options array
+        if (!options || options.length === 0) return;
+
+        // Outer container that will grow/shrink as the menu opens/closes
+        const dropdownContainer = new BABYLON.GUI.StackPanel(`dropdown_${label.toLowerCase().replace(/\s/g, '_')}`);
+        dropdownContainer.isVertical = true;
+        dropdownContainer.heightInPixels = 55; // Label (20) + selector (35)
+        dropdownContainer.clipChildren = false; // allow menu to overflow
+        container.addControl(dropdownContainer);
+
+        // Label
+        const labelText = new BABYLON.GUI.TextBlock();
+        labelText.text = label;
+        labelText.color = GameConfig.theme.colors.textPrimary;
+        labelText.fontSize = 14;
+        labelText.fontFamily = GameConfig.theme.fonts.primary;
+        labelText.heightInPixels = 20;
+        labelText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        labelText.paddingLeft = "10px";
+        dropdownContainer.addControl(labelText);
+
+        // Selector rectangle
+        const selectorRect = new BABYLON.GUI.Rectangle(`selector_${label.toLowerCase().replace(/\s/g, '_')}`);
+        selectorRect.widthInPixels = 200;
+        selectorRect.heightInPixels = 33;
+        selectorRect.color = GameConfig.theme.colors.border;
+        selectorRect.background = GameConfig.theme.colors.backgroundButton;
+        selectorRect.thickness = 1;
+        selectorRect.cornerRadius = GameConfig.theme.borderRadius.small;
+        selectorRect.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        selectorRect.top = "5px";
+        selectorRect.clipChildren = false;
+        dropdownContainer.addControl(selectorRect);
+
+        // Selected option text
+        const selectedText = new BABYLON.GUI.TextBlock();
+        selectedText.text = options[defaultIndex].label;
+        selectedText.color = GameConfig.theme.colors.textPrimary;
+        selectedText.fontSize = 14;
+        selectedText.fontFamily = GameConfig.theme.fonts.primary;
+        selectedText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        selectedText.paddingLeft = "10px";
+        selectorRect.addControl(selectedText);
+
+        // Arrow text (▼ / ▲)
+        const arrowText = new BABYLON.GUI.TextBlock();
+        arrowText.text = "▼";
+        arrowText.color = GameConfig.theme.colors.textPrimary;
+        arrowText.fontSize = 14;
+        arrowText.fontFamily = GameConfig.theme.fonts.primary;
+        arrowText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        arrowText.paddingRight = "10px";
+        selectorRect.addControl(arrowText);
+
+        // Options container (hidden by default) - positioned absolutely to avoid layout issues
+        const optionsContainer = new BABYLON.GUI.Rectangle(`options_${label.toLowerCase().replace(/\s/g, '_')}`);
+        optionsContainer.widthInPixels = 200;
+        optionsContainer.heightInPixels = options.length * 35;
+        optionsContainer.color = GameConfig.theme.colors.border;
+        optionsContainer.background = GameConfig.theme.colors.backgroundPanel;
+        optionsContainer.thickness = 1;
+        optionsContainer.isVisible = false;
+        optionsContainer.clipChildren = false;
+        optionsContainer.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        optionsContainer.top = "40px"; // Position directly below selector (20px label + 5px gap + 15px selector height)
+        optionsContainer.zIndex = 10000;
+        dropdownContainer.addControl(optionsContainer);
+
+        // Build option rows with proper positioning
+        options.forEach((opt, idx) => {
+            const optRect = new BABYLON.GUI.Rectangle(`opt_${label.toLowerCase().replace(/\s/g, '_')}_${idx}`);
+            optRect.widthInPixels = 200;
+            optRect.heightInPixels = 33;
+            optRect.color = "transparent";
+            optRect.background = "transparent";
+            optRect.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            optRect.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            optRect.topInPixels = idx * 35; // Position each option at its correct offset
+            optRect.zIndex = 10000;
+
+            // Option text
+            const optText = new BABYLON.GUI.TextBlock();
+            optText.text = opt.label;
+            optText.color = GameConfig.theme.colors.textPrimary;
+            optText.fontSize = 14;
+            optText.fontFamily = GameConfig.theme.fonts.primary;
+            optText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            optText.paddingLeft = "10px";
+            optText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            optRect.addControl(optText);
+
+            // Hover effects
+            optRect.onPointerEnterObservable.add(() => {
+                optRect.background = GameConfig.theme.colors.backgroundButtonHover;
+            });
+            optRect.onPointerOutObservable.add(() => {
+                optRect.background = "transparent";
+            });
+
+            // Selection handler
+            optRect.onPointerClickObservable.add(() => {
+                selectedText.text = opt.label;
+                if (onSelect) onSelect(opt);
+                toggleMenu(false);
+            });
+
+            optionsContainer.addControl(optRect);
+        });
+
+        // Toggle helper
+        let isOpen = false;
+        const closedHeight = dropdownContainer.heightInPixels; // 55
+        const openHeight = closedHeight + optionsContainer.heightInPixels + 5;
+
+        const toggleMenu = (forceState = null) => {
+            const newState = forceState !== null ? forceState : !isOpen;
+
+            // Close previously open dropdown if it's different
+            if (newState && this.openDropdown && this.openDropdown !== toggleMenu) {
+                this.openDropdown(false);
+            }
+
+            isOpen = newState;
+            optionsContainer.isVisible = isOpen;
+            arrowText.text = isOpen ? "▲" : "▼";
+            selectorRect.background = isOpen ? GameConfig.theme.colors.backgroundButtonHover : GameConfig.theme.colors.backgroundButton;
+            dropdownContainer.heightInPixels = isOpen ? openHeight : closedHeight;
+
+            // Track globally
+            this.openDropdown = isOpen ? toggleMenu : null;
+        };
+
+        // Selector interactions
+        selectorRect.onPointerEnterObservable.add(() => {
+            if (!isOpen) selectorRect.background = GameConfig.theme.colors.backgroundButtonHover;
+        });
+        selectorRect.onPointerOutObservable.add(() => {
+            if (!isOpen) selectorRect.background = GameConfig.theme.colors.backgroundButton;
+        });
+        selectorRect.onPointerClickObservable.add(() => {
+            toggleMenu();
+        });
+
+        return toggleMenu; // in case caller wants to manage it
+    }
+
+    /**
+     * Build weapon selector dropdown (primary weapons only)
+     * @param {BABYLON.GUI.Container} container
+     */
+    _createWeaponSelector(container) {
+        const weaponOptions = WeaponConstants.PRIMARY_WEAPONS.map(type => ({
+            label: WeaponConfigs[type].name,
+            value: type
+        }));
+
+        // By default select the first weapon
+        const defaultIndex = 0;
+
+        this._createDropdownSetting(container, "Primary Weapon", weaponOptions, defaultIndex, async (opt) => {
+            // Update player's weapon if possible
+            try {
+                if (this.game && this.game.player && typeof this.game.player.setWeapon === 'function') {
+                    this.game.player.setWeapon(opt.value, WeaponConfigs[opt.value]);
+                } else if (this.game && this.game.player && this.game.player.weapons) {
+                    // Create new weapon and replace the primary weapon
+                    const WeaponBaseModule = await import('../entities/weapons/WeaponBase.js');
+                    const WeaponBase = WeaponBaseModule.WeaponBase;
+
+                    const weaponBase = new WeaponBase(
+                        WeaponConfigs[opt.value],
+                        this.game.scene,
+                        this.game.particleManager,
+                        null,
+                        this.game
+                    );
+                    await weaponBase.initialize();
+
+                    // Replace the primary weapon
+                    this.game.player.weapons.set('primary', weaponBase);
+                    
+                    // If primary is currently equipped, re-equip it to show the new weapon
+                    if (this.game.player.currentWeaponSlot === 0) {
+                        this.game.player.equipWeapon('primary');
+                    }
+                    
+                    console.log(`Switched primary weapon to: ${opt.label}`);
+                }
+            } catch (err) {
+                console.warn('Failed to switch weapon:', err);
+            }
+        });
+    }
+
+    /**
+     * Build the revamped settings content
+     * @param {BABYLON.GUI.Container} container
+     */
+    _populateSettingsContent(container) {
+        // Audio Section
+        this._addSectionTitle(container, "AUDIO");
+        const masterVol = (this.game.audioSystem && this.game.audioSystem.getSettings) ? (this.game.audioSystem.getSettings().masterVolume || 1.0) : 1.0;
+        this._addSliderSetting(container, "Master Volume", masterVol, (v) => {
+            if (this.game.audioSystem) this.game.audioSystem.setMasterVolume(v);
+        }, 0, 1);
+
+        // Music Choice Section
+        this._addSectionTitle(container, "MUSIC CHOICE");
+        const trackPaths = this.game.audioSystem && this.game.audioSystem.getAvailableTracks ? this.game.audioSystem.getAvailableTracks() : [];
+        const trackOptions = trackPaths.map(p => ({ label: p.split('/').pop().replace('.mp3', ''), value: p }));
+        if (trackOptions.length > 0) {
+            this._createDropdownSetting(container, "Music Track", trackOptions, 0, (opt) => {
+                if (this.game.audioSystem) this.game.audioSystem.setFlowstateTrack(opt.value);
+            });
+        }
+
+        // Main Weapon Section
+        this._addSectionTitle(container, "MAIN WEAPON");
+        this._createWeaponSelector(container);
     }
 }

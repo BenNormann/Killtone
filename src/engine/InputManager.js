@@ -62,6 +62,9 @@ export class InputManager extends BaseManager {
             shoot: 'Mouse0',
             aim: 'Mouse1',
             reload: 'KeyR',
+            weapon1: 'Digit1',  // Primary weapon
+            weapon2: 'Digit2',  // Pistol
+            weapon3: 'Digit3',  // Knife
             
             // UI
             settings: 'Escape',
@@ -553,7 +556,7 @@ export class InputManager extends BaseManager {
     _isGameAction(action) {
         const gameActions = [
             'forward', 'backward', 'left', 'right', 'jump', 'crouch', 'sprint',
-            'shoot', 'aim', 'reload'
+            'shoot', 'aim', 'reload', 'weapon1', 'weapon2', 'weapon3'
         ];
         return gameActions.includes(action);
     }

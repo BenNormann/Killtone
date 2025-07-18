@@ -161,8 +161,10 @@ export class Player {
         this.weaponAttachPoint = new BABYLON.TransformNode("weaponAttach", this.scene);
         this.weaponAttachPoint.parent = this.camera;
         
-        // Position slightly forward and down from camera
-        this.weaponAttachPoint.position = new BABYLON.Vector3(0.3, -0.3, 0.8);
+        // Position weapon - moved down by ~1/4 screen and right by ~1/8 screen
+        // Original: (0.3, -0.3, 0.8)
+        // New: (0.5, -0.6, 0.8) - moved right by 0.2, down by 0.3
+        this.weaponAttachPoint.position = new BABYLON.Vector3(0.5, -0.6, 0.8);
         
         console.log('Weapon attach point created');
     }
@@ -237,6 +239,10 @@ export class Player {
         // Attach weapon to attach point
         if (weapon.model) {
             weapon.model.parent = this.weaponAttachPoint;
+            
+            // Scale weapon to 1.2x size
+            weapon.model.scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
+            
             weapon.setVisible(true);
         }
         
@@ -252,6 +258,35 @@ export class Player {
         
         const slotName = this.weaponSlots[this.currentWeaponSlot];
         this.equipWeapon(slotName);
+    }
+
+    /**
+     * Set weapon type for primary slot (called from settings menu)
+     */
+    async setWeapon(weaponType, weaponConfig) {
+        try {
+            // Create new weapon instance
+            const weapon = new WeaponBase(
+                weaponConfig,
+                this.scene,
+                this.game.particleManager,
+                null,
+                this.game
+            );
+            await weapon.initialize();
+            
+            // Replace the primary weapon
+            this.weapons.set('primary', weapon);
+            
+            // If primary is currently equipped, re-equip it to show the new weapon
+            if (this.currentWeaponSlot === 0) {
+                this.equipWeapon('primary');
+            }
+            
+            console.log(`Set primary weapon to: ${weaponConfig.name}`);
+        } catch (error) {
+            console.error('Failed to set weapon:', error);
+        }
     }
 
     /**

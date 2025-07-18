@@ -45,6 +45,9 @@ export const GameConfig = {
             aim: 'Mouse1',
             reload: 'KeyR',
             switchWeapon: 'KeyQ',
+            weapon1: 'Digit1',  // Primary weapon
+            weapon2: 'Digit2',  // Pistol
+            weapon3: 'Digit3',  // Knife
             
             // Interface
             settings: 'Escape',
