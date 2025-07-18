@@ -451,10 +451,10 @@ export class WeaponBase {
      * Play weapon fire sound
      */
     playFireSound() {
-        if (this.game && this.game.audioManager) {
-            this.game.audioManager.playWeaponSound(this.config);
+        if (this.game && this.game.audioSystem) {
+            this.game.audioSystem.playWeaponSound(this.config);
         } else {
-            console.warn(`${this.name}: No audio manager available for fire sound`);
+            console.warn(`${this.name}: No audio system available for fire sound`);
         }
     }
     
@@ -549,10 +549,10 @@ export class WeaponBase {
      * Play reload sound
      */
     playReloadSound() {
-        if (this.game && this.game.audioManager) {
-            this.game.audioManager.playReloadSound(this.config);
+        if (this.game && this.game.audioSystem) {
+            this.game.audioSystem.playReloadSound(this.config);
         } else {
-            console.warn(`${this.name}: No audio manager available for reload sound`);
+            console.warn(`${this.name}: No audio system available for reload sound`);
         }
     }
     
@@ -666,6 +666,7 @@ export class WeaponBase {
      * Play reload animation
      */
     playReloadAnimation() {
+        // Try to find specific reload animation first
         const reloadAnim = this.animationGroups.get('reload') || 
                           this.animationGroups.get('reloadaction') ||
                           this.animationGroups.get('action');
@@ -682,8 +683,30 @@ export class WeaponBase {
             
             console.log(`Playing reload animation for ${this.name}`);
         } else {
-            console.warn(`No reload animation found for ${this.name}. Available animations:`, 
-                Array.from(this.animationGroups.keys()));
+            // Fallback: use the main animation group and play a specific range for reload
+            const mainAnim = this.animationGroups.get('allanims');
+            if (mainAnim) {
+                // Stop current animation
+                if (this.currentAnimation) {
+                    this.currentAnimation.stop();
+                }
+                
+                // Debug: Log animation info to help find correct frame range
+                console.log(`Animation '${mainAnim.name}' - From: ${mainAnim.from}, To: ${mainAnim.to}, Total frames: ${mainAnim.to - mainAnim.from}`);
+                
+                // Play reload section of the animation (frames 60-120 as example)
+                // TODO: Adjust these frame numbers based on your GLB file's actual reload animation frames
+                const reloadStartFrame = 40;  // Adjust this based on your GLB file
+                const reloadEndFrame = 135;   // Adjust this based on your GLB file
+                
+                mainAnim.start(false, 1.0, reloadStartFrame, reloadEndFrame, false);
+                this.currentAnimation = mainAnim;
+                
+                console.log(`Playing reload animation from main animation group for ${this.name} (frames ${reloadStartFrame}-${reloadEndFrame})`);
+            } else {
+                console.warn(`No reload animation found for ${this.name}. Available animations:`, 
+                    Array.from(this.animationGroups.keys()));
+            }
         }
     }
     

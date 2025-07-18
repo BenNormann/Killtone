@@ -53,10 +53,10 @@ export const GameConfig = {
             
             // Map Editor
             editorToggle: 'KeyE',
-            editorSave: 'KeyS',
-            editorLoad: 'KeyL',
-            editorUndo: 'KeyZ',
-            editorRedo: 'KeyY'
+            editorSave: 'ControlLeft+KeyS',
+            editorLoad: 'ControlLeft+KeyL',
+            editorUndo: 'ControlLeft+KeyZ',
+            editorRedo: 'ControlLeft+KeyY'
         }
     },
 

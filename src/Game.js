@@ -266,9 +266,6 @@ export class Game {
             this.render();
         });
 
-        // Transition to main menu
-        this.stateManager.transitionTo('MAIN_MENU');
-
         console.log('Game started');
     }
 

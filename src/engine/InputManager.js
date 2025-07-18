@@ -66,8 +66,6 @@ export class InputManager extends BaseManager {
             
             // UI
             settings: 'Escape',
-            inventory: 'KeyI',
-            map: 'KeyM',
             
             // Editor
             delete: 'Delete',
@@ -79,6 +77,10 @@ export class InputManager extends BaseManager {
         // Register default bindings
         for (const [action, key] of Object.entries(defaultBindings)) {
             this.bindKey(key, action);
+            // Debug logging for movement keys
+            if (action === 'backward' || action === 'forward') {
+                console.log(`Bound ${action} to ${key}`);
+            }
         }
     }
 
@@ -245,7 +247,15 @@ export class InputManager extends BaseManager {
         
         // Get bound action
         const action = this.keyBindings.get(key);
-        if (!action) return;
+        if (!action) {
+            // Debug: log when no action is found for a key
+            if (key === 'KeyS') {
+                console.log('No action bound to KeyS');
+            }
+            return;
+        }
+        
+
         
         // Check if input should be processed in current context
         if (!this._shouldProcessInput(action)) {

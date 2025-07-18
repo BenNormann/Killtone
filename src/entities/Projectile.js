@@ -15,10 +15,10 @@ export class Projectile {
         
         // Projectile properties
         this.position = options.position || new BABYLON.Vector3.Zero();
-        this.velocity = options.velocity || new BABYLON.Vector3(0, 0, 50);
-        this.speed = options.speed || 50;
+        this.velocity = options.velocity || new BABYLON.Vector3(0, 0, 500);
+        this.speed = options.speed || 500;
         this.damage = options.damage || 25;
-        this.maxDistance = options.maxDistance || 500;
+        this.maxDistance = options.maxDistance || 2000;
         this.lifeTime = options.lifeTime || 10; // seconds
         
         // Visual properties - pink pill
@@ -75,7 +75,10 @@ export class Projectile {
             
             if (this.glowLayer) {
                 this.glowLayer.addIncludedOnlyMesh(this.mesh);
-                this.glowLayer.setEmissiveTextureAndColor(this.mesh, this.color, 1.5);
+                // Set emissive color for glow effect
+                if (this.mesh.material) {
+                    this.mesh.material.emissiveColor = this.color;
+                }
             }
         }
         

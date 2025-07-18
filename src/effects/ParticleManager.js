@@ -5,6 +5,7 @@
 
 // BABYLON is loaded globally from CDN in index.html
 import { GameConfig } from '../mainConfig.js';
+import { MuzzleFlash } from './MuzzleFlash.js';
 
 export class ParticleManager {
     constructor(game) {
@@ -29,6 +30,9 @@ export class ParticleManager {
         this.cleanupInterval = null;
         this.lastCleanupTime = 0;
         
+        // Initialize muzzle flash system
+        this.muzzleFlash = new MuzzleFlash(this.scene, this);
+        
         console.log('ParticleManager initialized');
     }
 
@@ -47,6 +51,9 @@ export class ParticleManager {
             
             // Start cleanup interval
             this.startCleanupInterval();
+            
+            // Initialize muzzle flash system
+            this.muzzleFlash.initialize();
             
             console.log('ParticleManager: Initialization complete');
             return true;

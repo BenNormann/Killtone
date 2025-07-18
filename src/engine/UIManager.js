@@ -1374,6 +1374,16 @@ export class UIManager extends BaseManager {
     }
 
     /**
+     * Show error message to user
+     * @param {string} message - Error message to display
+     */
+    showError(message) {
+        console.error('UIManager Error:', message);
+        // For now, just log the error. Could implement a proper error UI later.
+        // TODO: Implement proper error overlay UI
+    }
+
+    /**
      * Cleanup resources
      */
     _doDispose() {

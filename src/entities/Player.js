@@ -252,8 +252,8 @@ export class Player {
         const sensitivity = this.mouseSensitivity * 0.002;
         
         // Update rotation
-        this.rotationY -= deltaX * sensitivity; // Yaw
-        this.rotationX -= deltaY * sensitivity * (this.invertY ? -1 : 1); // Pitch
+        this.rotationY += deltaX * sensitivity; // Yaw (horizontal) - fixed
+        this.rotationX += deltaY * sensitivity * (this.invertY ? -1 : 1); // Pitch (vertical) - fixed
         
         // Clamp vertical rotation
         this.rotationX = Math.max(this.maxLookDown, Math.min(this.maxLookUp, this.rotationX));

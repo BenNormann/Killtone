@@ -43,6 +43,14 @@ export class MathUtils {
     }
 
     /**
+     * Generate a unique ID
+     * @returns {string} Unique identifier
+     */
+    static generateId() {
+        return 'id_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+    }
+
+    /**
      * Linear interpolation between two values
      * @param {number} a - Start value
      * @param {number} b - End value
@@ -208,9 +216,9 @@ export class MathUtils {
         const dot = this.dot2D(x1, y1, x2, y2);
         const mag1 = Math.sqrt(x1 * x1 + y1 * y1);
         const mag2 = Math.sqrt(x2 * x2 + y2 * y2);
-        
+
         if (mag1 === 0 || mag2 === 0) return 0;
-        
+
         const cosAngle = this.clamp(dot / (mag1 * mag2), -1, 1);
         return Math.acos(cosAngle);
     }
@@ -273,7 +281,7 @@ export class MathUtils {
         const theta = this.TWO_PI * u;
         const phi = Math.acos(2 * v - 1);
         const r = Math.cbrt(this.random()) * radius;
-        
+
         const sinPhi = Math.sin(phi);
         return {
             x: r * sinPhi * Math.cos(theta),
