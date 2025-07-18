@@ -28,8 +28,6 @@ export class ProjectileManager {
         
         // Glow layer for projectile effects
         this.glowLayer = null;
-        
-        this.initialize();
     }
 
     /**

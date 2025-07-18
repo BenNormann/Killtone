@@ -13,8 +13,6 @@ export class MuzzleFlash {
         
         // Materials cache
         this.materials = new Map();
-        
-        this.initialize();
     }
     
     /**

@@ -50,9 +50,6 @@ export class RemotePlayer {
         this.isMoving = false;
         this.isShooting = false;
         this.currentWeapon = null;
-        
-        // Initialize the remote player
-        this.initialize();
     }
     
     /**

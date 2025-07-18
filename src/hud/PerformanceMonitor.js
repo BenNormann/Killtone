@@ -57,8 +57,6 @@ export class PerformanceMonitor {
         // Debug display
         this.debugDisplay = null;
         this.showDebugInfo = GameConfig.debug.showFPS || GameConfig.debug.showMemory;
-        
-        this.initialize();
     }
     
     initialize() {

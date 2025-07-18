@@ -174,367 +174,367 @@
       "name": "initialize",
       "description": "Initialize the audio system - sets up core audio and framework listeners",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 76
+      "line": 74
     },
     {
       "name": "initAudioContext",
       "description": "Initialize Web Audio API context for 3D spatial audio",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 96
+      "line": 94
     },
     {
       "name": "resumeAudioContext",
       "description": "Resume suspended audio context (required for user interaction)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 125
+      "line": 123
     },
     {
       "name": "updateListener",
       "description": "Update 3D audio listener position and orientation",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 138
+      "line": 136
     },
     {
       "name": "isSoundPreloaded",
       "description": "Check if a sound file has been preloaded into cache",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 166
+      "line": 164
     },
     {
       "name": "playSound",
       "description": "Play a sound file with volume and loop options",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 173
+      "line": 171
     },
     {
       "name": "calculateDistanceVolume",
       "description": "Calculate volume based on 3D distance with exponential falloff",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 220
+      "line": 218
     },
     {
       "name": "play3DSound",
       "description": "Play 3D positioned sound with distance-based volume falloff",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 238
+      "line": 236
     },
     {
       "name": "playPositionalAudio",
       "description": "Play positional audio using Web Audio API panner node @param {string} soundPath - Path to sound file @param {Object} sourcePosition - 3D position of sound source @param {number} baseVolume - Base volume level @param {number} maxDistance - Maximum audible distance @param {boolean} loop - Whether to loop the sound @returns {AudioBufferSourceNode|null} Audio source node",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 258
+      "line": 256
     },
     {
       "name": "playPositionalAudioWithPanner",
       "description": "Play positional audio with full Web Audio API setup including panner and gain nodes @param {string} soundPath - Path to sound file @param {Object} sourcePosition - 3D position of sound source @param {number} baseVolume - Base volume level @param {number} maxDistance - Maximum audible distance @param {boolean} loop - Whether to loop the sound @returns {Object|null} Object containing source and panner nodes",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 272
+      "line": 270
     },
     {
       "name": "playWeaponSound",
       "description": "Play weapon firing sound for local player @param {Object} weaponConfig - Weapon configuration containing audio settings @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 352
+      "line": 350
     },
     {
       "name": "playRemoteWeaponSound",
       "description": "Play 3D positioned weapon sound for remote players @param {Object} weaponConfig - Weapon configuration containing audio settings @param {Object} listenerPosition - Position of the audio listener @param {Object} sourcePosition - Position where the weapon was fired @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 367
+      "line": 365
     },
     {
       "name": "playDamageSound",
       "description": "Play damage sound when local player takes damage @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 376
+      "line": 374
     },
     {
       "name": "playRemoteDamageSound",
       "description": "Play 3D positioned damage sound for remote players @param {Object} listenerPosition - Position of the audio listener @param {Object} sourcePosition - Position where damage occurred @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 386
+      "line": 384
     },
     {
       "name": "playReloadSound",
       "description": "Play weapon reload sound @param {Object} weaponConfig - Weapon configuration containing audio settings @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 395
+      "line": 393
     },
     {
       "name": "playWalkingSound",
       "description": "Start playing walking/footstep sounds for local player @param {boolean} isSprinting - Whether the player is sprinting @returns {Promise<void>}",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 405
+      "line": 403
     },
     {
       "name": "playLocalStepSequence",
       "description": "Play sequence of randomized footstep sounds for local player @param {boolean} isSprinting - Whether the player is sprinting (affects timing and volume)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 417
+      "line": 415
     },
     {
       "name": "stopWalkingSound",
       "description": "Stop all walking/footstep sounds for local player",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 489
+      "line": 487
     },
     {
       "name": "playRemoteWalkingSound",
       "description": "Play 3D positioned walking sound for remote players @param {string} playerId - Unique identifier for the remote player @param {Object} sourcePosition - 3D position of the remote player @param {boolean} isSprinting - Whether the remote player is sprinting @returns {Promise<HTMLAudioElement|null>} Audio element or null if rate limited",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 517
+      "line": 515
     },
     {
       "name": "updateWalkingSoundPosition",
       "description": "Update the 3D position of a remote player's walking sound @param {string} playerId - Unique identifier for the remote player @param {Object} newPosition - New 3D position of the remote player",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 540
+      "line": 538
     },
     {
       "name": "stopRemoteWalkingSound",
       "description": "Stop walking sound for a specific remote player @param {string} playerId - Unique identifier for the remote player",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 556
+      "line": 554
     },
     {
       "name": "playMusic",
       "description": "Play music file with specified volume and loop settings @param {string} musicPath - Path to music file @param {number} volume - Volume level (0.0 to 1.0) @param {boolean} loop - Whether to loop the music @returns {Promise<HTMLAudioElement|null>} Audio element or null if failed",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 582
+      "line": 580
     },
     {
       "name": "stopAudio",
       "description": "Stop and reset an audio element @param {HTMLAudioElement} audio - Audio element to stop",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 590
+      "line": 588
     },
     {
       "name": "setupFrameworkListeners",
       "description": "Set up event listeners for framework integration",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 606
+      "line": 604
     },
     {
       "name": "onStateChange",
       "description": "Handle game state changes and adjust audio accordingly @param {string} newState - New game state @param {string} oldState - Previous game state",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 664
+      "line": 662
     },
     {
       "name": "handleLoadingState",
       "description": "Handle loading state - stop music and start preloading sounds",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 692
+      "line": 690
     },
     {
       "name": "handleMainMenuState",
       "description": "Handle main menu state - stop flowstate music and reduce volume",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 706
+      "line": 704
     },
     {
       "name": "handleInGameState",
       "description": "Handle in-game state - restore full volume and resume audio context",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 715
+      "line": 713
     },
     {
       "name": "handlePausedState",
       "description": "Handle paused state - reduce music volume and stop walking sounds",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 723
+      "line": 721
     },
     {
       "name": "handleMapEditorState",
       "description": "Handle map editor state - stop flowstate music and set moderate volume",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 733
+      "line": 731
     },
     {
       "name": "onMusicTrackSelected",
       "description": "Handle music track selection from UI @param {string} trackPath - Path to selected music track",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 743
+      "line": 741
     },
     {
       "name": "onSettingsChange",
       "description": "Handle settings changes from UI @param {Object} newSettings - New audio settings",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 752
+      "line": 750
     },
     {
       "name": "applySettings",
       "description": "Apply audio settings to the system @param {Object} settings - Audio settings to apply",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 766
+      "line": 764
     },
     {
       "name": "onPlayerKill",
       "description": "Handle player kill events - play kill sound effect @param {Object} data - Kill event data",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 781
+      "line": 779
     },
     {
       "name": "onPlayerDeath",
       "description": "Handle player death events - play damage sound and stop flowstate @param {Object} data - Death event data",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 789
+      "line": 787
     },
     {
       "name": "onPlayerMove",
       "description": "Handle player movement events - update listener position and walking sounds @param {Object} data - Movement event data containing position, direction, and movement state",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 803
+      "line": 801
     },
     {
       "name": "onWeaponFired",
       "description": "Handle weapon fired events - play appropriate weapon sound @param {Object} data - Weapon fire event data containing weapon config and position",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 821
+      "line": 819
     },
     {
       "name": "onWeaponReload",
       "description": "Handle weapon reload events - play reload sound @param {Object} data - Weapon reload event data",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 836
+      "line": 834
     },
     {
       "name": "onFlowstateChange",
       "description": "Handle flowstate intensity changes - start/stop/adjust flowstate music @param {number} intensity - Flowstate intensity (0-1) @param {boolean} isActive - Whether flowstate is currently active",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 846
+      "line": 844
     },
     {
       "name": "startFlowstateMusic",
       "description": "Start flowstate music using the selected track @returns {Promise<void>}",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 866
+      "line": 864
     },
     {
       "name": "stopFlowstateMusic",
       "description": "Stop flowstate music and reset music reference",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 905
+      "line": 903
     },
     {
       "name": "adjustFlowstateMusicVolume",
       "description": "Adjust flowstate music volume based on intensity level @param {number} intensity - Flowstate intensity (0-1)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 917
+      "line": 915
     },
     {
       "name": "handleRemotePlayerAudio",
       "description": "Handle remote player audio events for multiplayer @param {string} playerId - Remote player ID @param {string} eventType - Type of audio event @param {Object} data - Event data",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 931
+      "line": 929
     },
     {
       "name": "getAvailableTracks",
       "description": "Get array of available music tracks for UI selection @returns {Array<string>} Array of available track paths",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 959
+      "line": 957
     },
     {
       "name": "getSelectedTrack",
       "description": "Get currently selected flowstate track @returns {string|null} Currently selected track path or null",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 967
+      "line": 965
     },
     {
       "name": "setFlowstateTrack",
       "description": "Set flowstate music track (called from UI) @param {string} trackPath - Path to music track",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 975
+      "line": 973
     },
     {
       "name": "getSettings",
       "description": "Get current audio settings @returns {Object} Copy of current audio settings",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 988
+      "line": 986
     },
     {
       "name": "updateSetting",
       "description": "Update specific audio setting and apply changes @param {string} key - Setting key @param {*} value - Setting value",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 997
+      "line": 995
     },
     {
       "name": "isEnabled",
       "description": "Check if audio system is enabled @returns {boolean} True if audio is enabled",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1006
+      "line": 1004
     },
     {
       "name": "isFlowstateActive",
       "description": "Check if currently in flowstate mode @returns {boolean} True if in flowstate",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1014
+      "line": 1012
     },
     {
       "name": "setMasterVolume",
       "description": "Set master volume level @param {number} volume - Volume level (0.0 to 1.0)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1022
+      "line": 1020
     },
     {
       "name": "setEnabled",
       "description": "Enable or disable the audio system @param {boolean} enabled - Whether to enable audio",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1030
+      "line": 1028
     },
     {
       "name": "resume",
       "description": "Resume the audio system (called from game pause/resume)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1040
+      "line": 1038
     },
     {
       "name": "pause",
       "description": "Pause the audio system (called from game pause/resume)",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1047
+      "line": 1045
     },
     {
       "name": "isPreloadingComplete",
       "description": "Check if sound preloading is complete @returns {boolean} True if preloading is complete",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1063
+      "line": 1061
     },
     {
       "name": "waitForPreloading",
       "description": "Wait for sound preloading to complete @returns {Promise<boolean>} Promise that resolves when preloading is complete",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1071
+      "line": 1069
     },
     {
       "name": "preloadSounds",
       "description": "Preload all game sounds for better performance @returns {Promise<Object>} Promise that resolves with preloading results",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1088
+      "line": 1086
     },
     {
       "name": "cleanupStuckSounds",
       "description": "Clean up stuck or orphaned audio sources and expired step sounds",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1232
+      "line": 1230
     },
     {
       "name": "stopAllSounds",
       "description": "Stop all active audio sources and clear sound pools",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1277
+      "line": 1275
     },
     {
       "name": "update",
       "description": "Update method called from game loop for periodic maintenance @param {number} deltaTime - Time elapsed since last update",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1308
+      "line": 1306
     },
     {
       "name": "dispose",
       "description": "Cleanup and dispose of all audio resources",
       "file": "src\\audio\\AudioSystem.js",
-      "line": 1318
+      "line": 1316
     }
   ],
   "src\\effects\\BloodEffects.js": [
@@ -1060,43 +1060,43 @@
       "name": "initialize",
       "description": "Initialize muzzle flash system",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 23
+      "line": 21
     },
     {
       "name": "createMaterials",
       "description": "Create muzzle flash materials",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 31
+      "line": 29
     },
     {
       "name": "createMuzzleFlash",
       "description": "Create muzzle flash effect attached to weapon",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 52
+      "line": 50
     },
     {
       "name": "removeMuzzleFlash",
       "description": "Remove muzzle flash",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 119
+      "line": 117
     },
     {
       "name": "update",
       "description": "Update muzzle flashes (called from game loop)",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 132
+      "line": 130
     },
     {
       "name": "clearAll",
       "description": "Clear all muzzle flashes",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 152
+      "line": 150
     },
     {
       "name": "dispose",
       "description": "Dispose of muzzle flash system",
       "file": "src\\effects\\MuzzleFlash.js",
-      "line": 161
+      "line": 159
     }
   ],
   "src\\effects\\ParticleManager.js": [
@@ -2246,73 +2246,73 @@
       "name": "initialize",
       "description": "Initialize the projectile manager",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 38
+      "line": 36
     },
     {
       "name": "fireProjectile",
       "description": "Fire a projectile from a position in a direction",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 55
+      "line": 53
     },
     {
       "name": "update",
       "description": "Update all active projectiles",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 88
+      "line": 86
     },
     {
       "name": "checkProjectileCollisions",
       "description": "Check collisions for a specific projectile",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 113
+      "line": 111
     },
     {
       "name": "isValidTarget",
       "description": "Check if a mesh is a valid target for the projectile",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 145
+      "line": 143
     },
     {
       "name": "processHit",
       "description": "Process hit effects and damage",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 169
+      "line": 167
     },
     {
       "name": "handlePlayerHit",
       "description": "Handle hits on players",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 192
+      "line": 190
     },
     {
       "name": "removeProjectile",
       "description": "Remove a projectile by ID",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 213
+      "line": 211
     },
     {
       "name": "clearAllProjectiles",
       "description": "Clear all projectiles",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 225
+      "line": 223
     },
     {
       "name": "getStats",
       "description": "Get projectile statistics",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 236
+      "line": 234
     },
     {
       "name": "configure",
       "description": "Configure projectile manager settings",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 249
+      "line": 247
     },
     {
       "name": "dispose",
       "description": "Dispose of the projectile manager and clean up resources",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 256
+      "line": 254
     }
   ],
   "src\\engine\\StateManager.js": [
@@ -3230,109 +3230,109 @@
       "name": "initialize",
       "description": "Initialize the remote player visual representation",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 61
+      "line": 58
     },
     {
       "name": "createPlayerMesh",
       "description": "Create the visual mesh for the remote player",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 86
+      "line": 83
     },
     {
       "name": "createNameTag",
       "description": "Create name tag above the player",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 113
+      "line": 110
     },
     {
       "name": "createHealthBar",
       "description": "Create health bar above the player",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 148
+      "line": 145
     },
     {
       "name": "getHealthColor",
       "description": "Get health bar color based on health percentage",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 186
+      "line": 183
     },
     {
       "name": "update",
       "description": "Update remote player each frame",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 201
+      "line": 198
     },
     {
       "name": "interpolatePosition",
       "description": "Smoothly interpolate to target position",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 217
+      "line": 214
     },
     {
       "name": "updateUI",
       "description": "Update UI elements (name tag, health bar) position",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 252
+      "line": 249
     },
     {
       "name": "updateAnimations",
       "description": "Update animations based on state",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 294
+      "line": 291
     },
     {
       "name": "updateFromNetworkData",
       "description": "Update player state from network data",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 328
+      "line": 325
     },
     {
       "name": "setHealth",
       "description": "Set player health and update health bar",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 369
+      "line": 366
     },
     {
       "name": "setAlive",
       "description": "Set player alive state",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 385
+      "line": 382
     },
     {
       "name": "setUsername",
       "description": "Set player username and update name tag",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 405
+      "line": 402
     },
     {
       "name": "triggerShoot",
       "description": "Trigger shooting animation",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 419
+      "line": 416
     },
     {
       "name": "getPosition",
       "description": "Get player position",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 427
+      "line": 424
     },
     {
       "name": "getMesh",
       "description": "Get player mesh",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 434
+      "line": 431
     },
     {
       "name": "isPlayerAlive",
       "description": "Check if player is alive",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 441
+      "line": 438
     },
     {
       "name": "dispose",
       "description": "Dispose of remote player resources",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 448
+      "line": 445
     }
   ],
   "src\\entities\\weapons\\AccuracySystem.js": [
@@ -3942,133 +3942,133 @@
       "name": "initialize",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 64
+      "line": 62
     },
     {
       "name": "update",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 86
+      "line": 84
     },
     {
       "name": "updateFPS",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 110
+      "line": 108
     },
     {
       "name": "updateMemoryUsage",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 124
+      "line": 122
     },
     {
       "name": "updateRenderStats",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 138
+      "line": 136
     },
     {
       "name": "checkPerformance",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 147
+      "line": 145
     },
     {
       "name": "handleLowFPS",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 170
+      "line": 168
     },
     {
       "name": "handleHighMemoryUsage",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 190
+      "line": 188
     },
     {
       "name": "adjustQuality",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 204
+      "line": 202
     },
     {
       "name": "applyQualitySettings",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 222
+      "line": 220
     },
     {
       "name": "getQualitySettings",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 260
+      "line": 258
     },
     {
       "name": "addPerformanceWarning",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 295
+      "line": 293
     },
     {
       "name": "createDebugDisplay",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 317
+      "line": 315
     },
     {
       "name": "updateDebugDisplay",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 356
+      "line": 354
     },
     {
       "name": "getAverageFPS",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 378
+      "line": 376
     },
     {
       "name": "getAverageMemoryUsage",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 384
+      "line": 382
     },
     {
       "name": "getCurrentMetrics",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 390
+      "line": 388
     },
     {
       "name": "forceQualityLevel",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 404
+      "line": 402
     },
     {
       "name": "enableAdaptiveQuality",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 410
+      "line": 408
     },
     {
       "name": "setTargetFPS",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 415
+      "line": 413
     },
     {
       "name": "clearWarnings",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 421
+      "line": 419
     },
     {
       "name": "dispose",
       "description": "No description available",
       "file": "src\\hud\\PerformanceMonitor.js",
-      "line": 425
+      "line": 423
     }
   ],
   "src\\mapEditing\\EditorTools.js": [
@@ -4082,235 +4082,235 @@
       "name": "initialize",
       "description": "Initialize editor tools",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 130
+      "line": 128
     },
     {
       "name": "setupGizmoEvents",
       "description": "Set up gizmo event listeners",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 156
+      "line": 154
     },
     {
       "name": "setupPlacementPreview",
       "description": "Set up placement preview system",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 185
+      "line": 183
     },
     {
       "name": "setTool",
       "description": "Set the current tool @param {string} tool - Tool name (SELECT, PLACE_ENTITY, PLACE_SPAWN, PLACE_PROP, PLACE_PRIMITIVE)",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 198
+      "line": 196
     },
     {
       "name": "exitCurrentTool",
       "description": "Exit current tool",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 216
+      "line": 214
     },
     {
       "name": "enterCurrentTool",
       "description": "Enter current tool",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 230
+      "line": 228
     },
     {
       "name": "enterPlacementMode",
       "description": "Enter placement mode @param {string} objectType - Type of object to place",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 251
+      "line": 249
     },
     {
       "name": "exitPlacementMode",
       "description": "Exit placement mode",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 267
+      "line": 265
     },
     {
       "name": "createPlacementPreview",
       "description": "Create placement preview mesh",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 280
+      "line": 278
     },
     {
       "name": "createEntityPreview",
       "description": "Create entity placement preview @returns {BABYLON.Mesh} Preview mesh",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 310
+      "line": 308
     },
     {
       "name": "createSpawnPreview",
       "description": "Create spawn point placement preview @returns {BABYLON.Mesh} Preview mesh",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 335
+      "line": 333
     },
     {
       "name": "createPropPreview",
       "description": "Create prop placement preview @returns {BABYLON.Mesh} Preview mesh",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 357
+      "line": 355
     },
     {
       "name": "createPrimitivePreview",
       "description": "Create primitive placement preview @returns {BABYLON.Mesh} Preview mesh",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 379
+      "line": 377
     },
     {
       "name": "updatePlacementPreview",
       "description": "Update placement preview position @param {BABYLON.PointerInfo} pointerInfo - Pointer event info",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 460
+      "line": 458
     },
     {
       "name": "hidePlacementPreview",
       "description": "Hide placement preview",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 524
+      "line": 522
     },
     {
       "name": "handlePlacementClick",
       "description": "Handle placement click @param {BABYLON.PointerInfo} pointerInfo - Pointer event info @returns {boolean} True if placement was handled",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 536
+      "line": 534
     },
     {
       "name": "placeEntity",
       "description": "Place an entity at the preview position",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 571
+      "line": 569
     },
     {
       "name": "placeSpawnPoint",
       "description": "Place a spawn point at the preview position",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 603
+      "line": 601
     },
     {
       "name": "placeProp",
       "description": "Place a prop at the preview position",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 632
+      "line": 630
     },
     {
       "name": "placePrimitive",
       "description": "Place a primitive at the preview position",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 665
+      "line": 663
     },
     {
       "name": "setSelectedEntityType",
       "description": "Set the selected entity type for placement @param {string} entityType - Entity type to select",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 703
+      "line": 701
     },
     {
       "name": "setSelectedPrimitiveType",
       "description": "Set the selected primitive type for placement @param {string} primitiveType - Primitive type to select",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 720
+      "line": 718
     },
     {
       "name": "getEntityTypes",
       "description": "Get available entity types @returns {Object} Entity types configuration",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 737
+      "line": 735
     },
     {
       "name": "getPrimitiveTypes",
       "description": "Get available primitive types @returns {Object} Primitive types configuration",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 745
+      "line": 743
     },
     {
       "name": "attachGizmoToObject",
       "description": "Attach gizmo to selected object @param {BABYLON.Mesh} mesh - Mesh to attach gizmo to",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 753
+      "line": 751
     },
     {
       "name": "detachGizmo",
       "description": "Detach gizmo from current object",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 765
+      "line": 763
     },
     {
       "name": "updateObjectData",
       "description": "Update object data after gizmo manipulation",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 775
+      "line": 773
     },
     {
       "name": "generateEntityId",
       "description": "Generate unique entity ID @returns {string} Unique entity ID",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 827
+      "line": 825
     },
     {
       "name": "generatePropId",
       "description": "Generate unique prop ID @returns {string} Unique prop ID",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 835
+      "line": 833
     },
     {
       "name": "generatePrimitiveId",
       "description": "Generate unique primitive ID @returns {string} Unique primitive ID",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 843
+      "line": 841
     },
     {
       "name": "applyMaterialToSelected",
       "description": "Apply material to selected objects @param {string} materialName - Name of material to apply",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 851
+      "line": 849
     },
     {
       "name": "setSelectedMaterial",
       "description": "Set selected material for new objects @param {string} materialName - Name of material to select",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 892
+      "line": 890
     },
     {
       "name": "getAvailableMaterials",
       "description": "Get available materials @returns {Object} Available materials configuration",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 903
+      "line": 901
     },
     {
       "name": "toggleGridSnapping",
       "description": "Toggle grid snapping",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 910
+      "line": 908
     },
     {
       "name": "setGridSize",
       "description": "Set grid size @param {number} size - Grid size",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 919
+      "line": 917
     },
     {
       "name": "enableScaleGizmo",
       "description": "Enable scale gizmo",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 929
+      "line": 927
     },
     {
       "name": "disableScaleGizmo",
       "description": "Disable scale gizmo",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 939
+      "line": 937
     },
     {
       "name": "setGizmoCoordinateSystem",
       "description": "Set gizmo coordinate system (local or world) @param {boolean} useLocal - Whether to use local coordinate system",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 950
+      "line": 948
     },
     {
       "name": "dispose",
       "description": "Dispose of editor tools",
       "file": "src\\mapEditing\\EditorTools.js",
-      "line": 961
+      "line": 959
     }
   ],
   "src\\mapEditing\\MapEditor.js": [
@@ -4324,289 +4324,289 @@
       "name": "initialize",
       "description": "Initialize the map editor",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 77
+      "line": 75
     },
     {
       "name": "createEditorCamera",
       "description": "Create the editor camera (ArcRotateCamera)",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 100
+      "line": 98
     },
     {
       "name": "setupEventListeners",
       "description": "Set up event listeners",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 136
+      "line": 134
     },
     {
       "name": "handleKeyDown",
       "description": "Handle keyboard input @param {KeyboardEvent} event - Keyboard event",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 167
+      "line": 165
     },
     {
       "name": "handlePointerDown",
       "description": "Handle pointer down events @param {BABYLON.PointerInfo} pointerInfo - Pointer event info",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 243
+      "line": 241
     },
     {
       "name": "handlePointerUp",
       "description": "Handle pointer up events @param {BABYLON.PointerInfo} pointerInfo - Pointer event info",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 263
+      "line": 261
     },
     {
       "name": "activate",
       "description": "Activate the map editor @param {Object} mapData - Optional map data to load @returns {Promise} - Promise resolving when editor is activated",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 278
+      "line": 276
     },
     {
       "name": "deactivate",
       "description": "Deactivate the map editor @param {boolean} saveChanges - Whether to save changes before deactivating @returns {Promise} - Promise resolving when editor is deactivated",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 332
+      "line": 330
     },
     {
       "name": "toggleMode",
       "description": "Toggle between EDIT and PLAY modes",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 378
+      "line": 376
     },
     {
       "name": "setMode",
       "description": "Set the editor mode @param {string} mode - Mode to set ('EDIT' or 'PLAY')",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 389
+      "line": 387
     },
     {
       "name": "enterPlayMode",
       "description": "Enter play mode for testing",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 414
+      "line": 412
     },
     {
       "name": "enterEditMode",
       "description": "Enter edit mode",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 448
+      "line": 446
     },
     {
       "name": "createNewMap",
       "description": "Create a new map",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 458
+      "line": 456
     },
     {
       "name": "addDefaultSpawnPoints",
       "description": "Add default spawn points to a new map",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 498
+      "line": 496
     },
     {
       "name": "createSpawnPointVisual",
       "description": "Create visual representation of a spawn point @param {Object} spawnData - Spawn point data @param {number} index - Spawn point index @returns {BABYLON.Mesh} - Created spawn point mesh",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 518
+      "line": 516
     },
     {
       "name": "loadMapData",
       "description": "Load map data into the editor @param {Object} mapData - Map data to load",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 551
+      "line": 549
     },
     {
       "name": "createMapVisuals",
       "description": "Create visual representations of map objects",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 579
+      "line": 577
     },
     {
       "name": "createPropVisual",
       "description": "Create visual representation of a prop @param {Object} propData - Prop data @param {number} index - Prop index @returns {BABYLON.Mesh} - Created prop mesh",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 602
+      "line": 600
     },
     {
       "name": "createEntityVisual",
       "description": "Create visual representation of an entity @param {Object} entityData - Entity data @param {number} index - Entity index @returns {BABYLON.Mesh} - Created entity mesh",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 651
+      "line": 649
     },
     {
       "name": "clearMap",
       "description": "Clear the current map",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 693
+      "line": 691
     },
     {
       "name": "selectObject",
       "description": "Select an object @param {BABYLON.Mesh} mesh - Mesh to select @param {boolean} addToSelection - Whether to add to existing selection",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 715
+      "line": 713
     },
     {
       "name": "clearSelection",
       "description": "Clear selection",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 742
+      "line": 740
     },
     {
       "name": "highlightMesh",
       "description": "Highlight or unhighlight a mesh @param {BABYLON.Mesh} mesh - Mesh to highlight @param {boolean} highlight - Whether to highlight or unhighlight",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 765
+      "line": 763
     },
     {
       "name": "deleteSelected",
       "description": "Delete selected objects",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 787
+      "line": 785
     },
     {
       "name": "deleteObject",
       "description": "Delete a specific object @param {BABYLON.Mesh} mesh - Mesh to delete",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 810
+      "line": 808
     },
     {
       "name": "copySelected",
       "description": "Copy selected objects to clipboard",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 845
+      "line": 843
     },
     {
       "name": "cutSelected",
       "description": "Cut selected objects to clipboard",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 865
+      "line": 863
     },
     {
       "name": "paste",
       "description": "Paste objects from clipboard",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 873
+      "line": 871
     },
     {
       "name": "getObjectData",
       "description": "Get object data from mesh @param {BABYLON.Mesh} mesh - Mesh to get data from @returns {Object|null} - Object data or null",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 902
+      "line": 900
     },
     {
       "name": "createObjectFromData",
       "description": "Create object from data @param {Object} objectData - Object data",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 940
+      "line": 938
     },
     {
       "name": "saveUndoState",
       "description": "Save undo state @param {string} description - Description of the action",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 969
+      "line": 967
     },
     {
       "name": "undo",
       "description": "Undo last action",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 994
+      "line": 992
     },
     {
       "name": "redo",
       "description": "Redo last undone action",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1021
+      "line": 1019
     },
     {
       "name": "serializeMap",
       "description": "Serialize current map to JSON @returns {string} - JSON string of map data",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1044
+      "line": 1042
     },
     {
       "name": "cleanMapData",
       "description": "Clean map data for serialization @param {Object} mapData - Map data to clean @returns {Object} - Cleaned map data",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1057
+      "line": 1055
     },
     {
       "name": "saveMap",
       "description": "Save the current map @param {string} filename - Optional filename @returns {Promise} - Promise resolving when map is saved",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1097
+      "line": 1095
     },
     {
       "name": "downloadMapFile",
       "description": "Download map file (browser implementation) @param {string} mapJson - Map JSON string @param {string} filename - Filename",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1131
+      "line": 1129
     },
     {
       "name": "showLoadDialog",
       "description": "Show load dialog (placeholder)",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1148
+      "line": 1146
     },
     {
       "name": "generateMapId",
       "description": "Generate a unique map ID @returns {string} - Generated map ID",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1157
+      "line": 1155
     },
     {
       "name": "markDirty",
       "description": "Mark the map as dirty (has unsaved changes)",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1164
+      "line": 1162
     },
     {
       "name": "startAutoSave",
       "description": "Start auto-save timer",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1176
+      "line": 1174
     },
     {
       "name": "stopAutoSave",
       "description": "Stop auto-save timer",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1194
+      "line": 1192
     },
     {
       "name": "getMapData",
       "description": "Get current map data @returns {Object} - Current map data",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1206
+      "line": 1204
     },
     {
       "name": "isEditorActive",
       "description": "Check if editor is active @returns {boolean} - True if editor is active",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1214
+      "line": 1212
     },
     {
       "name": "getCurrentMode",
       "description": "Get current mode @returns {string} - Current mode ('EDIT' or 'PLAY')",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1222
+      "line": 1220
     },
     {
       "name": "hasUnsavedChanges",
       "description": "Check if map has unsaved changes @returns {boolean} - True if map has unsaved changes",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1230
+      "line": 1228
     },
     {
       "name": "setCallbacks",
       "description": "Set event callbacks @param {Object} callbacks - Object containing callback functions",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1238
+      "line": 1236
     },
     {
       "name": "dispose",
       "description": "Dispose of the MapEditor and clean up resources",
       "file": "src\\mapEditing\\MapEditor.js",
-      "line": 1249
+      "line": 1247
     }
   ],
   "src\\physics\\PhysicsManager.js": [
@@ -4626,103 +4626,109 @@
       "name": "initializeCannonJS",
       "description": "Initialize CannonJS physics plugin",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 77
+      "line": 85
     },
     {
       "name": "initializeAmmoJS",
       "description": "Initialize AmmoJS physics plugin",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 99
+      "line": 110
     },
     {
       "name": "setupCollisionDetection",
       "description": "Set up collision detection and callbacks",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 116
+      "line": 127
     },
     {
       "name": "initializeDebugRenderer",
       "description": "Initialize debug renderer for physics visualization",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 130
+      "line": 151
     },
     {
       "name": "registerPhysicsBody",
       "description": "Register a physics body with collision layer",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 150
+      "line": 171
     },
     {
       "name": "setCollisionLayer",
       "description": "Set collision layer for a physics impostor",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 189
+      "line": 210
     },
     {
       "name": "registerCollisionCallback",
       "description": "Register collision callback for specific body interactions",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 234
+      "line": 255
     },
     {
       "name": "removePhysicsBody",
       "description": "Remove physics body from the system",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 246
+      "line": 267
     },
     {
       "name": "beforePhysicsStep",
       "description": "Update physics world (called before physics step)",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 262
+      "line": 283
     },
     {
       "name": "afterPhysicsStep",
       "description": "Handle post-physics updates (called after physics step)",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 272
+      "line": 293
     },
     {
       "name": "processCollisions",
       "description": "Process collision events and trigger callbacks",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 288
+      "line": 309
     },
     {
       "name": "updatePerformanceMetrics",
       "description": "Update performance metrics",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 299
+      "line": 320
+    },
+    {
+      "name": "update",
+      "description": "Manual update method for physics when observables aren't available This should be called from the main game loop",
+      "file": "src\\physics\\PhysicsManager.js",
+      "line": 335
     },
     {
       "name": "getPerformanceMetrics",
       "description": "Get physics performance metrics",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 313
+      "line": 352
     },
     {
       "name": "generateBodyId",
       "description": "Generate unique body ID",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 325
+      "line": 365
     },
     {
       "name": "setDebugRendering",
       "description": "Enable/disable debug rendering",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 332
+      "line": 372
     },
     {
       "name": "getPhysicsWorld",
       "description": "Get physics world reference (for advanced usage)",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 341
+      "line": 381
     },
     {
       "name": "dispose",
       "description": "Dispose of the physics manager and clean up resources",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 348
+      "line": 388
     }
   ],
   "src\\physics\\RaycastManager.js": [

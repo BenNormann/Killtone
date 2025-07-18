@@ -66,8 +66,6 @@ export class AudioSystem {
 
         // Event listeners storage
         this.eventListeners = [];
-
-        this.initialize();
     }
 
     /**

@@ -503,10 +503,8 @@ export class Game {
         console.log('Starting multiplayer mode...');
         
         try {
-            // Initialize player
-            await this.initializePlayer();
-            
             // Transition to main menu state
+            // Player will be initialized when transitioning to IN_GAME state
             if (this.stateManager) {
                 await this.stateManager.transitionTo('MAIN_MENU');
             }

@@ -120,8 +120,6 @@ export class EditorTools {
             }
         };
         this.selectedMaterial = 'concrete';
-
-        this.initialize();
     }
 
     /**

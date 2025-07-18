@@ -43,11 +43,19 @@ export class PhysicsManager {
 
             // Only enable physics if we have a valid plugin
             if (this.physicsPlugin) {
-                // Enable physics on the scene
-                this.scene.enablePhysics(
-                    new BABYLON.Vector3(0, config.gravity, 0),
-                    this.physicsPlugin
-                );
+                // Check if enablePhysics method exists on scene
+                if (typeof this.scene.enablePhysics === 'function') {
+                    // Enable physics on the scene
+                    this.scene.enablePhysics(
+                        new BABYLON.Vector3(0, config.gravity, 0),
+                        this.physicsPlugin
+                    );
+                } else {
+                    // Alternative approach for newer Babylon.js versions
+                    this.scene.physicsEnabled = true;
+                    this.scene._physicsEngine = this.physicsPlugin;
+                    console.log('Physics enabled using alternative method');
+                }
             } else {
                 console.warn('Physics plugin not available, running without physics');
                 this.isInitialized = true;
@@ -75,20 +83,23 @@ export class PhysicsManager {
      * Initialize CannonJS physics plugin
      */
     async initializeCannonJS() {
-        // Check if cannon-es is available
+        // Check if CANNON UMD is available
         if (typeof CANNON === 'undefined') {
-            console.warn('cannon-es library not found. Skipping physics initialization.');
+            console.warn('CANNON library not found. Skipping physics initialization.');
             return;
         }
 
+        // Create CannonJS plugin with UMD version
         this.physicsPlugin = new BABYLON.CannonJSPlugin(true, 10, CANNON);
         
         // Configure CannonJS world settings
         const world = this.physicsPlugin.world;
-        world.broadphase = new CANNON.NaiveBroadphase();
-        world.solver.iterations = 10;
-        world.defaultContactMaterial.friction = 0.4;
-        world.defaultContactMaterial.restitution = 0.3;
+        if (world) {
+            world.broadphase = new CANNON.NaiveBroadphase();
+            world.solver.iterations = 10;
+            world.defaultContactMaterial.friction = 0.4;
+            world.defaultContactMaterial.restitution = 0.3;
+        }
         
         console.log('CannonJS physics plugin initialized');
     }
@@ -114,14 +125,24 @@ export class PhysicsManager {
      * Set up collision detection and callbacks
      */
     setupCollisionDetection() {
-        // Register collision event handlers
-        this.scene.onBeforePhysicsObservable.add(() => {
-            this.beforePhysicsStep();
-        });
+        // Check if physics observables are available
+        if (this.scene.onBeforePhysicsObservable && this.scene.onAfterPhysicsObservable) {
+            // Register collision event handlers using observables
+            this.scene.onBeforePhysicsObservable.add(() => {
+                this.beforePhysicsStep();
+            });
 
-        this.scene.onAfterPhysicsObservable.add(() => {
-            this.afterPhysicsStep();
-        });
+            this.scene.onAfterPhysicsObservable.add(() => {
+                this.afterPhysicsStep();
+            });
+        } else {
+            // Alternative approach - use render loop integration
+            console.log('Physics observables not available, using alternative collision detection setup');
+            
+            // We'll handle physics updates in the main game loop instead
+            // This is a fallback for when the scene doesn't have physics observables
+            this.useManualPhysicsUpdates = true;
+        }
     }
 
     /**
@@ -308,6 +329,24 @@ export class PhysicsManager {
     }
 
     /**
+     * Manual update method for physics when observables aren't available
+     * This should be called from the main game loop
+     */
+    update(deltaTime) {
+        if (!this.isInitialized || !this.useManualPhysicsUpdates) {
+            return;
+        }
+
+        // Manual physics step handling
+        this.beforePhysicsStep();
+        
+        // The physics engine will handle the actual simulation
+        // We just need to handle our custom logic
+        
+        this.afterPhysicsStep();
+    }
+
+    /**
      * Get physics performance metrics
      */
     getPerformanceMetrics() {
@@ -315,7 +354,8 @@ export class PhysicsManager {
             averageStepTime: this.averageStepTime,
             lastStepTime: this.lastStepTime,
             activeBodies: this.physicsBodies.size,
-            isInitialized: this.isInitialized
+            isInitialized: this.isInitialized,
+            useManualUpdates: this.useManualPhysicsUpdates || false
         };
     }
 

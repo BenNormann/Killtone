@@ -67,8 +67,6 @@ export class MapEditor {
 
         // Editor tools
         this.editorTools = null;
-
-        this.initialize();
     }
 
     /**
