@@ -1,6 +1,11 @@
 /**
  * KILLtONE Game Framework - Weapon Configuration
- * Defines weapon types, constants, and configuration data
+ * 
+ * This file contains all weapon configurations including:
+ * - Basic weapon stats (damage, fire rate, etc.)
+ * - Model configuration (scaling, positioning, handedness)
+ * - Muzzle flash settings (position, alignment)
+ * - Audio and visual effects
  */
 
 // Weapon type enumeration
@@ -49,12 +54,20 @@ export const WeaponConfigs = {
             draw: 'draw',
             holster: 'holster'
         },
+        // Weapon model positioning and scaling
+        modelConfig: {
+            scaling: { x: .7, y: .7, z: .7 }, // Normal scale
+            position: { x: -0.3, y: 0.2, z: -0.5 }, // Move right and closer to camera
+            rotation: { x: 0.05, y: 0.0, z: 0.0 }, // Slight rotation
+            handedness: 'left' // 'left' or 'right' - flips model horizontally
+        },
         muzzleFlash: {
             color: 'purple',
             size: 0.3,
             length: 0.8,
             duration: 100,
-            position: { x: 0, y: 0, z: 1.2 }
+            position: { x: 0, y: 1, z: 10.0 },
+            alignment: { x: 0.0, y: 10.0 } // Slight right and down alignment offset
         },
         recoilPattern: {
             horizontal: 0.05,
@@ -91,12 +104,20 @@ export const WeaponConfigs = {
             draw: 'draw',
             holster: 'holster'
         },
+        // Weapon model positioning and scaling
+        modelConfig: {
+            scaling: { x: 0.01, y: 0.01, z: 0.01 }, // Model scale
+            position: { x: -0.4, y: 0.35, z: -0.6 }, // Model position offset
+            rotation: { x: 0.0, y: 0.0, z: 0.0 }, // Model rotation offset
+            handedness: 'left' // 'left' or 'right' - flips model horizontally
+        },
         muzzleFlash: {
             color: 'pink',
             size: 0.25,
             length: 0.6,
             duration: 80,
-            position: { x: 0, y: 0, z: 0.8 }
+            position: { x: 0, y: 0, z: 0.8 },
+            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.04,
@@ -135,12 +156,20 @@ export const WeaponConfigs = {
             draw: 'draw',
             holster: 'holster'
         },
+        // Weapon model positioning and scaling
+        modelConfig: {
+            scaling: { x: 0.01, y: 0.01, z: 0.01 }, // Model scale
+            position: { x: -0.4, y: 0.30, z: -0.6 }, // Model position offset
+            rotation: { x: 0.0, y: 0.0, z: 0.0 }, // Model rotation offset
+            handedness: 'left' // 'left' or 'right' - flips model horizontally
+        },
         muzzleFlash: {
             color: 'purple',
             size: 0.4,
             length: 1.0,
             duration: 120,
-            position: { x: 0, y: 0, z: 1.5 }
+            position: { x: 0, y: 0, z: 1.5 },
+            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.12,
@@ -177,12 +206,20 @@ export const WeaponConfigs = {
             draw: 'draw',
             holster: 'holster'
         },
+        // Weapon model positioning and scaling
+        modelConfig: {
+            scaling: { x: 0.01, y: 0.01, z: 0.01 }, // Model scale
+            position: { x: -0.4, y: 0.30, z: -0.6 }, // Model position offset
+            rotation: { x: 0.0, y: 0.0, z: 0.0 }, // Model rotation offset
+            handedness: 'left' // 'left' or 'right' - flips model horizontally
+        },
         muzzleFlash: {
             color: 'purple',
             size: 0.28,
             length: 0.7,
             duration: 90,
-            position: { x: 0, y: 0, z: 1.0 }
+            position: { x: 0, y: 0, z: 1.0 },
+            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.06,
@@ -219,12 +256,20 @@ export const WeaponConfigs = {
             draw: 'draw',
             holster: 'holster'
         },
+        // Weapon model positioning and scaling
+        modelConfig: {
+            scaling: { x: 0.01, y: 0.01, z: 0.01 }, // Model scale
+            position: { x: -0.4, y: 0.30, z: -0.6 }, // Model position offset
+            rotation: { x: 0.0, y: 0.0, z: 0.0 }, // Model rotation offset
+            handedness: 'left' // 'left' or 'right' - flips model horizontally
+        },
         muzzleFlash: {
             color: 'purple',
             size: 0.35,
             length: 1.2,
             duration: 150,
-            position: { x: 0, y: 0, z: 1.8 }
+            position: { x: 0, y: 0, z: 1.8 },
+            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.15,
@@ -260,6 +305,13 @@ export const WeaponConfigs = {
             swing: 'swing',
             draw: 'draw',
             holster: 'holster'
+        },
+        // Weapon model positioning and scaling
+        modelConfig: {
+            scaling: { x: 0.01, y: 0.01, z: 0.01 }, // Model scale
+            position: { x: -0.5, y: 0.40, z: -0.6 }, // Model position offset
+            rotation: { x: 0.0, y: 0.0, z: 0.0 }, // Model rotation offset
+            handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: null, // No muzzle flash for melee
         recoilPattern: null, // No recoil for melee

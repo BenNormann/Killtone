@@ -240,8 +240,9 @@ export class Player {
         if (weapon.model) {
             weapon.model.parent = this.weaponAttachPoint;
             
-            // Scale weapon to 1.2x size
-            weapon.model.scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
+            // Apply model configuration (scaling, position, rotation, handedness)
+            // This is now handled by the weapon's applyModelConfiguration method
+            // No need to reset scaling here as it's managed by the weapon config
             
             weapon.setVisible(true);
         }

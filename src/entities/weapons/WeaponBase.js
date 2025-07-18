@@ -435,7 +435,14 @@ export class WeaponBase {
         if (this.model && this.model.isEnabled()) {
             // Use configured muzzle position relative to weapon
             const muzzleConfig = this.config.muzzleFlash.position;
-            const muzzleOffset = new BABYLON.Vector3(muzzleConfig.x, muzzleConfig.y, muzzleConfig.z);
+            const alignmentConfig = this.config.muzzleFlash.alignment || { x: 0, y: 0 };
+            
+            // Apply alignment offsets to muzzle position
+            const muzzleOffset = new BABYLON.Vector3(
+                muzzleConfig.x + (alignmentConfig.x || 0),
+                muzzleConfig.y + (alignmentConfig.y || 0),
+                muzzleConfig.z
+            );
 
             const worldMatrix = this.model.getWorldMatrix();
             muzzleWorldPos = BABYLON.Vector3.TransformCoordinates(muzzleOffset, worldMatrix);
@@ -596,6 +603,9 @@ export class WeaponBase {
                     this.model = weaponAsset.meshes[0].clone(`${this.name}_model`);
                     this.model.setEnabled(false); // Hidden by default
 
+                    // Apply model configuration
+                    this.applyModelConfiguration();
+
                     // Store animation groups (don't clone, use references)
                     if (weaponAsset.animationGroups && weaponAsset.animationGroups.length > 0) {
                         weaponAsset.animationGroups.forEach(animGroup => {
@@ -627,6 +637,37 @@ export class WeaponBase {
                 this.model = result.meshes[0];
                 this.model.name = `${this.name}_model`;
                 this.model.setEnabled(false); // Hidden by default
+
+                // NORMALIZE WEAPON TRANSFORMATIONS
+                // Reset any transformations that might be stored in the GLB file
+                console.log(`${this.name} - Before normalization:`, {
+                    position: this.model.position.toString(),
+                    rotation: this.model.rotation.toString(),
+                    scaling: this.model.scaling.toString()
+                });
+
+                // Reset all transformations to identity
+                this.model.position = new BABYLON.Vector3(0, 0, 0);
+                this.model.rotation = new BABYLON.Vector3(0, 0, 0);
+                this.model.scaling = new BABYLON.Vector3(1, 1, 1);
+
+                // Also normalize any child meshes that might have transformations
+                result.meshes.forEach(mesh => {
+                    if (mesh !== this.model) {
+                        mesh.position = new BABYLON.Vector3(0, 0, 0);
+                        mesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                        mesh.scaling = new BABYLON.Vector3(1, 1, 1);
+                    }
+                });
+
+                // Apply model configuration after normalization
+                this.applyModelConfiguration();
+
+                console.log(`${this.name} - After configuration:`, {
+                    position: this.model.position.toString(),
+                    rotation: this.model.rotation.toString(),
+                    scaling: this.model.scaling.toString()
+                });
 
                 // Ensure proper material setup for GLB files
                 if (this.model.material) {
@@ -664,6 +705,56 @@ export class WeaponBase {
         } catch (error) {
             console.warn(`Failed to load model for ${this.name}:`, error);
         }
+    }
+
+    /**
+     * Apply model configuration settings (scaling, position, rotation, handedness)
+     */
+    applyModelConfiguration() {
+        if (!this.model || !this.config.modelConfig) return;
+
+        const config = this.config.modelConfig;
+
+        // Apply scaling
+        if (config.scaling) {
+            this.model.scaling = new BABYLON.Vector3(
+                config.scaling.x || 1.0,
+                config.scaling.y || 1.0,
+                config.scaling.z || 1.0
+            );
+        }
+
+        // Apply position offset
+        if (config.position) {
+            this.model.position = new BABYLON.Vector3(
+                config.position.x || 0.0,
+                config.position.y || 0.0,
+                config.position.z || 0.0
+            );
+        }
+
+        // Apply rotation offset
+        if (config.rotation) {
+            this.model.rotation = new BABYLON.Vector3(
+                config.rotation.x || 0.0,
+                config.rotation.y || 0.0,
+                config.rotation.z || 0.0
+            );
+        }
+
+        // Apply handedness (flip model horizontally if needed)
+        if (config.handedness === 'left') {
+            // Flip the model horizontally by scaling X axis to -1
+            this.model.scaling.x *= -1;
+            console.log(`${this.name}: Applied left-handed configuration`);
+        }
+
+        console.log(`${this.name}: Applied model configuration:`, {
+            scaling: this.model.scaling.toString(),
+            position: this.model.position.toString(),
+            rotation: this.model.rotation.toString(),
+            handedness: config.handedness || 'right'
+        });
     }
 
     /**
