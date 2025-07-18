@@ -139,22 +139,28 @@
       "line": 490
     },
     {
+      "name": "startMultiplayer",
+      "description": "Start multiplayer mode",
+      "file": "src\\Game.js",
+      "line": 502
+    },
+    {
       "name": "stop",
       "description": "Stop the game and cleanup",
       "file": "src\\Game.js",
-      "line": 502
+      "line": 525
     },
     {
       "name": "dispose",
       "description": "Complete cleanup and disposal",
       "file": "src\\Game.js",
-      "line": 529
+      "line": 552
     },
     {
       "name": "disposeManagers",
       "description": "Dispose of all managers and resources",
       "file": "src\\Game.js",
-      "line": 557
+      "line": 580
     }
   ],
   "src\\audio\\AudioSystem.js": [
@@ -4620,103 +4626,103 @@
       "name": "initializeCannonJS",
       "description": "Initialize CannonJS physics plugin",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 70
+      "line": 77
     },
     {
       "name": "initializeAmmoJS",
       "description": "Initialize AmmoJS physics plugin",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 91
+      "line": 99
     },
     {
       "name": "setupCollisionDetection",
       "description": "Set up collision detection and callbacks",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 107
+      "line": 116
     },
     {
       "name": "initializeDebugRenderer",
       "description": "Initialize debug renderer for physics visualization",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 121
+      "line": 130
     },
     {
       "name": "registerPhysicsBody",
       "description": "Register a physics body with collision layer",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 141
+      "line": 150
     },
     {
       "name": "setCollisionLayer",
       "description": "Set collision layer for a physics impostor",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 180
+      "line": 189
     },
     {
       "name": "registerCollisionCallback",
       "description": "Register collision callback for specific body interactions",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 225
+      "line": 234
     },
     {
       "name": "removePhysicsBody",
       "description": "Remove physics body from the system",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 237
+      "line": 246
     },
     {
       "name": "beforePhysicsStep",
       "description": "Update physics world (called before physics step)",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 253
+      "line": 262
     },
     {
       "name": "afterPhysicsStep",
       "description": "Handle post-physics updates (called after physics step)",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 263
+      "line": 272
     },
     {
       "name": "processCollisions",
       "description": "Process collision events and trigger callbacks",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 279
+      "line": 288
     },
     {
       "name": "updatePerformanceMetrics",
       "description": "Update performance metrics",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 290
+      "line": 299
     },
     {
       "name": "getPerformanceMetrics",
       "description": "Get physics performance metrics",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 304
+      "line": 313
     },
     {
       "name": "generateBodyId",
       "description": "Generate unique body ID",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 316
+      "line": 325
     },
     {
       "name": "setDebugRendering",
       "description": "Enable/disable debug rendering",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 323
+      "line": 332
     },
     {
       "name": "getPhysicsWorld",
       "description": "Get physics world reference (for advanced usage)",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 332
+      "line": 341
     },
     {
       "name": "dispose",
       "description": "Dispose of the physics manager and clean up resources",
       "file": "src\\physics\\PhysicsManager.js",
-      "line": 339
+      "line": 348
     }
   ],
   "src\\physics\\RaycastManager.js": [
