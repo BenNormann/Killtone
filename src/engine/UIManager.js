@@ -281,6 +281,14 @@ export class UIManager extends BaseManager {
         this.settingsOverlay.color = "transparent";
         this.settingsOverlay.background = GameConfig.theme.colors.backgroundOverlay;
         this.fullscreenUI.addControl(this.settingsOverlay);
+        
+        // Add click handler to close settings when clicking outside the panel
+        this.settingsOverlay.onPointerClickObservable.add((eventData) => {
+            // Close settings and return to game
+            if (this.game.stateManager) {
+                this.game.stateManager.transitionTo('IN_GAME');
+            }
+        });
 
         // Create right-side settings panel (1/3 of screen width)
         const settingsPanel = new BABYLON.GUI.Rectangle("settingsPanel");

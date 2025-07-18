@@ -15,8 +15,8 @@ export class Projectile {
         
         // Projectile properties
         this.position = options.position || new BABYLON.Vector3.Zero();
-        this.velocity = options.velocity || new BABYLON.Vector3(0, 0, 500);
-        this.speed = options.speed || 500;
+        this.velocity = options.velocity || new BABYLON.Vector3(0, 0, 5);
+        this.speed = options.speed || 1200;
         this.damage = options.damage || 25;
         this.maxDistance = options.maxDistance || 2000;
         this.lifeTime = options.lifeTime || 10; // seconds

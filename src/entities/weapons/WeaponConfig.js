@@ -38,6 +38,8 @@ export const WeaponConfigs = {
         reloadTime: 3.0,
         accuracy: 0.95,
         recoilAmount: 0.1,
+        reloadStartFrame: 40,
+        reloadEndFrame: 138,
         muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/carbine/fps_animated_carbine.glb',
         animations: {

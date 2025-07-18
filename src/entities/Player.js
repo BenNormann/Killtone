@@ -133,6 +133,27 @@ export class Player {
     }
 
     /**
+     * Attach camera controls for game mode
+     */
+    attachControls() {
+        if (this.camera && this.game.canvas) {
+            // Use Babylon's built-in pointer lock handling
+            this.camera.attachControl(this.game.canvas, true);
+            console.log('Camera controls attached');
+        }
+    }
+
+    /**
+     * Detach camera controls
+     */
+    detachControls() {
+        if (this.camera) {
+            this.camera.detachControl();
+            console.log('Camera controls detached');
+        }
+    }
+
+    /**
      * Create weapon attachment point
      */
     createWeaponAttachPoint() {

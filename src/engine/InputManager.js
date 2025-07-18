@@ -198,8 +198,6 @@ export class InputManager extends BaseManager {
         
         // Clear active keys
         this.activeKeys.clear();
-        
-        console.log('Game controls disabled');
     }
 
     /**
@@ -233,6 +231,7 @@ export class InputManager extends BaseManager {
         
         // Handle ESC key specially - always works regardless of context
         if (key === 'Escape') {
+            console.log('ESC key pressed, current state:', this.game.stateManager?.getCurrentState());
             this._handleESCKey();
             event.preventDefault();
             return;
@@ -382,18 +381,23 @@ export class InputManager extends BaseManager {
      */
     _handleESCKey() {
         const stateManager = this.game.stateManager;
-        if (!stateManager) return;
+        const uiManager = this.game.uiManager;
+        if (!stateManager || !uiManager) {
+            console.log('ESC: Missing stateManager or uiManager');
+            return;
+        }
         
         const currentState = stateManager.getCurrentState();
+        console.log('ESC: Current state is', currentState);
         
         switch (currentState) {
             case 'IN_GAME':
-                // Pause game and show settings
+                console.log('ESC: Transitioning to PAUSED');
                 stateManager.transitionTo('PAUSED');
                 break;
                 
             case 'PAUSED':
-                // Resume game
+                console.log('ESC: Transitioning to IN_GAME');
                 stateManager.transitionTo('IN_GAME');
                 break;
                 
@@ -519,8 +523,18 @@ export class InputManager extends BaseManager {
      * Handle pointer lock change
      */
     _handlePointerLockChange() {
+        const wasLocked = this.pointerLocked;
         this.pointerLocked = document.pointerLockElement === this.canvas;
         console.log(`Pointer lock: ${this.pointerLocked ? 'enabled' : 'disabled'}`);
+        
+        // If pointer lock was disabled and we're in game, show settings (ESC was pressed)
+        if (wasLocked && !this.pointerLocked) {
+            const currentState = this.game.stateManager?.getCurrentState();
+            if (currentState === 'IN_GAME') {
+                console.log('Pointer lock disabled while in game - showing settings');
+                this.game.stateManager.transitionTo('PAUSED');
+            }
+        }
     }
 
     /**

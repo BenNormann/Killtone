@@ -331,8 +331,6 @@ export class Game {
      * Handle state changes
      */
     onStateChanged(newState, oldState) {
-        console.log(`State changed: ${oldState} -> ${newState}`);
-
         switch (newState) {
             case 'IN_GAME':
                 this.initializePlayer();

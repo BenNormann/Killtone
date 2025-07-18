@@ -40,7 +40,6 @@ export class StateManager extends BaseManager {
                 }
             },
             exit: async () => {
-                console.log('Exiting LOADING state');
                 // Hide loading screen
                 if (this.game.uiManager) {
                     this.game.uiManager.hideLoadingScreen();
@@ -62,7 +61,6 @@ export class StateManager extends BaseManager {
                 }
             },
             exit: async () => {
-                console.log('Exiting MAIN_MENU state');
                 // Hide main menu
                 if (this.game.uiManager) {
                     this.game.uiManager.hideMainMenu();
@@ -74,13 +72,6 @@ export class StateManager extends BaseManager {
         this.registerStateHandler(StateManager.STATES.IN_GAME, {
             enter: async () => {
                 console.log('Entering IN_GAME state');
-                // Hide cursor and enable pointer lock
-                document.body.style.cursor = 'none';
-                try {
-                    await this.game.canvas.requestPointerLock();
-                } catch (error) {
-                    console.warn('Pointer lock failed:', error);
-                }
                 // Load default map if no map is loaded
                 if (this.game.mapManager && !this.game.mapManager.isMapLoaded()) {
                     try {
@@ -89,7 +80,7 @@ export class StateManager extends BaseManager {
                         console.error('Failed to load default map:', error);
                     }
                 }
-                // Enable game controls
+                // Enable game controls (this will handle pointer lock)
                 if (this.game.inputManager) {
                     this.game.inputManager.enableGameControls();
                 }
@@ -100,7 +91,6 @@ export class StateManager extends BaseManager {
                 }
             },
             exit: async () => {
-                console.log('Exiting IN_GAME state');
                 // Show cursor and exit pointer lock
                 document.body.style.cursor = 'default';
                 if (document.pointerLockElement) {
@@ -113,22 +103,16 @@ export class StateManager extends BaseManager {
         this.registerStateHandler(StateManager.STATES.PAUSED, {
             enter: async () => {
                 console.log('Entering PAUSED state');
-                // Show cursor and exit pointer lock
-                document.body.style.cursor = 'default';
-                if (document.pointerLockElement) {
-                    document.exitPointerLock();
+                // Disable game controls (this will handle pointer lock exit)
+                if (this.game.inputManager) {
+                    this.game.inputManager.disableGameControls();
                 }
                 // Show settings overlay
                 if (this.game.uiManager) {
                     await this.game.uiManager.showSettingsOverlay();
                 }
-                // Disable game controls but keep ESC key active
-                if (this.game.inputManager) {
-                    this.game.inputManager.disableGameControls();
-                }
             },
             exit: async () => {
-                console.log('Exiting PAUSED state');
                 // Hide settings overlay
                 if (this.game.uiManager) {
                     this.game.uiManager.hideSettingsOverlay();
@@ -167,7 +151,6 @@ export class StateManager extends BaseManager {
                 }
             },
             exit: async () => {
-                console.log('Exiting MAP_EDITOR state');
                 // Exit map editor
                 if (this.game.mapManager) {
                     try {
