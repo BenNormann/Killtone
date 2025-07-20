@@ -57,22 +57,31 @@ export class RemotePlayer {
      */
     async initialize() {
         try {
-            console.log(`Initializing RemotePlayer: ${this.username} (${this.id})`);
+            console.log(`DEBUG: Initializing RemotePlayer: ${this.username} (${this.id})`);
+            console.log(`DEBUG: Scene available:`, !!this.scene);
+            console.log(`DEBUG: Position:`, this.position);
             
             // Create player mesh
+            console.log(`DEBUG: Creating player mesh for ${this.username}`);
             this.createPlayerMesh();
             
             // Create name tag
+            console.log(`DEBUG: Creating name tag for ${this.username}`);
             this.createNameTag();
             
             // Create health bar
+            console.log(`DEBUG: Creating health bar for ${this.username}`);
             this.createHealthBar();
             
-            console.log(`RemotePlayer ${this.username} initialized successfully`);
+            console.log(`DEBUG: RemotePlayer ${this.username} initialized successfully`);
+            console.log(`DEBUG: Mesh created:`, !!this.mesh);
+            console.log(`DEBUG: Name tag created:`, !!this.nameTag);
+            console.log(`DEBUG: Health bar created:`, !!this.healthBar);
+            
             return true;
             
         } catch (error) {
-            console.error(`Failed to initialize RemotePlayer ${this.username}:`, error);
+            console.error(`DEBUG: Failed to initialize RemotePlayer ${this.username}:`, error);
             return false;
         }
     }

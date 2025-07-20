@@ -40,127 +40,127 @@
       "name": "setupErrorHandling",
       "description": "Setup error handling",
       "file": "src\\Game.js",
-      "line": 216
+      "line": 218
     },
     {
       "name": "setupEventListeners",
       "description": "Setup event listeners",
       "file": "src\\Game.js",
-      "line": 229
+      "line": 231
     },
     {
       "name": "start",
       "description": "Start the game loop",
       "file": "src\\Game.js",
-      "line": 248
+      "line": 250
     },
     {
       "name": "update",
       "description": "Main game update loop",
       "file": "src\\Game.js",
-      "line": 275
+      "line": 277
     },
     {
       "name": "updateManagers",
       "description": "Update all game managers",
       "file": "src\\Game.js",
-      "line": 297
+      "line": 299
     },
     {
       "name": "updateFPS",
       "description": "Update FPS counter",
       "file": "src\\Game.js",
-      "line": 310
+      "line": 312
     },
     {
       "name": "render",
       "description": "Render the scene",
       "file": "src\\Game.js",
-      "line": 324
+      "line": 326
     },
     {
       "name": "onStateChanged",
       "description": "Handle state changes",
       "file": "src\\Game.js",
-      "line": 333
+      "line": 335
     },
     {
       "name": "initializePlayer",
       "description": "Initialize local player",
       "file": "src\\Game.js",
-      "line": 354
+      "line": 356
     },
     {
       "name": "setupPlayerEventHandlers",
       "description": "Set up player event handlers",
       "file": "src\\Game.js",
-      "line": 380
+      "line": 382
     },
     {
       "name": "onResize",
       "description": "Handle window resize",
       "file": "src\\Game.js",
-      "line": 432
+      "line": 447
     },
     {
       "name": "onFocusLost",
       "description": "Handle window focus loss",
       "file": "src\\Game.js",
-      "line": 441
+      "line": 456
     },
     {
       "name": "onFocusGained",
       "description": "Handle window focus gain",
       "file": "src\\Game.js",
-      "line": 450
+      "line": 465
     },
     {
       "name": "onError",
       "description": "Handle errors",
       "file": "src\\Game.js",
-      "line": 459
+      "line": 474
     },
     {
       "name": "getScalingLevel",
       "description": "Get hardware scaling level based on performance settings",
       "file": "src\\Game.js",
-      "line": 485
+      "line": 500
     },
     {
       "name": "getFPS",
       "description": "Get current FPS",
       "file": "src\\Game.js",
-      "line": 498
+      "line": 513
     },
     {
       "name": "getEngineInfo",
       "description": "Get engine information",
       "file": "src\\Game.js",
-      "line": 505
+      "line": 520
     },
     {
       "name": "startMultiplayer",
       "description": "Start multiplayer mode",
       "file": "src\\Game.js",
-      "line": 517
+      "line": 532
     },
     {
       "name": "stop",
       "description": "Stop the game and cleanup",
       "file": "src\\Game.js",
-      "line": 541
+      "line": 570
     },
     {
       "name": "dispose",
       "description": "Complete cleanup and disposal",
       "file": "src\\Game.js",
-      "line": 568
+      "line": 597
     },
     {
       "name": "disposeManagers",
       "description": "Dispose of all managers and resources",
       "file": "src\\Game.js",
-      "line": 596
+      "line": 625
     }
   ],
   "src\\audio\\AudioSystem.js": [
@@ -1440,241 +1440,241 @@
       "name": "initialize",
       "description": "Initialize the input manager",
       "file": "src\\engine\\InputManager.js",
-      "line": 89
+      "line": 92
     },
     {
       "name": "_setupEventListeners",
       "description": "Setup event listeners for input capture",
       "file": "src\\engine\\InputManager.js",
-      "line": 104
+      "line": 107
     },
     {
       "name": "bindKey",
       "description": "Bind a key to an action @param {string} key - Key code (e.g., 'KeyW', 'Mouse0') @param {string} action - Action name @param {Function} handler - Optional custom handler",
       "file": "src\\engine\\InputManager.js",
-      "line": 154
+      "line": 157
     },
     {
       "name": "registerActionHandler",
       "description": "Register an action handler @param {string} action - Action name @param {Function} handler - Handler function",
       "file": "src\\engine\\InputManager.js",
-      "line": 167
+      "line": 170
     },
     {
       "name": "setContext",
       "description": "Set input context (menu, game, editor) @param {string} context - Input context",
       "file": "src\\engine\\InputManager.js",
-      "line": 175
+      "line": 178
     },
     {
       "name": "registerContextHandler",
       "description": "Register context change handler @param {string} context - Context name @param {Function} handler - Handler function",
       "file": "src\\engine\\InputManager.js",
-      "line": 193
+      "line": 196
     },
     {
       "name": "enableGameControls",
       "description": "Enable game controls (FPS movement, shooting)",
       "file": "src\\engine\\InputManager.js",
-      "line": 200
+      "line": 203
     },
     {
       "name": "_waitForUIReady",
       "description": "Wait for UI to be fully ready before requesting pointer lock",
       "file": "src\\engine\\InputManager.js",
-      "line": 232
+      "line": 235
     },
     {
       "name": "disableGameControls",
       "description": "Disable game controls",
       "file": "src\\engine\\InputManager.js",
-      "line": 267
+      "line": 270
     },
     {
       "name": "enableEditorControls",
       "description": "Enable editor controls",
       "file": "src\\engine\\InputManager.js",
-      "line": 280
+      "line": 283
     },
     {
       "name": "disableEditorControls",
       "description": "Disable editor controls",
       "file": "src\\engine\\InputManager.js",
-      "line": 290
+      "line": 293
     },
     {
       "name": "_handleKeyDown",
       "description": "Handle key down events",
       "file": "src\\engine\\InputManager.js",
-      "line": 300
+      "line": 303
     },
     {
       "name": "_handleKeyUp",
       "description": "Handle key up events",
       "file": "src\\engine\\InputManager.js",
-      "line": 353
+      "line": 356
     },
     {
       "name": "_handleMouseDown",
       "description": "Handle mouse down events",
       "file": "src\\engine\\InputManager.js",
-      "line": 378
+      "line": 381
     },
     {
       "name": "_handleMouseUp",
       "description": "Handle mouse up events",
       "file": "src\\engine\\InputManager.js",
-      "line": 402
+      "line": 405
     },
     {
       "name": "_handleMouseMove",
       "description": "Handle mouse move events",
       "file": "src\\engine\\InputManager.js",
-      "line": 421
+      "line": 424
     },
     {
       "name": "_handleMouseWheel",
       "description": "Handle mouse wheel events",
       "file": "src\\engine\\InputManager.js",
-      "line": 441
+      "line": 444
     },
     {
       "name": "_handleESCKey",
       "description": "Handle ESC key - context-sensitive behavior",
       "file": "src\\engine\\InputManager.js",
-      "line": 456
+      "line": 459
     },
     {
       "name": "_handleTABKey",
       "description": "Handle TAB key - show/hide leaderboard",
       "file": "src\\engine\\InputManager.js",
-      "line": 492
+      "line": 495
     },
     {
       "name": "_handleMouseLook",
       "description": "Handle mouse look for FPS camera",
       "file": "src\\engine\\InputManager.js",
-      "line": 511
+      "line": 514
     },
     {
       "name": "_handleWeaponSwitch",
       "description": "Handle weapon switching",
       "file": "src\\engine\\InputManager.js",
-      "line": 520
+      "line": 523
     },
     {
       "name": "_shouldProcessInput",
       "description": "Check if input should be processed in current context",
       "file": "src\\engine\\InputManager.js",
-      "line": 529
+      "line": 532
     },
     {
       "name": "_isMenuAction",
       "description": "Check if action is a menu action",
       "file": "src\\engine\\InputManager.js",
-      "line": 545
+      "line": 548
     },
     {
       "name": "_isGameAction",
       "description": "Check if action is a game action",
       "file": "src\\engine\\InputManager.js",
-      "line": 553
+      "line": 556
     },
     {
       "name": "_isEditorAction",
       "description": "Check if action is an editor action",
       "file": "src\\engine\\InputManager.js",
-      "line": 564
+      "line": 567
     },
     {
       "name": "_isGameKey",
       "description": "Check if action corresponds to a game key",
       "file": "src\\engine\\InputManager.js",
-      "line": 574
+      "line": 577
     },
     {
       "name": "enablePointerLock",
       "description": "Public method to manually enable pointer lock (for UI use)",
       "file": "src\\engine\\InputManager.js",
-      "line": 581
+      "line": 584
     },
     {
       "name": "requestPointerLockManual",
       "description": "Manually request pointer lock (can be called by user interaction)",
       "file": "src\\engine\\InputManager.js",
-      "line": 590
+      "line": 593
     },
     {
       "name": "requestPointerLock",
       "description": "Safely request pointer lock (public method)",
       "file": "src\\engine\\InputManager.js",
-      "line": 613
+      "line": 616
     },
     {
       "name": "exitPointerLock",
       "description": "Safely exit pointer lock (public method)",
       "file": "src\\engine\\InputManager.js",
-      "line": 620
+      "line": 623
     },
     {
       "name": "isPointerLocked",
       "description": "Check if pointer lock is currently active",
       "file": "src\\engine\\InputManager.js",
-      "line": 627
+      "line": 630
     },
     {
       "name": "isPointerLockSupported",
       "description": "Check if pointer lock is supported",
       "file": "src\\engine\\InputManager.js",
-      "line": 634
+      "line": 637
     },
     {
       "name": "_requestPointerLock",
       "description": "Request pointer lock with debouncing",
       "file": "src\\engine\\InputManager.js",
-      "line": 641
+      "line": 644
     },
     {
       "name": "_exitPointerLock",
       "description": "Exit pointer lock",
       "file": "src\\engine\\InputManager.js",
-      "line": 681
+      "line": 684
     },
     {
       "name": "_handlePointerLockChange",
       "description": "Handle pointer lock change",
       "file": "src\\engine\\InputManager.js",
-      "line": 702
+      "line": 705
     },
     {
       "name": "isKeyPressed",
       "description": "Check if key is currently pressed @param {string} key - Key code @returns {boolean}",
       "file": "src\\engine\\InputManager.js",
-      "line": 730
+      "line": 733
     },
     {
       "name": "isActionActive",
       "description": "Check if action is currently active @param {string} action - Action name @returns {boolean}",
       "file": "src\\engine\\InputManager.js",
-      "line": 739
+      "line": 742
     },
     {
       "name": "getMouseState",
       "description": "Get mouse state @returns {Object} Mouse state",
       "file": "src\\engine\\InputManager.js",
-      "line": 758
+      "line": 761
     },
     {
       "name": "update",
       "description": "Update method - called each frame @param {number} deltaTime - Time since last frame",
       "file": "src\\engine\\InputManager.js",
-      "line": 766
+      "line": 769
     },
     {
       "name": "_doDispose",
       "description": "Cleanup resources",
       "file": "src\\engine\\InputManager.js",
-      "line": 776
+      "line": 779
     }
   ],
   "src\\engine\\MapManager.js": [
@@ -2148,139 +2148,139 @@
       "name": "connect",
       "description": "Connect to the server @param {string} playerName - Player name for connection @returns {Promise} Promise resolving when connected",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 114
+      "line": 123
     },
     {
       "name": "disconnect",
       "description": "Disconnect from the server",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 144
+      "line": 164
     },
     {
       "name": "emit",
       "description": "Emit an event to the server @param {string} event - Event name @param {*} data - Data to send @returns {Promise} Promise resolving when sent",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 155
+      "line": 175
     },
     {
       "name": "sendMessage",
       "description": "Legacy sendMessage method for compatibility @param {string} type - Message type @param {*} data - Message data @returns {Promise} Promise resolving when sent",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 172
+      "line": 192
     },
     {
       "name": "handleConnectionEstablished",
       "description": "Handle connection established @param {Object} data - Connection data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 180
+      "line": 200
     },
     {
       "name": "handleConnectionRejected",
       "description": "Handle connection rejected @param {Object} data - Rejection data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 197
+      "line": 220
     },
     {
       "name": "handleDisconnection",
       "description": "Handle disconnection @param {string} reason - Disconnection reason",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 209
+      "line": 232
     },
     {
       "name": "handleNetworkError",
       "description": "Handle network error @param {Error|Object} error - Error object or data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 226
+      "line": 249
     },
     {
       "name": "handleGameState",
       "description": "Handle game state updates @param {Object} data - Game state data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 238
+      "line": 261
     },
     {
       "name": "handleWorldUpdate",
       "description": "Handle world updates @param {Object} data - World update data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 248
+      "line": 271
     },
     {
       "name": "handlePlayerShot",
       "description": "Handle player shot events @param {Object} data - Shot event data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 258
+      "line": 281
     },
     {
       "name": "handlePlayerHit",
       "description": "Handle player hit events @param {Object} data - Hit event data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 268
+      "line": 291
     },
     {
       "name": "handlePlayerDeath",
       "description": "Handle player death events @param {Object} data - Death event data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 278
+      "line": 301
     },
     {
       "name": "handleWeaponPickup",
       "description": "Handle weapon pickup events @param {Object} data - Pickup event data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 288
+      "line": 311
     },
     {
       "name": "handlePing",
       "description": "Handle ping requests @param {Object} data - Ping data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 298
+      "line": 321
     },
     {
       "name": "setLocalPlayer",
       "description": "Set local player reference @param {Object} player - Local player object",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 312
+      "line": 335
     },
     {
       "name": "getRemotePlayers",
       "description": "Get all remote players @returns {Array} Array of remote players",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 320
+      "line": 343
     },
     {
       "name": "getPlayerState",
       "description": "Get player state by ID @param {string} playerId - Player ID @returns {Object|null} Player state or null",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 329
+      "line": 352
     },
     {
       "name": "updateLocalPlayerState",
       "description": "Update local player state @param {Object} playerState - Current player state",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 337
+      "line": 360
     },
     {
       "name": "broadcastGameEvent",
       "description": "Broadcast game event @param {string} eventType - Event type @param {Object} eventData - Event data",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 346
+      "line": 369
     },
     {
       "name": "getNetworkStats",
       "description": "Get network statistics @returns {Object} Network statistics",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 361
+      "line": 384
     },
     {
       "name": "_doUpdate",
       "description": "Update method called from game loop @param {number} deltaTime - Time since last update",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 378
+      "line": 401
     },
     {
       "name": "_doDispose",
       "description": "Dispose of the network manager",
       "file": "src\\engine\\NetworkManager.js",
-      "line": 393
+      "line": 416
     }
   ],
   "src\\engine\\ProjectileManager.js": [
@@ -2288,79 +2288,157 @@
       "name": "constructor",
       "description": "No description available",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 12
+      "line": 9
     },
     {
       "name": "initialize",
       "description": "Initialize the projectile manager",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 36
+      "line": 53
+    },
+    {
+      "name": "initializeGlowLayer",
+      "description": "Initialize glow layer for enhanced projectile visibility",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 70
     },
     {
       "name": "fireProjectile",
-      "description": "Fire a projectile from a position in a direction",
+      "description": "Fire a new projectile",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 53
+      "line": 89
+    },
+    {
+      "name": "validateProjectileData",
+      "description": "Validate projectile data",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 145
+    },
+    {
+      "name": "generateProjectileId",
+      "description": "Generate unique projectile ID",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 157
     },
     {
       "name": "update",
       "description": "Update all active projectiles",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 86
-    },
-    {
-      "name": "checkProjectileCollisions",
-      "description": "Check collisions for a specific projectile",
-      "file": "src\\engine\\ProjectileManager.js",
-      "line": 111
-    },
-    {
-      "name": "isValidTarget",
-      "description": "Check if a mesh is a valid target for the projectile",
-      "file": "src\\engine\\ProjectileManager.js",
-      "line": 143
-    },
-    {
-      "name": "processHit",
-      "description": "Process hit effects and damage",
-      "file": "src\\engine\\ProjectileManager.js",
-      "line": 167
-    },
-    {
-      "name": "handlePlayerHit",
-      "description": "Handle hits on players",
-      "file": "src\\engine\\ProjectileManager.js",
-      "line": 190
+      "line": 165
     },
     {
       "name": "removeProjectile",
-      "description": "Remove a projectile by ID",
+      "description": "Remove a projectile from active list",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 211
+      "line": 186
     },
     {
-      "name": "clearAllProjectiles",
-      "description": "Clear all projectiles",
+      "name": "performPeriodicCleanup",
+      "description": "Perform periodic cleanup of old projectiles",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 223
+      "line": 213
+    },
+    {
+      "name": "updateHitRate",
+      "description": "Update hit rate calculation",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 243
     },
     {
       "name": "getStats",
-      "description": "Get projectile statistics",
+      "description": "Get current statistics",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 234
+      "line": 252
+    },
+    {
+      "name": "getActiveProjectiles",
+      "description": "Get list of active projectiles",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 264
     },
     {
       "name": "configure",
       "description": "Configure projectile manager settings",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 247
+      "line": 275
+    },
+    {
+      "name": "testProjectile",
+      "description": "Test function to create a visible projectile",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 286
+    },
+    {
+      "name": "setupNetworkHandlers",
+      "description": "Setup network event handlers",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 312
+    },
+    {
+      "name": "sendProjectileToServer",
+      "description": "Send projectile to server",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 339
+    },
+    {
+      "name": "handleServerProjectileHit",
+      "description": "Handle projectile hit from server",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 366
+    },
+    {
+      "name": "handleServerProjectileCreated",
+      "description": "Handle projectile creation from server (other players)",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 378
+    },
+    {
+      "name": "flushPendingProjectiles",
+      "description": "Flush pending projectiles when coming online",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 398
+    },
+    {
+      "name": "processNetworkQueue",
+      "description": "Process network queue",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 408
+    },
+    {
+      "name": "setupCleanupTimer",
+      "description": "Setup cleanup timer",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 440
+    },
+    {
+      "name": "clearAllProjectiles",
+      "description": "Clear all projectiles (for level reset, etc.)",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 448
+    },
+    {
+      "name": "getProjectile",
+      "description": "Get projectile by ID",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 466
+    },
+    {
+      "name": "hasProjectile",
+      "description": "Check if projectile exists",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 473
+    },
+    {
+      "name": "getPerformanceMetrics",
+      "description": "Get performance metrics",
+      "file": "src\\engine\\ProjectileManager.js",
+      "line": 480
     },
     {
       "name": "dispose",
-      "description": "Dispose of the projectile manager and clean up resources",
+      "description": "Clean up resources",
       "file": "src\\engine\\ProjectileManager.js",
-      "line": 254
+      "line": 495
     }
   ],
   "src\\engine\\StateManager.js": [
@@ -2448,199 +2526,223 @@
       "name": "constructor",
       "description": "No description available",
       "file": "src\\engine\\UIManager.js",
-      "line": 10
+      "line": 12
     },
     {
       "name": "_initializeGUI",
       "description": "Initialize Babylon.js GUI system",
       "file": "src\\engine\\UIManager.js",
-      "line": 39
+      "line": 44
     },
     {
       "name": "showLoadingScreen",
       "description": "Show loading screen with progress",
       "file": "src\\engine\\UIManager.js",
-      "line": 49
+      "line": 54
     },
     {
       "name": "updateLoadingProgress",
       "description": "Update loading progress @param {number} progress - Progress percentage (0-100) @param {string} text - Loading text",
       "file": "src\\engine\\UIManager.js",
-      "line": 128
+      "line": 133
     },
     {
       "name": "hideLoadingScreen",
       "description": "Hide loading screen",
       "file": "src\\engine\\UIManager.js",
-      "line": 156
+      "line": 161
     },
     {
       "name": "showMainMenu",
       "description": "Show main menu with LoadingImage.png background",
       "file": "src\\engine\\UIManager.js",
-      "line": 166
+      "line": 171
     },
     {
       "name": "hideMainMenu",
       "description": "Hide main menu",
       "file": "src\\engine\\UIManager.js",
-      "line": 260
+      "line": 267
     },
     {
       "name": "showSettingsOverlay",
       "description": "Show settings overlay (ESC menu) - using right panel design",
       "file": "src\\engine\\UIManager.js",
-      "line": 270
+      "line": 277
     },
     {
       "name": "hideSettingsOverlay",
       "description": "Hide settings overlay",
       "file": "src\\engine\\UIManager.js",
-      "line": 375
+      "line": 353
     },
     {
       "name": "showLeaderboard",
       "description": "Show leaderboard (TAB menu) - using right panel design",
       "file": "src\\engine\\UIManager.js",
-      "line": 386
+      "line": 364
     },
     {
       "name": "hideLeaderboard",
       "description": "Hide leaderboard",
       "file": "src\\engine\\UIManager.js",
-      "line": 488
+      "line": 466
     },
     {
       "name": "showGameHUD",
       "description": "Show game HUD",
       "file": "src\\engine\\UIManager.js",
-      "line": 498
+      "line": 476
     },
     {
       "name": "hideGameHUD",
       "description": "Hide game HUD",
       "file": "src\\engine\\UIManager.js",
-      "line": 554
+      "line": 532
     },
     {
       "name": "showMapEditor",
       "description": "Show map editor UI",
       "file": "src\\engine\\UIManager.js",
-      "line": 564
+      "line": 542
     },
     {
       "name": "hideMapEditor",
       "description": "Hide map editor UI",
       "file": "src\\engine\\UIManager.js",
-      "line": 671
+      "line": 649
     },
     {
       "name": "updateHUD",
       "description": "Update HUD elements @param {Object} gameState - Current game state",
       "file": "src\\engine\\UIManager.js",
-      "line": 682
+      "line": 660
     },
     {
       "name": "showFlowstateMessage",
       "description": "Show flowstate message (kill-streak notification) @param {string} message - Message to display @param {number} duration - Duration in milliseconds",
       "file": "src\\engine\\UIManager.js",
-      "line": 703
+      "line": 681
     },
     {
       "name": "_createCleanMenuButton",
       "description": "Create a clean menu button for the right panel @param {string} text - Button text @param {Function} onClick - Click handler @returns {BABYLON.GUI.Button} Button control",
       "file": "src\\engine\\UIManager.js",
-      "line": 728
+      "line": 706
     },
     {
       "name": "_createMenuButton",
       "description": "Create a menu button (legacy method for settings) @param {string} text - Button text @param {Function} onClick - Click handler @returns {BABYLON.GUI.Button} Button control",
       "file": "src\\engine\\UIManager.js",
-      "line": 765
+      "line": 743
     },
     {
       "name": "_createCleanSettingsSection",
       "description": "Create clean settings section header @param {BABYLON.GUI.Container} container - Parent container @param {string} title - Section title",
       "file": "src\\engine\\UIManager.js",
-      "line": 796
-    },
-    {
-      "name": "_createWeaponSelector",
-      "description": "Create weapon selector dropdown @param {BABYLON.GUI.Container} container - Parent container",
-      "file": "src\\engine\\UIManager.js",
-      "line": 813
+      "line": 774
     },
     {
       "name": "_createCleanSliderSetting",
       "description": "Create clean slider setting @param {BABYLON.GUI.Container} container - Parent container @param {string} label - Setting label @param {number} defaultValue - Default value @param {Function} onChange - Change handler @param {number} min - Minimum value @param {number} max - Maximum value",
       "file": "src\\engine\\UIManager.js",
-      "line": 963
+      "line": 796
     },
     {
       "name": "_createSettingsSection",
       "description": "Create settings section header (legacy) @param {BABYLON.GUI.Container} container - Parent container @param {string} title - Section title",
       "file": "src\\engine\\UIManager.js",
-      "line": 1018
+      "line": 851
     },
     {
       "name": "_createSliderSetting",
       "description": "Create slider setting @param {BABYLON.GUI.Container} container - Parent container @param {string} label - Setting label @param {number} defaultValue - Default value @param {Function} onChange - Change handler @param {number} min - Minimum value @param {number} max - Maximum value",
       "file": "src\\engine\\UIManager.js",
-      "line": 1039
+      "line": 872
     },
     {
       "name": "_createCleanSettingsSection",
       "description": "Create clean settings section header with theme colors @param {BABYLON.GUI.Container} container - Parent container @param {string} title - Section title",
       "file": "src\\engine\\UIManager.js",
-      "line": 1073
+      "line": 906
     },
     {
       "name": "_createCleanSliderSetting",
       "description": "Create clean slider setting with theme colors @param {BABYLON.GUI.Container} container - Parent container @param {string} label - Setting label @param {number} defaultValue - Default value @param {Function} onChange - Change handler @param {number} min - Minimum value @param {number} max - Maximum value",
       "file": "src\\engine\\UIManager.js",
-      "line": 1094
+      "line": 927
     },
     {
       "name": "updateLeaderboardData",
       "description": "Update leaderboard with new data (for real-time updates) @param {Array} playerData - Array of player data objects",
       "file": "src\\engine\\UIManager.js",
-      "line": 1127
+      "line": 960
     },
     {
       "name": "_getLeaderboardData",
       "description": "Get leaderboard data with comprehensive player statistics @returns {Array} Array of player data objects",
       "file": "src\\engine\\UIManager.js",
-      "line": 1140
+      "line": 973
     },
     {
       "name": "_createLeaderboardEntry",
       "description": "Create enhanced leaderboard entry with kill/death statistics @param {BABYLON.GUI.Container} container - Parent container @param {Object} player - Player data @param {boolean} isFirst - Whether this is first place",
       "file": "src\\engine\\UIManager.js",
-      "line": 1244
+      "line": 1077
     },
     {
       "name": "onStateChange",
       "description": "Handle game state changes to control cursor visibility @param {string} newState - The new game state",
       "file": "src\\engine\\UIManager.js",
-      "line": 1322
+      "line": 1155
     },
     {
       "name": "onResize",
       "description": "Handle window resize",
       "file": "src\\engine\\UIManager.js",
-      "line": 1340
+      "line": 1173
     },
     {
       "name": "showError",
       "description": "Show error message to user @param {string} message - Error message to display",
       "file": "src\\engine\\UIManager.js",
-      "line": 1388
+      "line": 1221
     },
     {
       "name": "_doDispose",
       "description": "Cleanup resources",
       "file": "src\\engine\\UIManager.js",
-      "line": 1397
+      "line": 1230
+    },
+    {
+      "name": "_addSectionTitle",
+      "description": "Add a section title inside the settings panel @param {BABYLON.GUI.Container} container @param {string} title",
+      "file": "src\\engine\\UIManager.js",
+      "line": 1251
+    },
+    {
+      "name": "_addSliderSetting",
+      "description": "Add an interactive slider setting row @param {BABYLON.GUI.Container} container @param {string} label @param {number} defaultValue @param {Function} onChange @param {number} min @param {number} max",
+      "file": "src\\engine\\UIManager.js",
+      "line": 1273
+    },
+    {
+      "name": "_createDropdownSetting",
+      "description": "Generic dropdown setting builder @param {BABYLON.GUI.Container} container @param {string} label @param {Array<{label: string, value: any}>} options @param {number} defaultIndex @param {Function} onSelect  (selectedOption) => void",
+      "file": "src\\engine\\UIManager.js",
+      "line": 1328
+    },
+    {
+      "name": "_createWeaponSelector",
+      "description": "Build weapon selector dropdown (primary weapons only) @param {BABYLON.GUI.Container} container",
+      "file": "src\\engine\\UIManager.js",
+      "line": 1479
+    },
+    {
+      "name": "_populateSettingsContent",
+      "description": "Build the revamped settings content @param {BABYLON.GUI.Container} container",
+      "file": "src\\engine\\UIManager.js",
+      "line": 1527
     }
   ],
   "src\\engine\\network\\NetworkConnection.js": [
@@ -2850,109 +2952,109 @@
       "name": "handleNewPlayerConnected",
       "description": "Handle new player connected event @param {Object} playerData - New player data",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 65
+      "line": 70
     },
     {
       "name": "handlePlayerDisconnected",
       "description": "Handle player disconnected event @param {string} playerId - ID of disconnected player",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 80
+      "line": 87
     },
     {
       "name": "handlePlayerMoved",
       "description": "Handle player movement event @param {Object} data - Movement data",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 101
+      "line": 108
     },
     {
       "name": "handlePlayerKilled",
       "description": "Handle player killed event @param {Object} data - Kill event data",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 115
+      "line": 122
     },
     {
       "name": "handlePlayerRespawned",
       "description": "Handle player respawned event @param {Object} data - Respawn event data",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 141
+      "line": 148
     },
     {
       "name": "handlePlayerDamaged",
       "description": "Handle player damaged event @param {Object} data - Damage event data",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 164
+      "line": 171
     },
     {
       "name": "handlePlayerHealthUpdated",
       "description": "Handle player health updated event @param {Object} data - Health update data",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 176
+      "line": 183
     },
     {
       "name": "handlePlayerUsernameUpdated",
       "description": "Handle player username updated event @param {Object} data - Username update data",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 187
+      "line": 194
     },
     {
       "name": "createRemotePlayer",
       "description": "Create a remote player @param {Object} playerData - Player data @returns {RemotePlayer} Created remote player",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 199
+      "line": 206
     },
     {
       "name": "updateLocalPlayerState",
       "description": "Update local player state to server @param {Object} playerState - Current player state",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 216
+      "line": 240
     },
     {
       "name": "handlePlayerState",
       "description": "Handle player state update @param {Object} data - Player state data",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 244
+      "line": 268
     },
     {
       "name": "getInterpolatedPlayerState",
       "description": "Get interpolated player state @param {string} playerId - Player ID @returns {Object|null} Interpolated player state or null",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 262
+      "line": 286
     },
     {
       "name": "getRemotePlayers",
       "description": "Get all remote players @returns {Array<RemotePlayer>} Array of remote players",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 287
+      "line": 311
     },
     {
       "name": "getPlayerState",
       "description": "Get player state by ID @param {string} playerId - Player ID @returns {Object|null} Player state or null",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 296
+      "line": 320
     },
     {
       "name": "setTickRate",
       "description": "Set state update interval @param {number} tickRate - Updates per second",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 304
+      "line": 328
     },
     {
       "name": "setInterpolationDelay",
       "description": "Set interpolation delay @param {number} delay - Delay in milliseconds",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 312
+      "line": 336
     },
     {
       "name": "update",
       "description": "Update method called from game loop @param {number} deltaTime - Time since last update",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 320
+      "line": 344
     },
     {
       "name": "dispose",
       "description": "Dispose of the player manager",
       "file": "src\\engine\\network\\NetworkPlayerManager.js",
-      "line": 333
+      "line": 372
     }
   ],
   "src\\engine\\network\\NetworkStats.js": [
@@ -3100,145 +3202,151 @@
       "name": "loadDefaultWeapons",
       "description": "Load default weapons",
       "file": "src\\entities\\Player.js",
-      "line": 173
+      "line": 175
     },
     {
       "name": "equipWeapon",
       "description": "Equip weapon by slot name",
       "file": "src\\entities\\Player.js",
-      "line": 221
+      "line": 223
     },
     {
       "name": "switchWeapon",
       "description": "Switch to next weapon",
       "file": "src\\entities\\Player.js",
-      "line": 249
+      "line": 256
+    },
+    {
+      "name": "setWeapon",
+      "description": "Set weapon type for primary slot (called from settings menu)",
+      "file": "src\\entities\\Player.js",
+      "line": 267
     },
     {
       "name": "setMovementInput",
       "description": "Set movement input state",
       "file": "src\\entities\\Player.js",
-      "line": 260
+      "line": 296
     },
     {
       "name": "handleMouseLook",
       "description": "Handle mouse look for FPS camera",
       "file": "src\\entities\\Player.js",
-      "line": 269
+      "line": 305
     },
     {
       "name": "jump",
       "description": "Jump",
       "file": "src\\entities\\Player.js",
-      "line": 290
+      "line": 326
     },
     {
       "name": "setCrouch",
       "description": "Set crouch state",
       "file": "src\\entities\\Player.js",
-      "line": 300
+      "line": 336
     },
     {
       "name": "setSprint",
       "description": "Set sprint state",
       "file": "src\\entities\\Player.js",
-      "line": 314
+      "line": 350
     },
     {
       "name": "setAiming",
       "description": "Set aiming state",
       "file": "src\\entities\\Player.js",
-      "line": 321
+      "line": 357
     },
     {
       "name": "startFiring",
       "description": "Start firing current weapon",
       "file": "src\\entities\\Player.js",
-      "line": 333
+      "line": 369
     },
     {
       "name": "stopFiring",
       "description": "Stop firing current weapon",
       "file": "src\\entities\\Player.js",
-      "line": 343
+      "line": 379
     },
     {
       "name": "fireWeapon",
       "description": "Fire current weapon",
       "file": "src\\entities\\Player.js",
-      "line": 350
+      "line": 386
     },
     {
       "name": "reload",
       "description": "Reload current weapon",
       "file": "src\\entities\\Player.js",
-      "line": 373
+      "line": 412
     },
     {
       "name": "update",
       "description": "Update player (called each frame)",
       "file": "src\\entities\\Player.js",
-      "line": 382
+      "line": 421
     },
     {
       "name": "updateMovement",
       "description": "Update player movement with smooth physics",
       "file": "src\\entities\\Player.js",
-      "line": 400
+      "line": 439
     },
     {
       "name": "updateGroundCheck",
       "description": "Update ground check",
       "file": "src\\entities\\Player.js",
-      "line": 458
+      "line": 497
     },
     {
       "name": "getPosition",
       "description": "Get player position",
       "file": "src\\entities\\Player.js",
-      "line": 476
+      "line": 515
     },
     {
       "name": "getDirection",
       "description": "Get camera direction",
       "file": "src\\entities\\Player.js",
-      "line": 483
+      "line": 522
     },
     {
       "name": "getCurrentWeapon",
       "description": "Get current weapon",
       "file": "src\\entities\\Player.js",
-      "line": 491
+      "line": 530
     },
     {
       "name": "takeDamage",
       "description": "Take damage",
       "file": "src\\entities\\Player.js",
-      "line": 498
+      "line": 537
     },
     {
       "name": "heal",
       "description": "Heal player",
       "file": "src\\entities\\Player.js",
-      "line": 516
+      "line": 555
     },
     {
       "name": "onDeath",
       "description": "Handle player death",
       "file": "src\\entities\\Player.js",
-      "line": 524
+      "line": 563
     },
     {
       "name": "respawn",
       "description": "Respawn player",
       "file": "src\\entities\\Player.js",
-      "line": 539
+      "line": 578
     },
     {
       "name": "dispose",
       "description": "Dispose of player resources",
       "file": "src\\entities\\Player.js",
-      "line": 561
+      "line": 600
     }
   ],
   "src\\entities\\Projectile.js": [
@@ -3246,43 +3354,79 @@
       "name": "constructor",
       "description": "No description available",
       "file": "src\\entities\\Projectile.js",
-      "line": 12
+      "line": 9
+    },
+    {
+      "name": "generateId",
+      "description": "Generate unique projectile ID",
+      "file": "src\\entities\\Projectile.js",
+      "line": 74
     },
     {
       "name": "createVisuals",
-      "description": "Create the visual representation of the projectile",
+      "description": "Create visual representation of the projectile",
       "file": "src\\entities\\Projectile.js",
-      "line": 50
+      "line": 81
+    },
+    {
+      "name": "createTrail",
+      "description": "Create particle trail effect",
+      "file": "src\\entities\\Projectile.js",
+      "line": 138
     },
     {
       "name": "update",
       "description": "Update projectile position and check for collisions",
       "file": "src\\entities\\Projectile.js",
-      "line": 100
+      "line": 179
     },
     {
-      "name": "getRay",
-      "description": "Get the projectile's current ray for collision detection",
+      "name": "checkCollision",
+      "description": "Check for collisions using raycast",
       "file": "src\\entities\\Projectile.js",
-      "line": 139
+      "line": 212
     },
     {
-      "name": "onHit",
-      "description": "Handle collision with a target",
+      "name": "processHit",
+      "description": "Process collision hit",
       "file": "src\\entities\\Projectile.js",
-      "line": 147
+      "line": 232
     },
     {
-      "name": "destroy",
-      "description": "Destroy the projectile and clean up resources",
+      "name": "createHitEffects",
+      "description": "Create visual effects at hit location",
       "file": "src\\entities\\Projectile.js",
-      "line": 168
+      "line": 257
     },
     {
-      "name": "getNetworkData",
-      "description": "Get projectile info for networking",
+      "name": "createBloodSplatter",
+      "description": "Create blood splatter effect",
       "file": "src\\entities\\Projectile.js",
-      "line": 191
+      "line": 294
+    },
+    {
+      "name": "applyDamage",
+      "description": "Apply damage to hit target",
+      "file": "src\\entities\\Projectile.js",
+      "line": 323
+    },
+    {
+      "name": "checkLimits",
+      "description": "Check lifetime and distance limits",
+      "file": "src\\entities\\Projectile.js",
+      "line": 347
+    },
+    {
+      "name": "getStats",
+      "description": "Get projectile statistics",
+      "file": "src\\entities\\Projectile.js",
+      "line": 368
+    },
+    {
+      "name": "dispose",
+      "description": "Clean up resources",
+      "file": "src\\entities\\Projectile.js",
+      "line": 385
     }
   ],
   "src\\entities\\RemotePlayer.js": [
@@ -3302,103 +3446,103 @@
       "name": "createPlayerMesh",
       "description": "Create the visual mesh for the remote player",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 83
+      "line": 92
     },
     {
       "name": "createNameTag",
       "description": "Create name tag above the player",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 110
+      "line": 119
     },
     {
       "name": "createHealthBar",
       "description": "Create health bar above the player",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 145
+      "line": 154
     },
     {
       "name": "getHealthColor",
       "description": "Get health bar color based on health percentage",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 183
+      "line": 192
     },
     {
       "name": "update",
       "description": "Update remote player each frame",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 198
+      "line": 207
     },
     {
       "name": "interpolatePosition",
       "description": "Smoothly interpolate to target position",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 214
+      "line": 223
     },
     {
       "name": "updateUI",
       "description": "Update UI elements (name tag, health bar) position",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 249
+      "line": 258
     },
     {
       "name": "updateAnimations",
       "description": "Update animations based on state",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 291
+      "line": 300
     },
     {
       "name": "updateFromNetworkData",
       "description": "Update player state from network data",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 325
+      "line": 334
     },
     {
       "name": "setHealth",
       "description": "Set player health and update health bar",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 366
+      "line": 375
     },
     {
       "name": "setAlive",
       "description": "Set player alive state",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 382
+      "line": 391
     },
     {
       "name": "setUsername",
       "description": "Set player username and update name tag",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 402
+      "line": 411
     },
     {
       "name": "triggerShoot",
       "description": "Trigger shooting animation",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 416
+      "line": 425
     },
     {
       "name": "getPosition",
       "description": "Get player position",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 424
+      "line": 433
     },
     {
       "name": "getMesh",
       "description": "Get player mesh",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 431
+      "line": 440
     },
     {
       "name": "isPlayerAlive",
       "description": "Check if player is alive",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 438
+      "line": 447
     },
     {
       "name": "dispose",
       "description": "Dispose of remote player resources",
       "file": "src\\entities\\RemotePlayer.js",
-      "line": 445
+      "line": 454
     }
   ],
   "src\\entities\\weapons\\AccuracySystem.js": [
@@ -3790,211 +3934,217 @@
       "name": "fireShotgun",
       "description": "Fire shotgun pellets",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 197
+      "line": 199
     },
     {
       "name": "performMeleeAttack",
       "description": "Perform melee attack (knife)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 225
+      "line": 227
     },
     {
       "name": "processMeleeHit",
       "description": "Process melee hit",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 262
+      "line": 264
     },
     {
       "name": "calculateShotgunSpread",
       "description": "Calculate shotgun pellet spread",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 300
+      "line": 302
     },
     {
       "name": "playFiringAnimation",
       "description": "Play firing animation (manual animation for firing/swapping)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 327
+      "line": 329
     },
     {
       "name": "playSwapAnimation",
       "description": "Play weapon swap animation (manual animation)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 364
+      "line": 366
     },
     {
       "name": "createProjectileData",
       "description": "Create projectile data (can be overridden by subclasses)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 398
+      "line": 400
     },
     {
       "name": "createMuzzleFlash",
       "description": "Create muzzle flash effect using configuration",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 418
+      "line": 420
     },
     {
       "name": "playFireSound",
       "description": "Play weapon fire sound",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 455
+      "line": 464
     },
     {
       "name": "canFireWeapon",
       "description": "Check if weapon can fire",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 466
+      "line": 475
     },
     {
       "name": "reload",
       "description": "Start reloading the weapon",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 478
+      "line": 487
     },
     {
       "name": "finishReload",
       "description": "Finish reloading the weapon",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 521
+      "line": 530
     },
     {
       "name": "playReloadSound",
       "description": "Play reload sound",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 553
+      "line": 562
     },
     {
       "name": "update",
       "description": "Update weapon logic each frame",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 564
+      "line": 573
     },
     {
       "name": "loadModel",
       "description": "Load weapon model and animations using AssetManager",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 585
+      "line": 594
+    },
+    {
+      "name": "applyModelConfiguration",
+      "description": "Apply model configuration settings (scaling, position, rotation, handedness)",
+      "file": "src\\entities\\weapons\\WeaponBase.js",
+      "line": 713
     },
     {
       "name": "playReloadAnimation",
       "description": "Play reload animation",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 670
+      "line": 763
     },
     {
       "name": "pauseAtIdle",
       "description": "Pause animation at idle (beginning of sequence)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 717
+      "line": 810
     },
     {
       "name": "applyRecoil",
       "description": "Apply visual recoil effects to weapon model",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 738
+      "line": 831
     },
     {
       "name": "createRecoilPattern",
       "description": "Create weapon-specific recoil pattern",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 772
+      "line": 865
     },
     {
       "name": "updateAnimations",
       "description": "Update animations",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 784
+      "line": 877
     },
     {
       "name": "getCurrentAmmo",
       "description": "Get current ammunition count (delegated to AmmoRegistry)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 792
+      "line": 885
     },
     {
       "name": "getMaxAmmo",
       "description": "Get maximum ammunition capacity (delegated to AmmoRegistry)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 803
+      "line": 896
     },
     {
       "name": "isCurrentlyReloading",
       "description": "Check if weapon is currently reloading",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 814
+      "line": 907
     },
     {
       "name": "getWeaponInfo",
       "description": "Get weapon information for UI",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 821
+      "line": 914
     },
     {
       "name": "setVisible",
       "description": "Show/hide weapon model",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 839
+      "line": 932
     },
     {
       "name": "setAiming",
       "description": "Set aiming state for weapon",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 848
+      "line": 941
     },
     {
       "name": "consumeAmmo",
       "description": "Consume ammunition (delegated to AmmoRegistry)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 869
+      "line": 962
     },
     {
       "name": "setFiringCooldown",
       "description": "Set firing cooldown",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 917
+      "line": 1010
     },
     {
       "name": "updateMovementPenalty",
       "description": "Update movement penalty for accuracy system",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 925
+      "line": 1018
     },
     {
       "name": "addRecoilToAccuracy",
       "description": "Add recoil to accuracy system when firing",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 934
+      "line": 1027
     },
     {
       "name": "getCurrentAccuracy",
       "description": "Get current effective accuracy",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 943
+      "line": 1036
     },
     {
       "name": "applyAccuracyToDirection",
       "description": "Apply accuracy and recoil to shot direction",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 953
+      "line": 1046
     },
     {
       "name": "getAccuracyState",
       "description": "Get accuracy system state for debugging",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 996
+      "line": 1089
     },
     {
       "name": "resetAccuracy",
       "description": "Reset accuracy system (useful for weapon switching)",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 1006
+      "line": 1099
     },
     {
       "name": "dispose",
       "description": "Dispose of weapon resources",
       "file": "src\\entities\\weapons\\WeaponBase.js",
-      "line": 1015
+      "line": 1108
     }
   ],
   "src\\hud\\PerformanceMonitor.js": [

@@ -193,7 +193,9 @@ export class Game {
         await this.uiManager.initialize();
 
         this.networkManager = new NetworkManager(this);
+        console.log('DEBUG: NetworkManager created');
         await this.networkManager.initialize();
+        console.log('DEBUG: NetworkManager initialized');
 
         this.mapManager = new MapManager(this);
         await this.mapManager.initialize();
@@ -528,11 +530,25 @@ export class Game {
      * Start multiplayer mode
      */
     async startMultiplayer() {
-        console.log('Starting multiplayer mode...');
+        console.log('DEBUG: Starting multiplayer mode...');
 
         try {
             // Start the game loop first
             this.start();
+            
+            // Connect to multiplayer server
+            console.log('DEBUG: Connecting to multiplayer server...');
+            if (this.networkManager) {
+                try {
+                    await this.networkManager.connect('Player');
+                    console.log('DEBUG: Successfully connected to multiplayer server');
+                } catch (error) {
+                    console.error('DEBUG: Failed to connect to multiplayer server:', error);
+                    // Continue anyway for offline testing
+                }
+            } else {
+                console.error('DEBUG: NetworkManager not available');
+            }
             
             // Transition to main menu state
             // Player will be initialized when transitioning to IN_GAME state
@@ -540,7 +556,7 @@ export class Game {
                 await this.stateManager.transitionTo('MAIN_MENU');
             }
 
-            console.log('Multiplayer mode started');
+            console.log('DEBUG: Multiplayer mode started');
 
         } catch (error) {
             console.error('Failed to start multiplayer mode:', error);

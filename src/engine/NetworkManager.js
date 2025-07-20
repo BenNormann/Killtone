@@ -81,9 +81,18 @@ export class NetworkManager extends BaseManager {
         this.messageHandler.registerHandler('connectionRejected', (data) => this.handleConnectionRejected(data));
         
         // Player handlers
-        this.messageHandler.registerHandler('playerJoined', (data) => this.playerManager.handlePlayerJoined(data));
-        this.messageHandler.registerHandler('playerConnected', (data) => this.playerManager.handleNewPlayerConnected(data));
-        this.messageHandler.registerHandler('playerDisconnected', (playerId) => this.playerManager.handlePlayerDisconnected(playerId));
+        this.messageHandler.registerHandler('playerJoined', (data) => {
+            console.log('DEBUG: NetworkManager received playerJoined event:', data);
+            this.playerManager.handlePlayerJoined(data);
+        });
+        this.messageHandler.registerHandler('playerConnected', (data) => {
+            console.log('DEBUG: NetworkManager received playerConnected event:', data);
+            this.playerManager.handleNewPlayerConnected(data);
+        });
+        this.messageHandler.registerHandler('playerDisconnected', (playerId) => {
+            console.log('DEBUG: NetworkManager received playerDisconnected event:', playerId);
+            this.playerManager.handlePlayerDisconnected(playerId);
+        });
         this.messageHandler.registerHandler('playerMoved', (data) => this.playerManager.handlePlayerMoved(data));
         this.messageHandler.registerHandler('playerKilled', (data) => this.playerManager.handlePlayerKilled(data));
         this.messageHandler.registerHandler('playerRespawned', (data) => this.playerManager.handlePlayerRespawned(data));
@@ -116,10 +125,21 @@ export class NetworkManager extends BaseManager {
             const connectionData = await this.connection.connect(playerName);
             
             // Set up Socket.IO event handlers for message processing
-            this.connection.on('playerJoined', (data) => this.messageHandler.processMessage({ type: 'playerJoined', data }));
-            this.connection.on('playerConnected', (data) => this.messageHandler.processMessage({ type: 'playerConnected', data }));
-            this.connection.on('playerDisconnected', (playerId) => this.messageHandler.processMessage({ type: 'playerDisconnected', data: playerId }));
-            this.connection.on('playerMoved', (data) => this.messageHandler.processMessage({ type: 'playerMoved', data }));
+            this.connection.on('playerJoined', (data) => {
+                console.log('DEBUG: NetworkManager received playerJoined socket event:', data);
+                this.messageHandler.processMessage({ type: 'playerJoined', data });
+            });
+            this.connection.on('playerConnected', (data) => {
+                console.log('DEBUG: NetworkManager received playerConnected socket event:', data);
+                this.messageHandler.processMessage({ type: 'playerConnected', data });
+            });
+            this.connection.on('playerDisconnected', (playerId) => {
+                console.log('DEBUG: NetworkManager received playerDisconnected socket event:', playerId);
+                this.messageHandler.processMessage({ type: 'playerDisconnected', data: playerId });
+            });
+            this.connection.on('playerMoved', (data) => {
+                this.messageHandler.processMessage({ type: 'playerMoved', data });
+            });
             this.connection.on('playerShot', (data) => this.messageHandler.processMessage({ type: 'playerShot', data }));
             this.connection.on('playerKilled', (data) => this.messageHandler.processMessage({ type: 'playerKilled', data }));
             this.connection.on('playerRespawned', (data) => this.messageHandler.processMessage({ type: 'playerRespawned', data }));
@@ -178,12 +198,15 @@ export class NetworkManager extends BaseManager {
      * @param {Object} data - Connection data
      */
     handleConnectionEstablished(data) {
-        console.log('Connection established:', data);
+        console.log('DEBUG: Connection established:', data);
+        console.log('DEBUG: Setting playerId to:', data.playerId);
         
         this.isConnected = true;
         this.playerId = data.playerId;
         this.sessionId = data.sessionId;
         this.isHost = data.isHost || false;
+        
+        console.log('DEBUG: NetworkManager connection state - isConnected:', this.isConnected, 'playerId:', this.playerId);
         
         if (this.onConnected) {
             this.onConnected(data);

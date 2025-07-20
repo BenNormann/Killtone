@@ -37,19 +37,24 @@ export class NetworkPlayerManager {
      * Handle player joined event
      * @param {Object} data - Player join data
      */
-    handlePlayerJoined(data) {
-        console.log(`Player ${data.player.username} joined the game`);
+    async handlePlayerJoined(data) {
+        console.log(`DEBUG: Player ${data.player?.username || 'Unknown'} joined the game`);
+        console.log(`DEBUG: Player join data:`, data);
         
         // Initialize local player data if this is our join event
         if (data.playerId === this.game.networkManager?.playerId) {
-            console.log('This is our player join event');
+            console.log('DEBUG: This is our player join event');
             // Create all existing players as remote players
             if (data.allPlayers) {
-                data.allPlayers.forEach(playerData => {
+                console.log(`DEBUG: Creating ${data.allPlayers.length} existing players as remote players`);
+                for (const playerData of data.allPlayers) {
                     if (playerData.id !== this.game.networkManager?.playerId) {
-                        this.createRemotePlayer(playerData);
+                        console.log(`DEBUG: Creating existing player: ${playerData.username} (${playerData.id})`);
+                        await this.createRemotePlayer(playerData);
                     }
-                });
+                }
+            } else {
+                console.log('DEBUG: No existing players to create');
             }
         }
         
@@ -62,15 +67,17 @@ export class NetworkPlayerManager {
      * Handle new player connected event
      * @param {Object} playerData - New player data
      */
-    handleNewPlayerConnected(playerData) {
-        console.log('New player connected:', playerData);
+    async handleNewPlayerConnected(playerData) {
+        console.log('DEBUG: New player connected:', playerData);
+        console.log('DEBUG: Our player ID:', this.game.networkManager?.playerId);
         
         // Don't create a remote player for ourselves
         if (playerData.id === this.game.networkManager?.playerId) {
+            console.log('DEBUG: Skipping remote player creation for ourselves');
             return;
         }
         
-        this.createRemotePlayer(playerData);
+        await this.createRemotePlayer(playerData);
     }
 
     /**
@@ -196,15 +203,32 @@ export class NetworkPlayerManager {
      * @param {Object} playerData - Player data
      * @returns {RemotePlayer} Created remote player
      */
-    createRemotePlayer(playerData) {
+    async createRemotePlayer(playerData) {
         if (this.remotePlayers.has(playerData.id)) {
+            console.log(`DEBUG: Remote player ${playerData.id} already exists, returning existing`);
             return this.remotePlayers.get(playerData.id);
         }
         
-        console.log(`Creating remote player: ${playerData.username} (${playerData.id})`);
+        console.log(`DEBUG: Creating remote player: ${playerData.username} (${playerData.id})`);
+        console.log(`DEBUG: Player data:`, playerData);
+        console.log(`DEBUG: Game scene available:`, !!this.game.scene);
         
         const remotePlayer = new RemotePlayer(this.game, this.game.scene, playerData);
         this.remotePlayers.set(playerData.id, remotePlayer);
+        
+        // Initialize the remote player visual representation
+        try {
+            const initialized = await remotePlayer.initialize();
+            if (initialized) {
+                console.log(`DEBUG: Remote player ${playerData.username} initialized successfully`);
+            } else {
+                console.error(`DEBUG: Failed to initialize remote player ${playerData.username}`);
+            }
+        } catch (error) {
+            console.error(`DEBUG: Error initializing remote player ${playerData.username}:`, error);
+        }
+        
+        console.log(`DEBUG: Total remote players now: ${this.remotePlayers.size}`);
         
         return remotePlayer;
     }
@@ -318,6 +342,13 @@ export class NetworkPlayerManager {
      * @param {number} deltaTime - Time since last update
      */
     update(deltaTime) {
+        // Update all remote players
+        this.remotePlayers.forEach((remotePlayer, playerId) => {
+            if (remotePlayer && remotePlayer.update) {
+                remotePlayer.update(deltaTime);
+            }
+        });
+        
         // Clean up old player states
         const now = Date.now();
         this.playerStates.forEach((state, playerId) => {
@@ -325,6 +356,14 @@ export class NetworkPlayerManager {
                 this.playerStates.delete(playerId);
             }
         });
+        
+        // Debug logging every 5 seconds
+        if (now % 5000 < 100) {
+            console.log(`DEBUG: NetworkPlayerManager has ${this.remotePlayers.size} remote players`);
+            this.remotePlayers.forEach((player, id) => {
+                console.log(`DEBUG: Remote player ${id}: ${player.username}, mesh: ${!!player.mesh}, alive: ${player.isAlive}`);
+            });
+        }
     }
 
     /**
