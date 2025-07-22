@@ -485,7 +485,7 @@ export class Player {
         
         // Move camera
         const movement = this.velocity.scale(deltaTime);
-        this.camera.position.addInPlace(movement);
+        this.camera.cameraDirection.addInPlace(movement);
         
         // Update position reference
         this.position.copyFrom(this.camera.position);
