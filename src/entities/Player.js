@@ -22,7 +22,8 @@ export class Player {
             forward: false,
             backward: false,
             left: false,
-            right: false
+            right: false,
+            jump: false
         };
         
         // Movement settings
@@ -324,6 +325,8 @@ export class Player {
      * Jump
      */
     jump() {
+        console.log("grounded: " + this.isGrounded);
+        console.log("crouching: " + this.isCrouching);
         if (this.isGrounded && !this.isCrouching) {
             this.velocity.y = this.jumpForce;
             this.isGrounded = false;
@@ -485,6 +488,7 @@ export class Player {
         
         // Move camera
         const movement = this.velocity.scale(deltaTime);
+        console.log("movement: " + movement.toString());
         this.camera.cameraDirection.addInPlace(movement);
         
         // Update position reference

@@ -106,7 +106,8 @@ export const GameConfig = {
     // Physics Settings
     physics: {
         engine: 'cannon', // 'cannon' or 'ammo'
-        gravity: -9.81,
+        //gravity: -9.81,
+        gravity: -0.5,
         timeStep: 1/60,
         maxSubSteps: 3,
         collisionLayers: {
