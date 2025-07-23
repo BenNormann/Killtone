@@ -393,8 +393,13 @@ export class Game {
             this.player.setMovementInput('right', pressed);
         });
 
+        // will only jump once per key press
+        this._jumpKeyWasDown = false;
         this.inputManager.registerActionHandler('jump', (pressed) => {
-            if (pressed) this.player.jump();
+            if (pressed && !this._jumpKeyWasDown) {
+                this.player.jump();
+            }
+            this._jumpKeyWasDown = pressed;
         });
 
         this.inputManager.registerActionHandler('crouch', (pressed) => {

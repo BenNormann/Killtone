@@ -122,6 +122,8 @@ export class Player {
         
         // Enable collisions
         this.camera.checkCollisions = true;
+
+        // gravity is handled by the physics engine
         this.camera.applyGravity = false;
         this.camera.ellipsoid = new BABYLON.Vector3(this.collisionRadius, this.playerHeight / 2, this.collisionRadius);
         this.camera.ellipsoidOffset = new BABYLON.Vector3(0, this.playerHeight / 2, 0);
