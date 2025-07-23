@@ -30,7 +30,7 @@ export class Player {
         this.walkSpeed = 5.0;
         this.sprintSpeed = 8.0;
         this.crouchSpeed = 2.0;
-        this.jumpForce = 8.0;
+        this.jumpForce = 4.0;
         this.acceleration = 20.0;
         this.friction = 10.0;
         this.airControl = 0.3;
@@ -338,9 +338,46 @@ export class Player {
     }
 
     /**
+     * Check if player can stand up (no obstacle above head)
+     * Returns true if there is enough clearance to stand, false if blocked
+     */
+    checkCrouched() {
+        if (!this.isCrouching) return true; // Only relevant if currently crouched
+        if (!this.camera || !this.scene) return true;
+
+        // Calculate the top of the crouched head
+        const ellipsoid = this.camera.ellipsoid || new BABYLON.Vector3(0.5, this.playerHeight / 2, 0.5);
+        const crouchedTop = this.camera.position.clone();
+        crouchedTop.y += ellipsoid.y; // top of crouched head
+
+        // How much higher the head would be if standing
+        const standHeight = this.playerHeight - this.crouchHeight;
+        if (standHeight <= 0) return true;
+
+        // Raycast upward from crouched head to standing head height
+        const ray = new BABYLON.Ray(crouchedTop, new BABYLON.Vector3(0, 1, 0), standHeight);
+        const pick = this.scene.pickWithRay(
+            ray,
+            mesh => mesh.isPickable !== false && mesh.isEnabled() && mesh.checkCollisions
+        );
+        if (pick && pick.hit && pick.distance < standHeight) {
+            // Obstacle detected above head
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Set crouch state
      */
     setCrouch(crouching) {
+        if (!crouching && this.isCrouching) {
+            // Trying to stand up: check for head clearance
+            if (!this.checkCrouched()) {
+                // Not enough clearance, stay crouched
+                return;
+            }
+        }
         this.isCrouching = crouching;
         
         // Adjust camera height
@@ -428,6 +465,11 @@ export class Player {
     update(deltaTime) {
         if (!this.isInitialized) return;
         
+        // Continuous crouch check: if crouched and crouch key is not pressed, try to stand up
+        if (this.isCrouching && this.game.inputManager && !this.game.inputManager.isActionActive('crouch')) {
+            console.log("trying to stand up");
+            this.setCrouch(false); // Will only stand if head clearance
+        }
         // Update movement
         this.updateMovement(deltaTime);
         

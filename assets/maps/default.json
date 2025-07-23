@@ -42,6 +42,12 @@
       "material": "metal"
     },
     {
+      "type": "box",
+      "position": { "x": -30, "y": 2, "z": 0 },
+      "scale": { "x": 4, "y": 1, "z": 4 },
+      "material": "wood"
+    },
+    {
       "type": "wall",
       "position": { "x": 25, "y": 2.5, "z": 0 },
       "scale": { "x": 1, "y": 5, "z": 10 },
