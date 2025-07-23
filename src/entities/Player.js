@@ -27,12 +27,12 @@ export class Player {
         };
         
         // Movement settings
-        this.walkSpeed = 5.0;
-        this.sprintSpeed = 8.0;
-        this.crouchSpeed = 2.0;
-        this.jumpForce = 4.0;
-        this.acceleration = 20.0;
-        this.friction = 10.0;
+        this.walkSpeed = 2.0;
+        this.sprintSpeed = 4.0;
+        this.crouchSpeed = 1.0;
+        this.jumpForce = 3.0;
+        this.acceleration = 10.0;
+        this.friction = 5.0;
         this.airControl = 0.3;
         
         // Player state
