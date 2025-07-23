@@ -7,13 +7,13 @@ import { WeaponType, WeaponConfigs } from './weapons/WeaponConfig.js';
 import { WeaponBase } from './weapons/WeaponBase.js';
 
 export class Player {
-    constructor(game) {
+    constructor(game, initialPosition = new BABYLON.Vector3(0, 2, 0)) {
         this.game = game;
         this.scene = game.scene;
         
         // Camera and movement
         this.camera = null;
-        this.position = new BABYLON.Vector3(0, 2, 0);
+        this.position = initialPosition.clone();
         this.velocity = new BABYLON.Vector3(0, 0, 0);
         this.isGrounded = false;
         
@@ -30,7 +30,7 @@ export class Player {
         this.walkSpeed = 5.0;
         this.sprintSpeed = 8.0;
         this.crouchSpeed = 2.0;
-        this.jumpForce = 8.0;
+        this.jumpForce = 70.0;
         this.acceleration = 20.0;
         this.friction = 10.0;
         this.airControl = 0.3;
@@ -86,6 +86,8 @@ export class Player {
             
             // Create camera
             this.createCamera();
+            // Ensure grounded state is correct at spawn
+            this.updateGroundCheck();
             
             // Create weapon attach point
             this.createWeaponAttachPoint();
@@ -488,7 +490,9 @@ export class Player {
         
         // Move camera
         const movement = this.velocity.scale(deltaTime);
-        console.log("movement: " + movement.toString());
+        console.log(
+            `movement: (${movement.x.toFixed(2)}, ${movement.y.toFixed(2)}, ${movement.z.toFixed(2)})`
+        );
         this.camera.cameraDirection.addInPlace(movement);
         
         // Update position reference
@@ -499,18 +503,39 @@ export class Player {
      * Update ground check
      */
     updateGroundCheck() {
-        if (!this.camera || !this.game.physicsManager) return;
-        
-        // Simple ground check - could be improved with proper raycasting
-        const groundY = 2.0; // Height of ground + player height
-        
-        if (this.camera.position.y <= groundY) {
-            this.camera.position.y = groundY;
-            this.velocity.y = 0;
-            this.isGrounded = true;
-        } else {
-            this.isGrounded = false;
+        if (!this.camera || !this.game.scene) return;
+
+        // Raycast from the bottom of the player's ellipsoid
+        const ellipsoid = this.camera.ellipsoid || new BABYLON.Vector3(0.5, this.playerHeight / 2, 0.5);
+        const rayOrigin = this.camera.position.clone();
+        rayOrigin.y -= ellipsoid.y; // bottom of the ellipsoid
+        // Get ray direction and length from config
+        const rayConfig = this.game.config.player || {};
+        const rayDirection = new BABYLON.Vector3(
+            (rayConfig.groundRayDirection?.x ?? 0),
+            (rayConfig.groundRayDirection?.y ?? -1),
+            (rayConfig.groundRayDirection?.z ?? 0)
+        );
+        const rayLength = rayConfig.groundRayLength ?? 0.3;
+        const threshold = rayConfig.groundRayThreshold ?? 0.05;
+        const ray = new BABYLON.Ray(rayOrigin, rayDirection, rayLength);
+
+        const pick = this.game.scene.pickWithRay(ray, (mesh) => mesh.isPickable !== false && mesh.isEnabled() && mesh.checkCollisions);
+
+        if (pick && pick.hit && pick.pickedPoint) {
+            // If the hit is very close to the bottom of the ellipsoid, consider grounded
+            const distance = rayOrigin.y - pick.pickedPoint.y;
+            console.log("distance: " + distance);
+            if (distance >= 0 && distance <= threshold && this.velocity.y < 0) {
+                // Snap player to the ground
+                this.camera.position.y = pick.pickedPoint.y + ellipsoid.y;
+                this.velocity.y = 0;
+                this.isGrounded = true;
+                console.log("grounded");
+                return;
+            }
         }
+        this.isGrounded = false;
     }
 
     /**

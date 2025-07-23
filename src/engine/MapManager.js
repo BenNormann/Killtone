@@ -45,6 +45,7 @@ export class MapManager extends BaseManager {
         this.onMapLoadComplete = null;
         this.onMapLoadError = null;
         
+        this.groundMesh = null; // Reference to the ground mesh
     }
 
     /**
@@ -384,9 +385,22 @@ export class MapManager extends BaseManager {
             // Create mesh based on type
             switch (objData.type) {
                 case 'ground':
-                    // Skip ground as it's already created by Game.js
-                    console.log('Skipping ground object - already exists');
-                    return;
+                    // Create ground mesh from map file parameters
+                    mesh = BABYLON.MeshBuilder.CreateGround(objName, {
+                        width: objData.scale?.x || 100,
+                        height: objData.scale?.z || 100,
+                        subdivisions: objData.subdivisions || 1
+                    }, this.scene);
+                    // Set Y position if provided
+                    if (objData.position) {
+                        mesh.position.set(
+                            objData.position.x || 0,
+                            objData.position.y || 0,
+                            objData.position.z || 0
+                        );
+                    }
+                    this.groundMesh = mesh;
+                    break;
                     
                 case 'box':
                     mesh = BABYLON.MeshBuilder.CreateBox(objName, {

@@ -106,8 +106,7 @@ export const GameConfig = {
     // Physics Settings
     physics: {
         engine: 'cannon', // 'cannon' or 'ammo'
-        //gravity: -9.81,
-        gravity: -0.5,
+        gravity: -9.81,
         timeStep: 1/60,
         maxSubSteps: 3,
         collisionLayers: {
@@ -149,6 +148,13 @@ export const GameConfig = {
         highlightColor: '#FD342B',
         fadeTime: 2000,
         maxIntensity: 2.0
+    },
+
+    // Player Settings
+    player: {
+        groundRayDirection: { x: 0, y: -1, z: 0 }, // Downward
+        groundRayLength: 0.3, // meters
+        groundRayThreshold: 0.05 // meters (snap threshold)
     },
 
     // Theme Colors (Red/Pink/Purple Cyber Aesthetic)

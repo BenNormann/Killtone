@@ -140,31 +140,7 @@ export class Game {
         const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), this.scene);
         light.intensity = 0.7;
 
-        // Create ground plane for testing
-        this.createGroundPlane();
-
         console.log('Scene initialized with camera');
-    }
-
-    /**
-     * Create a default ground plane for the game
-     */
-    createGroundPlane() {
-        const ground = BABYLON.MeshBuilder.CreateGround("ground", {
-            width: 100,
-            height: 100
-        }, this.scene);
-
-        // Create material with cyber aesthetic
-        const groundMaterial = new BABYLON.StandardMaterial("groundMat", this.scene);
-        groundMaterial.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-        groundMaterial.specularColor = new BABYLON.Color3(0.2, 0.0, 0.2);
-        ground.material = groundMaterial;
-
-        // Enable collisions
-        ground.checkCollisions = true;
-
-        return ground;
     }
 
     /**
@@ -362,7 +338,25 @@ export class Game {
         try {
             console.log('Initializing player...');
 
-            this.player = new Player(this);
+            // Get spawn point from map
+            let spawnPosition = new BABYLON.Vector3(0, 2, 0);
+            if (this.mapManager && this.mapManager.currentMapData && Array.isArray(this.mapManager.currentMapData.spawnPoints) && this.mapManager.currentMapData.spawnPoints.length > 0) {
+                const spawn = this.mapManager.currentMapData.spawnPoints[0];
+                let y = spawn.position.y || 0;
+                if (this.mapManager.groundMesh) {
+                    const groundY = this.mapManager.groundMesh.position.y;
+                    // Assume playerHeight is 1.8 (default) or get from config if available
+                    const playerHeight = (this.config && this.config.player && this.config.player.height) || 1.8;
+                    y = Math.max(y, groundY + playerHeight / 2);
+                }
+                spawnPosition = new BABYLON.Vector3(
+                    spawn.position.x || 0,
+                    y,
+                    spawn.position.z || 0
+                );
+            }
+
+            this.player = new Player(this, spawnPosition);
             await this.player.initialize();
 
             // Setup player event handlers
