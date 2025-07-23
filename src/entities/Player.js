@@ -30,7 +30,7 @@ export class Player {
         this.walkSpeed = 5.0;
         this.sprintSpeed = 8.0;
         this.crouchSpeed = 2.0;
-        this.jumpForce = 70.0;
+        this.jumpForce = 8.0;
         this.acceleration = 20.0;
         this.friction = 10.0;
         this.airControl = 0.3;
@@ -122,7 +122,7 @@ export class Player {
         
         // Enable collisions
         this.camera.checkCollisions = true;
-        this.camera.applyGravity = true;
+        this.camera.applyGravity = false;
         this.camera.ellipsoid = new BABYLON.Vector3(this.collisionRadius, this.playerHeight / 2, this.collisionRadius);
         this.camera.ellipsoidOffset = new BABYLON.Vector3(0, this.playerHeight / 2, 0);
         
@@ -490,9 +490,9 @@ export class Player {
         
         // Move camera
         const movement = this.velocity.scale(deltaTime);
-        console.log(
-            `movement: (${movement.x.toFixed(2)}, ${movement.y.toFixed(2)}, ${movement.z.toFixed(2)})`
-        );
+        //console.log(
+        //    `movement: (${movement.x.toFixed(2)}, ${movement.y.toFixed(2)}, ${movement.z.toFixed(2)})`
+        //);
         this.camera.cameraDirection.addInPlace(movement);
         
         // Update position reference
@@ -525,13 +525,13 @@ export class Player {
         if (pick && pick.hit && pick.pickedPoint) {
             // If the hit is very close to the bottom of the ellipsoid, consider grounded
             const distance = rayOrigin.y - pick.pickedPoint.y;
-            console.log("distance: " + distance);
-            if (distance >= 0 && distance <= threshold && this.velocity.y < 0) {
+            //console.log("distance: " + distance);
+            if (distance >= 0 && distance <= threshold && this.velocity.y <= 0) {
                 // Snap player to the ground
                 this.camera.position.y = pick.pickedPoint.y + ellipsoid.y;
                 this.velocity.y = 0;
                 this.isGrounded = true;
-                console.log("grounded");
+                //console.log("grounded");
                 return;
             }
         }
