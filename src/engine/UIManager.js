@@ -657,20 +657,34 @@ export class UIManager extends BaseManager {
      * Update HUD elements
      * @param {Object} gameState - Current game state
      */
-    updateHUD(gameState) {
+    updateHUD(playerState) {
         if (!this.gameHUD || !this.gameHUD.isVisible) return;
 
         // Update health
-        if (this.gameHUD.healthText && gameState.health !== undefined) {
-            this.gameHUD.healthText.text = `Health: ${gameState.health}`;
-            this.gameHUD.healthText.color = gameState.health > 50 ? GameConfig.theme.colors.healthHigh :
-                gameState.health > 25 ? GameConfig.theme.colors.healthMedium : GameConfig.theme.colors.healthLow;
+        if (this.gameHUD.healthText && playerState.health !== undefined) {
+            this.gameHUD.healthText.text = `Health: ${playerState.health}`;
+            this.gameHUD.healthText.color = playerState.health > 50 ? GameConfig.theme.colors.healthHigh :
+                playerState.health > 25 ? GameConfig.theme.colors.healthMedium : GameConfig.theme.colors.healthLow;
         }
 
         // Update ammo
-        if (this.gameHUD.ammoText && gameState.ammo !== undefined) {
-            this.gameHUD.ammoText.text = `Ammo: ${gameState.ammo.current}/${gameState.ammo.reserve}`;
+        if (this.gameHUD.ammoText && playerState.currentAmmo !== undefined && playerState.maxAmmo !== undefined) {
+            this.gameHUD.ammoText.text = `Ammo: ${playerState.currentAmmo}/${playerState.maxAmmo}`;
         }
+    }
+
+    /**
+     * Per-frame update for UIManager. Call this every frame from the game loop.
+     * Includes HUD updates and any other UI elements that need to be updated constantly.
+     * @param {Object} gameState - Current game state (optional, for HUD)
+     */
+    update(playerState) {
+        // Update HUD elements if visible
+        if (playerState) {
+            this.updateHUD(playerState);
+        }
+        // Add other per-frame UI updates here as needed
+        // e.g., animations, timers, notifications, etc.
     }
 
     /**

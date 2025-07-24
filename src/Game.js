@@ -280,6 +280,7 @@ export class Game {
         if (this.particleManager) this.particleManager.update(this.deltaTime);
         if (this.networkManager) this.networkManager.update(this.deltaTime);
         if (this.performanceMonitor) this.performanceMonitor.update(this.deltaTime);
+        if (this.uiManager) this.uiManager.update(this.player);
     }
 
     /**

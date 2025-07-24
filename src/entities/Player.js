@@ -5,6 +5,7 @@
 
 import { WeaponType, WeaponConfigs } from './weapons/WeaponConfig.js';
 import { WeaponBase } from './weapons/WeaponBase.js';
+import { AmmoRegistry } from './weapons/AmmoRegistry.js';
 
 export class Player {
     constructor(game, initialPosition = new BABYLON.Vector3(0, 2, 0)) {
@@ -56,6 +57,9 @@ export class Player {
         this.weaponSlots = ['primary', 'pistol', 'knife'];
         this.currentWeaponSlot = 0;
         this.primaryWeaponType = WeaponType.CARBINE; // Default primary
+        this.ammoRegistry = new AmmoRegistry();
+        this.currentAmmo = 0;
+        this.maxAmmo = 0;
         
         // Weapon attachment point
         this.weaponAttachPoint = null;
@@ -187,7 +191,8 @@ export class Player {
                 this.scene,
                 this.game.particleManager,
                 null,
-                this.game
+                this.game,
+                this.ammoRegistry
             );
             await carbine.initialize();
             this.weapons.set('primary', carbine);
@@ -198,7 +203,8 @@ export class Player {
                 this.scene,
                 this.game.particleManager,
                 null,
-                this.game
+                this.game,
+                this.ammoRegistry
             );
             await pistol.initialize();
             this.weapons.set('pistol', pistol);
@@ -209,7 +215,8 @@ export class Player {
                 this.scene,
                 this.game.particleManager,
                 null,
-                this.game
+                this.game,
+                this.ammoRegistry
             );
             await knife.initialize();
             this.weapons.set('knife', knife);
@@ -240,6 +247,9 @@ export class Player {
         // Equip new weapon
         this.currentWeapon = weapon;
         this.currentWeaponSlot = this.weaponSlots.indexOf(slotName);
+
+        this.setCurrentAmmo(this.getCurrentAmmo());
+        this.setMaxAmmo(this.getMaxAmmo());
         
         // Attach weapon to attach point
         if (weapon.model) {
@@ -277,7 +287,8 @@ export class Player {
                 this.scene,
                 this.game.particleManager,
                 null,
-                this.game
+                this.game,
+                this.ammoRegistry
             );
             await weapon.initialize();
             
@@ -288,7 +299,9 @@ export class Player {
             if (this.currentWeaponSlot === 0) {
                 this.equipWeapon('primary');
             }
-            
+
+            this.setCurrentAmmo(this.getCurrentAmmo());
+            this.setMaxAmmo(this.getMaxAmmo());
             console.log(`Set primary weapon to: ${weaponConfig.name}`);
         } catch (error) {
             console.error('Failed to set weapon:', error);
@@ -448,6 +461,7 @@ export class Player {
                 }
             }, this.currentWeapon.fireRate * 1000);
         }
+        this.setCurrentAmmo(this.getCurrentAmmo());
     }
 
     /**
@@ -455,8 +469,47 @@ export class Player {
      */
     reload() {
         if (this.currentWeapon && !this.currentWeapon.isReloading) {
-            this.currentWeapon.reload();
+            const weapon = this.currentWeapon;
+            weapon.reload();
+            // Set up handler after reload is triggered
+            // wait for reload to finish and then read current ammo
+            const player = this;
+            const prevOnReload = weapon.onReload;
+            weapon.onReload = function(isReloading) {
+                if (typeof prevOnReload === 'function') prevOnReload(isReloading);
+                if (!isReloading) {
+                    player.setCurrentAmmo(player.getCurrentAmmo());
+                }
+            };
         }
+    }
+
+    /**
+     * Get current ammo
+     */
+    getCurrentAmmo() {
+        return this.ammoRegistry.getCurrentAmmo(this.currentWeapon.type);
+    }
+
+    /**
+     * Get max ammo
+     */
+    getMaxAmmo() {
+        return this.ammoRegistry.getMaxAmmo(this.currentWeapon.type);
+    }
+
+    /**
+     * Set current ammo
+     */
+    setCurrentAmmo(ammo) {
+        this.currentAmmo = ammo;
+    }
+
+    /**
+     * Set max ammo
+     */
+    setMaxAmmo(ammo) {
+        this.maxAmmo = ammo;
     }
 
     /**

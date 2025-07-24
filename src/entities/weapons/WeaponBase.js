@@ -9,13 +9,14 @@ import { AccuracySystem } from './AccuracySystem.js';
 import { MathUtils } from '../../utils/MathUtils.js';
 
 export class WeaponBase {
-    constructor(config, scene, effectsManager, accuracySystem = null, game = null) {
+    constructor(config, scene, effectsManager, accuracySystem = null, game = null, ammoRegistry = null) {
         // WeaponBase is now a concrete class that handles all weapon types generically
 
         this.config = config;
         this.scene = scene;
         this.effectsManager = effectsManager;
         this.game = game;
+        this.ammoRegistry = ammoRegistry;
 
         // Weapon properties from config
         this.name = config.name;
@@ -486,10 +487,10 @@ export class WeaponBase {
      */
     reload() {
         // Check reload conditions using AmmoRegistry if available
-        if (this.game && this.game.ammoRegistry) {
+        if (this.game && this.ammoRegistry) {
             if (this.isReloading ||
-                this.game.ammoRegistry.isFull(this.type) ||
-                this.game.ammoRegistry.isInfiniteAmmo(this.type)) {
+                this.ammoRegistry.isFull(this.type) ||
+                this.ammoRegistry.isInfiniteAmmo(this.type)) {
                 return false;
             }
         } else {
@@ -531,9 +532,9 @@ export class WeaponBase {
         if (!this.isReloading) return;
 
         // Reload using AmmoRegistry if available
-        if (this.game && this.game.ammoRegistry) {
-            this.game.ammoRegistry.reloadWeapon(this.type);
-            this.currentAmmo = this.game.ammoRegistry.getCurrentAmmo(this.type);
+        if (this.game && this.ammoRegistry) {
+            this.ammoRegistry.reloadWeapon(this.type);
+            this.currentAmmo = this.ammoRegistry.getCurrentAmmo(this.type);
         } else {
             // Fallback to local state
             this.currentAmmo = this.magazineSize;
@@ -884,8 +885,8 @@ export class WeaponBase {
      */
     getCurrentAmmo() {
         // If AmmoRegistry is available, use it; otherwise fallback to local state
-        if (this.game && this.game.ammoRegistry) {
-            return this.game.ammoRegistry.getCurrentAmmo(this.type);
+        if (this.game && this.ammoRegistry) {
+            return this.ammoRegistry.getCurrentAmmo(this.type);
         }
         return this.currentAmmo;
     }
@@ -895,8 +896,8 @@ export class WeaponBase {
      */
     getMaxAmmo() {
         // If AmmoRegistry is available, use it; otherwise fallback to local state
-        if (this.game && this.game.ammoRegistry) {
-            return this.game.ammoRegistry.getMaxAmmo(this.type);
+        if (this.game && this.ammoRegistry) {
+            return this.ammoRegistry.getMaxAmmo(this.type);
         }
         return this.magazineSize;
     }
@@ -961,11 +962,11 @@ export class WeaponBase {
      */
     consumeAmmo(amount = 1) {
         // If AmmoRegistry is available, use it; otherwise fallback to local state
-        if (this.game && this.game.ammoRegistry) {
-            const consumed = this.game.ammoRegistry.consumeAmmo(this.type, amount);
+        if (this.game && this.ammoRegistry) {
+            const consumed = this.ammoRegistry.consumeAmmo(this.type, amount);
             if (consumed) {
                 // Update local state for compatibility
-                this.currentAmmo = this.game.ammoRegistry.getCurrentAmmo(this.type);
+                this.currentAmmo = this.ammoRegistry.getCurrentAmmo(this.type);
 
                 // Trigger ammo changed event
                 if (this.onAmmoChanged) {
@@ -973,7 +974,7 @@ export class WeaponBase {
                 }
 
                 // Check if weapon is empty
-                if (this.game.ammoRegistry.isEmpty(this.type) && this.onWeaponEmpty) {
+                if (this.ammoRegistry.isEmpty(this.type) && this.onWeaponEmpty) {
                     this.onWeaponEmpty();
                 }
             }
