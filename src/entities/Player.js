@@ -5,6 +5,7 @@
 
 import { WeaponType, WeaponConfigs } from './weapons/WeaponConfig.js';
 import { WeaponBase } from './weapons/WeaponBase.js';
+import { AmmoRegistry } from './weapons/AmmoRegistry.js';
 
 export class Player {
     constructor(game, initialPosition = new BABYLON.Vector3(0, 2, 0)) {
@@ -56,6 +57,9 @@ export class Player {
         this.weaponSlots = ['primary', 'pistol', 'knife'];
         this.currentWeaponSlot = 0;
         this.primaryWeaponType = WeaponType.CARBINE; // Default primary
+        this.ammoRegistry = new AmmoRegistry();
+        this.currentAmmo = 0;
+        this.maxAmmo = 0;
         
         // Weapon attachment point
         this.weaponAttachPoint = null;
@@ -97,6 +101,8 @@ export class Player {
             
             // Equip default weapon (carbine)
             this.equipWeapon('primary');
+            this.currentAmmo = this.getCurrentAmmo();
+            this.maxAmmo = this.getMaxAmmo();
             
             this.isInitialized = true;
             console.log('Player initialized');
@@ -187,7 +193,8 @@ export class Player {
                 this.scene,
                 this.game.particleManager,
                 null,
-                this.game
+                this.game,
+                this.ammoRegistry
             );
             await carbine.initialize();
             this.weapons.set('primary', carbine);
@@ -198,7 +205,8 @@ export class Player {
                 this.scene,
                 this.game.particleManager,
                 null,
-                this.game
+                this.game,
+                this.ammoRegistry
             );
             await pistol.initialize();
             this.weapons.set('pistol', pistol);
@@ -209,7 +217,8 @@ export class Player {
                 this.scene,
                 this.game.particleManager,
                 null,
-                this.game
+                this.game,
+                this.ammoRegistry
             );
             await knife.initialize();
             this.weapons.set('knife', knife);
@@ -277,7 +286,8 @@ export class Player {
                 this.scene,
                 this.game.particleManager,
                 null,
-                this.game
+                this.game,
+                this.ammoRegistry
             );
             await weapon.initialize();
             
@@ -448,6 +458,7 @@ export class Player {
                 }
             }, this.currentWeapon.fireRate * 1000);
         }
+        this.currentAmmo = this.getCurrentAmmo();
     }
 
     /**
@@ -457,6 +468,21 @@ export class Player {
         if (this.currentWeapon && !this.currentWeapon.isReloading) {
             this.currentWeapon.reload();
         }
+        this.currentAmmo = this.getCurrentAmmo();
+    }
+
+    /**
+     * Get current ammo
+     */
+    getCurrentAmmo() {
+        return this.ammoRegistry.getCurrentAmmo(this.currentWeapon.type);
+    }
+
+    /**
+     * Get max ammo
+     */
+    getMaxAmmo() {
+        return this.ammoRegistry.getMaxAmmo(this.currentWeapon.type);
     }
 
     /**
