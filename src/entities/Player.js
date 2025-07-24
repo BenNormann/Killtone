@@ -101,8 +101,6 @@ export class Player {
             
             // Equip default weapon (carbine)
             this.equipWeapon('primary');
-            this.currentAmmo = this.getCurrentAmmo();
-            this.maxAmmo = this.getMaxAmmo();
             
             this.isInitialized = true;
             console.log('Player initialized');
@@ -249,6 +247,9 @@ export class Player {
         // Equip new weapon
         this.currentWeapon = weapon;
         this.currentWeaponSlot = this.weaponSlots.indexOf(slotName);
+
+        this.setCurrentAmmo(this.getCurrentAmmo());
+        this.setMaxAmmo(this.getMaxAmmo());
         
         // Attach weapon to attach point
         if (weapon.model) {
@@ -298,7 +299,9 @@ export class Player {
             if (this.currentWeaponSlot === 0) {
                 this.equipWeapon('primary');
             }
-            
+
+            this.setCurrentAmmo(this.getCurrentAmmo());
+            this.setMaxAmmo(this.getMaxAmmo());
             console.log(`Set primary weapon to: ${weaponConfig.name}`);
         } catch (error) {
             console.error('Failed to set weapon:', error);
@@ -458,7 +461,7 @@ export class Player {
                 }
             }, this.currentWeapon.fireRate * 1000);
         }
-        this.currentAmmo = this.getCurrentAmmo();
+        this.setCurrentAmmo(this.getCurrentAmmo());
     }
 
     /**
@@ -466,9 +469,19 @@ export class Player {
      */
     reload() {
         if (this.currentWeapon && !this.currentWeapon.isReloading) {
-            this.currentWeapon.reload();
+            const weapon = this.currentWeapon;
+            weapon.reload();
+            // Set up handler after reload is triggered
+            // wait for reload to finish and then read current ammo
+            const player = this;
+            const prevOnReload = weapon.onReload;
+            weapon.onReload = function(isReloading) {
+                if (typeof prevOnReload === 'function') prevOnReload(isReloading);
+                if (!isReloading) {
+                    player.setCurrentAmmo(player.getCurrentAmmo());
+                }
+            };
         }
-        this.currentAmmo = this.getCurrentAmmo();
     }
 
     /**
@@ -483,6 +496,20 @@ export class Player {
      */
     getMaxAmmo() {
         return this.ammoRegistry.getMaxAmmo(this.currentWeapon.type);
+    }
+
+    /**
+     * Set current ammo
+     */
+    setCurrentAmmo(ammo) {
+        this.currentAmmo = ammo;
+    }
+
+    /**
+     * Set max ammo
+     */
+    setMaxAmmo(ammo) {
+        this.maxAmmo = ammo;
     }
 
     /**
