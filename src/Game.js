@@ -362,6 +362,11 @@ export class Game {
 
             // Setup player event handlers
             this.setupPlayerEventHandlers();
+            
+            // Connect player to network manager for multiplayer sync
+            if (this.networkManager) {
+                this.networkManager.setLocalPlayer(this.player);
+            }
 
             console.log('Player initialized');
 

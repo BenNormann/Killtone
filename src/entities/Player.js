@@ -73,6 +73,12 @@ export class Player {
         this.isFiring = false;
         this.canFire = true;
         
+        // Network sync
+        this.lastNetworkUpdate = 0;
+        this.networkUpdateRate = 1000 / 60; // 60Hz
+        this.lastPosition = this.position.clone();
+        this.lastRotation = { x: 0, y: 0 };
+        
         this.isInitialized = false;
     }
 
@@ -533,6 +539,50 @@ export class Player {
         
         // Update ground check
         this.updateGroundCheck();
+        
+        // Send network updates
+        this.updateNetworkSync(deltaTime);
+    }
+
+    /**
+     * Update network synchronization
+     */
+    updateNetworkSync(deltaTime) {
+        if (!this.game.networkManager || !this.game.networkManager.isConnected) return;
+        
+        const now = Date.now();
+        
+        // Check if it's time to send an update (60Hz)
+        if (now - this.lastNetworkUpdate < this.networkUpdateRate) {
+            return;
+        }
+        
+        // Check if player has moved significantly
+        const positionChanged = BABYLON.Vector3.Distance(this.position, this.lastPosition) > 0.01;
+        const rotationChanged = Math.abs(this.rotationX - this.lastRotation.x) > 0.01 || 
+                               Math.abs(this.rotationY - this.lastRotation.y) > 0.01;
+        
+        if (positionChanged || rotationChanged) {
+            // Send player update to server
+            this.game.networkManager.emit('playerUpdate', {
+                position: {
+                    x: this.position.x,
+                    y: this.position.y,
+                    z: this.position.z
+                },
+                rotation: {
+                    x: this.rotationX,
+                    y: this.rotationY,
+                    z: 0
+                }
+            });
+            
+            // Update last sent values
+            this.lastPosition.copyFrom(this.position);
+            this.lastRotation.x = this.rotationX;
+            this.lastRotation.y = this.rotationY;
+            this.lastNetworkUpdate = now;
+        }
     }
 
     /**
