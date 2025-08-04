@@ -13,7 +13,7 @@ export class RemotePlayer {
         
         // Player identification
         this.id = playerData.id;
-        this.username = playerData.username || `Player ${this.id.slice(-4)}`;
+        this.username = PlayerUtils.getDisplayName(playerData);
         
         // Player state
         this.isAlive = playerData.alive !== undefined ? playerData.alive : true;
@@ -33,28 +33,24 @@ export class RemotePlayer {
             playerData.rotation?.y || 0,
             playerData.rotation?.z || 0
         );
-        this.velocity = new BABYLON.Vector3(0, 0, 0);
         
         // Interpolation for smooth movement
         this.targetPosition = this.position.clone();
         this.targetRotation = this.rotation.clone();
-        this.lastUpdateTime = Date.now();
-        this.interpolationSpeed = 10; // How fast to interpolate to target position
+        this.interpolationSpeed = 10;
         
         // Visual representation
         this.mesh = null;
         this.nameTag = null;
         this.healthBar = null;
+        this.lookRay = null; // Ray to show where player is looking
         
         // Animation state
-        this.isMoving = false;
-        this.isShooting = false;
-        this.currentWeapon = null;
         this.movementState = playerData.movement || "standing";
         this.lastMovementState = this.movementState;
-        this.characterAsset = null;
         this.animationGroups = new Map();
         this.currentAnimation = null;
+        this.isShooting = false;
     }
     
     /**
@@ -62,31 +58,13 @@ export class RemotePlayer {
      */
     async initialize() {
         try {
-            console.log(`DEBUG: Initializing RemotePlayer: ${this.username} (${this.id})`);
-            console.log(`DEBUG: Scene available:`, !!this.scene);
-            console.log(`DEBUG: Position:`, this.position);
-            
-            // Create player mesh
-            console.log(`DEBUG: Creating player mesh for ${this.username}`);
             await this.createPlayerMesh();
-            
-            // Create name tag
-            console.log(`DEBUG: Creating name tag for ${this.username}`);
             this.createNameTag();
-            
-            // Create health bar
-            console.log(`DEBUG: Creating health bar for ${this.username}`);
             this.createHealthBar();
-            
-            console.log(`DEBUG: RemotePlayer ${this.username} initialized successfully`);
-            console.log(`DEBUG: Mesh created:`, !!this.mesh);
-            console.log(`DEBUG: Name tag created:`, !!this.nameTag);
-            console.log(`DEBUG: Health bar created:`, !!this.healthBar);
-            
+            this.createLookRay();
             return true;
-            
         } catch (error) {
-            console.error(`DEBUG: Failed to initialize RemotePlayer ${this.username}:`, error);
+            console.error(`Failed to initialize RemotePlayer ${this.username}:`, error);
             return false;
         }
     }
@@ -99,34 +77,35 @@ export class RemotePlayer {
             // Try to load character model using AssetManager
             if (this.game.assetManager) {
                 const characterAsset = this.game.assetManager.getAsset('trun_character');
-                if (characterAsset && characterAsset.meshes.length > 0) {
-                    // Clone the character model
+                if (characterAsset?.meshes.length > 0) {
                     this.mesh = characterAsset.meshes[0].clone(`remotePlayer_${this.id}`);
-                    this.characterAsset = characterAsset;
                     
                     // Store animation groups
                     if (characterAsset.animationGroups) {
+                        console.log(`RemotePlayer ${this.username}: Loading animation groups from character asset:`, characterAsset.animationGroups.map(ag => ag.name));
                         characterAsset.animationGroups.forEach(animGroup => {
                             this.animationGroups.set(animGroup.name.toLowerCase(), animGroup);
-                            animGroup.stop(); // Stop all animations initially
+                            animGroup.stop();
                         });
+                        console.log(`RemotePlayer ${this.username}: Stored animation groups:`, Array.from(this.animationGroups.keys()));
+                    } else {
+                        console.log(`RemotePlayer ${this.username}: No animation groups found in character asset`);
                     }
-                    
-                    console.log(`Loaded character model for RemotePlayer: ${this.username}`);
                 } else {
-                    // Fallback to capsule if character not loaded
                     this.createFallbackMesh();
                 }
             } else {
-                // Fallback to capsule if AssetManager not available
                 this.createFallbackMesh();
             }
             
-            // Position the mesh
+            // Position and setup mesh
             this.mesh.position.copyFrom(this.position);
-            this.mesh.rotation.copyFrom(this.rotation);
             
-            // Add collision detection
+            // Clear rotationQuaternion to use rotation property instead
+            this.mesh.rotationQuaternion = null;
+            // Fix mesh direction - add PI to make it face the same direction as camera
+            this.mesh.rotation.y = this.rotation.y + Math.PI;
+            
             this.mesh.checkCollisions = true;
             
             // Start with standing animation
@@ -148,30 +127,24 @@ export class RemotePlayer {
             this.scene
         );
         
-        // Create material
         const material = new BABYLON.StandardMaterial(`remotePlayerMat_${this.id}`, this.scene);
-        material.diffuseColor = new BABYLON.Color3(0.2, 0.6, 1.0); // Blue color for other players
+        material.diffuseColor = new BABYLON.Color3(0.2, 0.6, 1.0);
         material.emissiveColor = new BABYLON.Color3(0.1, 0.3, 0.5);
         this.mesh.material = material;
-        
-        console.log(`Created fallback mesh for RemotePlayer: ${this.username}`);
     }
     
     /**
      * Create name tag above the player
      */
     createNameTag() {
-        // Create name tag using Babylon.js GUI
         const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI(`nameTag_${this.id}`);
         
-        // Create text block for name
         const nameText = new BABYLON.GUI.TextBlock(`nameText_${this.id}`);
         nameText.text = this.username;
         nameText.color = "white";
         nameText.fontSize = 16;
         nameText.fontFamily = "Arial";
         
-        // Create rectangle background
         const nameBackground = new BABYLON.GUI.Rectangle(`nameBg_${this.id}`);
         nameBackground.widthInPixels = this.username.length * 8 + 20;
         nameBackground.heightInPixels = 25;
@@ -183,13 +156,7 @@ export class RemotePlayer {
         nameBackground.addControl(nameText);
         advancedTexture.addControl(nameBackground);
         
-        this.nameTag = {
-            texture: advancedTexture,
-            background: nameBackground,
-            text: nameText
-        };
-        
-        console.log(`Created name tag for RemotePlayer: ${this.username}`);
+        this.nameTag = { texture: advancedTexture, background: nameBackground, text: nameText };
     }
     
     /**
@@ -198,7 +165,6 @@ export class RemotePlayer {
     createHealthBar() {
         if (!this.nameTag) return;
         
-        // Create health bar background
         const healthBg = new BABYLON.GUI.Rectangle(`healthBg_${this.id}`);
         healthBg.widthInPixels = 60;
         healthBg.heightInPixels = 6;
@@ -206,9 +172,8 @@ export class RemotePlayer {
         healthBg.color = "white";
         healthBg.thickness = 1;
         healthBg.background = "rgba(0, 0, 0, 0.5)";
-        healthBg.topInPixels = 30; // Position below name tag
+        healthBg.topInPixels = 30;
         
-        // Create health bar fill
         const healthFill = new BABYLON.GUI.Rectangle(`healthFill_${this.id}`);
         healthFill.widthInPixels = 56;
         healthFill.heightInPixels = 4;
@@ -222,12 +187,34 @@ export class RemotePlayer {
         healthBg.addControl(healthFill);
         this.nameTag.texture.addControl(healthBg);
         
-        this.healthBar = {
-            background: healthBg,
-            fill: healthFill
-        };
+        this.healthBar = { background: healthBg, fill: healthFill };
+    }
+    
+    /**
+     * Create look ray to show where player is looking
+     */
+    createLookRay() {
+        // Create a short ray from eye level showing direction
+        const rayLength = 2.0;
+        const eyeHeight = 1.6;
         
-        console.log(`Created health bar for RemotePlayer: ${this.username}`);
+        this.lookRay = BABYLON.MeshBuilder.CreateLines(`lookRay_${this.id}`, {
+            points: [
+                new BABYLON.Vector3(0, 0, 0),
+                new BABYLON.Vector3(0, 0, rayLength)
+            ]
+        }, this.scene);
+        
+        this.lookRay.color = new BABYLON.Color3(1, 0, 0); // Red ray
+        this.lookRay.alpha = 0.7;
+        
+        // Position the ray at the player's eye level
+        this.lookRay.position.copyFrom(this.position);
+        this.lookRay.position.y += eyeHeight;
+        
+        // Set initial rotation - look ray shows exact camera direction
+        this.lookRay.rotation.x = this.rotation.x;
+        this.lookRay.rotation.y = this.rotation.y;
     }
     
     /**
@@ -251,13 +238,8 @@ export class RemotePlayer {
     update(deltaTime) {
         if (!this.mesh) return;
         
-        // Interpolate position
         this.interpolatePosition(deltaTime);
-        
-        // Update name tag and health bar position
         this.updateUI();
-        
-        // Update animation state
         this.updateAnimations(deltaTime);
     }
     
@@ -265,47 +247,66 @@ export class RemotePlayer {
      * Smoothly interpolate to target position
      */
     interpolatePosition(deltaTime) {
-        // Calculate distance to target
         const positionDistance = BABYLON.Vector3.Distance(this.position, this.targetPosition);
-        const rotationDistance = BABYLON.Vector3.Distance(this.rotation, this.targetRotation);
+        const rotationDistance = Math.abs(this.rotation.y - this.targetRotation.y);
         
-        // Only interpolate if there's a significant difference
         if (positionDistance > 0.01) {
-            // Interpolate position
             this.position = BABYLON.Vector3.Lerp(
                 this.position,
                 this.targetPosition,
                 this.interpolationSpeed * deltaTime
             );
-            
             this.mesh.position.copyFrom(this.position);
-            this.isMoving = positionDistance > 0.1;
-        } else {
-            this.isMoving = false;
+            
+            // Update look ray position
+            if (this.lookRay) {
+                this.lookRay.position.copyFrom(this.position);
+                this.lookRay.position.y += 1.6; // Eye height
+            }
         }
         
-        if (rotationDistance > 0.01) {
-            // Interpolate rotation
-            this.rotation = BABYLON.Vector3.Lerp(
-                this.rotation,
-                this.targetRotation,
+        // Always update rotation, even for small changes
+        if (rotationDistance > 0.001) { // Lower threshold for rotation
+            console.log(`RemotePlayer ${this.username}: Updating rotation from ${this.rotation.y} to ${this.targetRotation.y}`);
+            this.rotation.y = BABYLON.Scalar.Lerp(
+                this.rotation.y,
+                this.targetRotation.y,
                 this.interpolationSpeed * deltaTime
             );
             
-            this.mesh.rotation.copyFrom(this.rotation);
+            // Clear rotationQuaternion and apply Y rotation to mesh (horizontal facing direction)
+            this.mesh.rotationQuaternion = null;
+            this.mesh.rotation.y = this.rotation.y + Math.PI; // Add PI to fix mesh direction
+            
+            // Update look ray Y rotation to match mesh rotation exactly
+            if (this.lookRay) {
+                this.lookRay.rotation.y = this.rotation.y; // No longer parented, so no PI offset needed
+            }
+        }
+        
+        // Update X rotation for look ray (vertical look direction)
+        const xRotationDistance = Math.abs(this.rotation.x - this.targetRotation.x);
+        if (xRotationDistance > 0.001) {
+            this.rotation.x = BABYLON.Scalar.Lerp(
+                this.rotation.x,
+                this.targetRotation.x,
+                this.interpolationSpeed * deltaTime
+            );
+            
+            // Update look ray X rotation to show vertical look direction (camera pitch)
+            if (this.lookRay) {
+                this.lookRay.rotation.x = this.rotation.x;
+            }
         }
     }
     
     /**
-     * Update UI elements (name tag, health bar) position
+     * Update UI elements position
      */
     updateUI() {
         if (!this.nameTag || !this.mesh) return;
         
-        // Project 3D position to screen coordinates
-        const engine = this.scene.getEngine();
         const camera = this.scene.activeCamera;
-        
         if (!camera) return;
         
         // Get position above player's head
@@ -315,14 +316,14 @@ export class RemotePlayer {
             BABYLON.Matrix.Identity(),
             camera.getViewMatrix(),
             camera.getProjectionMatrix(),
-            engine.getRenderingCanvasClientRect()
+            this.scene.getEngine().getRenderingCanvasClientRect()
         );
         
         // Update name tag position
         this.nameTag.background.leftInPixels = screenPosition.x - (this.nameTag.background.widthInPixels / 2);
         this.nameTag.background.topInPixels = screenPosition.y - 40;
         
-        // Update health bar position if it exists
+        // Update health bar position
         if (this.healthBar) {
             this.healthBar.background.leftInPixels = screenPosition.x - (this.healthBar.background.widthInPixels / 2);
             this.healthBar.background.topInPixels = screenPosition.y - 10;
@@ -342,35 +343,48 @@ export class RemotePlayer {
      * Play animation based on movement state
      */
     playAnimation(animationName) {
-        if (!this.animationGroups.size) return;
+        console.log(`RemotePlayer ${this.username}: playAnimation called with: ${animationName}`);
+        console.log(`RemotePlayer ${this.username}: Available animation groups:`, Array.from(this.animationGroups.keys()));
+        
+        if (!this.animationGroups.size) {
+            console.log(`RemotePlayer ${this.username}: No animation groups available, using fallback scaling`);
+            // Handle crouching state for fallback mesh
+            if (this.mesh) {
+                if (animationName === 'crouching') {
+                    this.mesh.scaling.y = 0.7; // Scale down for crouching
+                } else {
+                    this.mesh.scaling.y = 1.0; // Normal scale
+                }
+            }
+            return;
+        }
         
         // Stop current animation
         if (this.currentAnimation) {
+            console.log(`RemotePlayer ${this.username}: Stopping current animation: ${this.currentAnimation}`);
             this.animationGroups.get(this.currentAnimation)?.stop();
         }
         
         // Map movement state to animation name
         let animKey = animationName;
         switch (animationName) {
-            case 'standing':
-                animKey = 'idle';
-                break;
-            case 'walking':
-                animKey = 'walk';
-                break;
-            case 'sprinting':
-                animKey = 'run';
-                break;
+            case 'standing': animKey = 'idle'; break;
+            case 'walking': animKey = 'walk'; break;
+            case 'sprinting': animKey = 'run'; break;
+            case 'crouching': animKey = 'idle'; break; // Use idle for crouching if no crouch anim
         }
+        
+        console.log(`RemotePlayer ${this.username}: Mapped ${animationName} to animation key: ${animKey}`);
         
         // Play the animation
         const animation = this.animationGroups.get(animKey);
         if (animation) {
-            animation.play(true); // Loop the animation
+            console.log(`RemotePlayer ${this.username}: Playing animation: ${animKey}`);
+            animation.play(true);
             this.currentAnimation = animKey;
-            console.log(`Playing animation ${animKey} for ${this.username}`);
         } else {
-            console.warn(`Animation ${animKey} not found for ${this.username}`);
+            console.log(`RemotePlayer ${this.username}: Animation not found: ${animKey}`);
+            console.log(`RemotePlayer ${this.username}: Available animations:`, Array.from(this.animationGroups.keys()));
         }
     }
     
@@ -389,18 +403,17 @@ export class RemotePlayer {
         // Flash effect when shooting
         if (this.isShooting) {
             const material = this.mesh.material;
-            if (material && material.emissiveColor) {
+            if (material?.emissiveColor) {
                 material.emissiveColor = BABYLON.Color3.Lerp(
                     material.emissiveColor,
-                    new BABYLON.Color3(1, 1, 0), // Yellow flash
+                    new BABYLON.Color3(1, 1, 0),
                     5 * deltaTime
                 );
             }
             
-            // Reset shooting state after a short time
             setTimeout(() => {
                 this.isShooting = false;
-                if (material && material.emissiveColor) {
+                if (material?.emissiveColor) {
                     material.emissiveColor = new BABYLON.Color3(0.1, 0.3, 0.5);
                 }
             }, 100);
@@ -417,12 +430,19 @@ export class RemotePlayer {
         }
         
         if (data.rotation) {
+            console.log(`RemotePlayer ${this.username}: Received rotation data:`, data.rotation);
+            console.log(`RemotePlayer ${this.username}: Current rotation:`, this.rotation);
             this.targetRotation.set(data.rotation.x, data.rotation.y, data.rotation.z);
+            console.log(`RemotePlayer ${this.username}: Target rotation set to:`, this.targetRotation);
         }
         
         // Update movement state
         if (data.movement && data.movement !== this.movementState) {
+            console.log(`RemotePlayer ${this.username}: Movement state changed from ${this.movementState} to ${data.movement}`);
             this.movementState = data.movement;
+            // Immediately update animation when movement state changes
+            this.playAnimation(this.movementState);
+            this.lastMovementState = this.movementState;
         }
         
         // Update health
@@ -440,17 +460,9 @@ export class RemotePlayer {
             this.setUsername(data.username);
         }
         
-        // Update score
-        if (data.score !== undefined) {
-            this.score = data.score;
-        }
-        
-        // Update deaths
-        if (data.deaths !== undefined) {
-            this.deaths = data.deaths;
-        }
-        
-        this.lastUpdateTime = Date.now();
+        // Update score and deaths
+        if (data.score !== undefined) this.score = data.score;
+        if (data.deaths !== undefined) this.deaths = data.deaths;
     }
     
     /**
@@ -459,14 +471,11 @@ export class RemotePlayer {
     setHealth(health) {
         this.health = Math.max(0, Math.min(this.maxHealth, health));
         
-        // Update health bar
         if (this.healthBar) {
             const healthPercent = this.health / this.maxHealth;
             this.healthBar.fill.widthInPixels = 56 * healthPercent;
             this.healthBar.fill.background = this.getHealthColor();
         }
-        
-        console.log(`RemotePlayer ${this.username} health updated: ${this.health}`);
     }
     
     /**
@@ -476,17 +485,9 @@ export class RemotePlayer {
         this.isAlive = alive;
         
         if (this.mesh) {
-            if (alive) {
-                this.mesh.visibility = 1.0;
-                this.mesh.material.alpha = 1.0;
-            } else {
-                // Make player semi-transparent when dead
-                this.mesh.visibility = 0.5;
-                this.mesh.material.alpha = 0.5;
-            }
+            this.mesh.visibility = alive ? 1.0 : 0.5;
+            this.mesh.material.alpha = alive ? 1.0 : 0.5;
         }
-        
-        console.log(`RemotePlayer ${this.username} alive state: ${alive}`);
     }
     
     /**
@@ -499,8 +500,6 @@ export class RemotePlayer {
             this.nameTag.text.text = username;
             this.nameTag.background.widthInPixels = username.length * 8 + 20;
         }
-        
-        console.log(`RemotePlayer username updated: ${username}`);
     }
     
     /**
@@ -508,11 +507,10 @@ export class RemotePlayer {
      */
     triggerShoot() {
         this.isShooting = true;
-        console.log(`RemotePlayer ${this.username} is shooting`);
     }
     
     /**
-     * Get player position
+     * Get player position using PlayerUtils
      */
     getPosition() {
         return PlayerUtils.getPosition(this);
@@ -526,7 +524,7 @@ export class RemotePlayer {
     }
     
     /**
-     * Check if player is alive
+     * Check if player is alive using PlayerUtils
      */
     isPlayerAlive() {
         return PlayerUtils.isPlayerAlive(this);
@@ -536,13 +534,9 @@ export class RemotePlayer {
      * Dispose of remote player resources
      */
     dispose() {
-        console.log(`Disposing RemotePlayer: ${this.username}`);
-        
         // Stop and clear animations
         if (this.animationGroups.size) {
-            this.animationGroups.forEach(animGroup => {
-                animGroup.stop();
-            });
+            this.animationGroups.forEach(animGroup => animGroup.stop());
             this.animationGroups.clear();
         }
         
@@ -552,20 +546,21 @@ export class RemotePlayer {
             this.mesh = null;
         }
         
+        // Dispose look ray
+        if (this.lookRay) {
+            this.lookRay.dispose();
+            this.lookRay = null;
+        }
+        
         // Dispose name tag
         if (this.nameTag) {
             this.nameTag.texture.dispose();
             this.nameTag = null;
         }
         
-        // Clear health bar reference
-        this.healthBar = null;
-        
         // Clear references
+        this.healthBar = null;
         this.game = null;
         this.scene = null;
-        this.characterAsset = null;
-        
-        console.log(`RemotePlayer ${this.username} disposed`);
     }
-}
+} 

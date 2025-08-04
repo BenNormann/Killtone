@@ -106,6 +106,7 @@ export class NetworkPlayerManager {
      * @param {Object} data - Movement data
      */
     handlePlayerMoved(data) {
+        console.log(`NetworkPlayerManager: Received playerMoved event:`, data);
         const remotePlayer = this.remotePlayers.get(data.playerId);
         if (remotePlayer) {
             remotePlayer.updateFromNetworkData({

@@ -574,7 +574,7 @@ export class Player {
             }
             
             // Send player update to server
-            this.game.networkManager.emit('playerUpdate', {
+            const updateData = {
                 position: {
                     x: this.position.x,
                     y: this.position.y,
@@ -585,8 +585,12 @@ export class Player {
                     y: this.rotationY,
                     z: 0
                 },
-                movement: movementState
-            });
+                movement: movementState,
+                health: this.health,
+                alive: this.health > 0
+            };
+            console.log(`Player: Sending playerUpdate:`, updateData);
+            this.game.networkManager.emit('playerUpdate', updateData);
             
             // Update last sent values
             this.lastPosition.copyFrom(this.position);

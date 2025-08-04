@@ -73,20 +73,40 @@ io.on('connection', (socket) => {
   
   // Handle player movement updates
   socket.on('playerUpdate', (data) => {
+    console.log(`Server: Received playerUpdate from ${socket.id}:`, data);
     const player = players.get(socket.id);
     if (player && player.alive) {
+      // Update player data
       player.position = data.position;
       player.rotation = data.rotation;
       player.movement = data.movement || "standing";
       player.lastUpdate = Date.now();
       
-      // Broadcast to other players
-      socket.broadcast.emit('playerMoved', {
+      // Update health if provided
+      if (data.health !== undefined) {
+        const healthChanged = player.health !== data.health;
+        player.health = data.health;
+        player.alive = data.alive !== undefined ? data.alive : player.health > 0;
+        
+        // Broadcast health update if it changed
+        if (healthChanged) {
+          socket.broadcast.emit('playerHealthUpdated', {
+            playerId: socket.id,
+            health: player.health,
+            alive: player.alive
+          });
+        }
+      }
+      
+      // Broadcast movement to other players
+      const broadcastData = {
         playerId: socket.id,
         position: data.position,
         rotation: data.rotation,
         movement: player.movement
-      });
+      };
+      console.log(`Server: Broadcasting playerMoved:`, broadcastData);
+      socket.broadcast.emit('playerMoved', broadcastData);
     }
   });
   
