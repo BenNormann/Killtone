@@ -7,7 +7,6 @@
 export {
     WeaponType,
     FiringMode,
-    MuzzleFlashType,
     WeaponConfigs,
     WeaponConstants
 } from './WeaponConfig.js';

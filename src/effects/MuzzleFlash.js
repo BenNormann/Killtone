@@ -53,11 +53,21 @@ export class MuzzleFlash {
     createMuzzleFlash(position, direction, weaponModel = null, config = {}) {
         const flashId = `flash_${Date.now()}_${Math.random()}`;
         
+        // Calculate scale factor for weapon model
+        let scaleFactor = 1.0;
+        if (weaponModel && weaponModel.scaling) {
+            scaleFactor = Math.max(weaponModel.scaling.x, weaponModel.scaling.y, weaponModel.scaling.z);
+        }
+        
+        // Scale the muzzle flash size and length based on weapon model scaling
+        const scaledSize = (config.size || 0.3) / scaleFactor;
+        const scaledLength = (config.length || 0.8) / scaleFactor;
+        
         // Create cone mesh for muzzle flash
         const cone = BABYLON.MeshBuilder.CreateCylinder(flashId, {
             diameterTop: 0,
-            diameterBottom: config.size || 0.3,
-            height: config.length || 0.8,
+            diameterBottom: scaledSize,
+            height: scaledLength,
             tessellation: 8
         }, this.scene);
         
@@ -72,23 +82,39 @@ export class MuzzleFlash {
         }
         
         // Handle positioning based on whether we have a weapon model
-        if (weaponModel && weaponModel.isEnabled()) {
+        if (weaponModel) {
+            console.log(`MuzzleFlash: Attaching to weapon model: ${weaponModel.name}`);
             // Attach to weapon and use relative positioning from config
             cone.parent = weaponModel;
             
-            // Use the position from config as local coordinates relative to weapon
-            const localPosition = new BABYLON.Vector3(
-                config.position?.x || 0,
-                config.position?.y || 0,
-                config.position?.z || 0
-            );
+            // Calculate scaled position based on weapon model scaling
+            let localPosition;
+            if (weaponModel.scaling) {
+                // Scale the position coordinates to compensate for weapon model scaling
+                localPosition = new BABYLON.Vector3(
+                    (config.position?.x || 0) / scaleFactor,
+                    (config.position?.y || 0) / scaleFactor,
+                    (config.position?.z || 0) / scaleFactor
+                );
+                console.log(`MuzzleFlash: Scaled position by factor ${scaleFactor}: ${localPosition.toString()}`);
+            } else {
+                // Fallback to original position if no scaling info
+                localPosition = new BABYLON.Vector3(
+                    config.position?.x || 0,
+                    config.position?.y || 0,
+                    config.position?.z || 0
+                );
+            }
+            
             cone.position = localPosition;
+            console.log(`MuzzleFlash: Cone position: ${cone.position.toString()}`);
         } else {
+            console.log(`MuzzleFlash: No weapon model, using world position`);
             // Use world position if no weapon model
             cone.position = position.clone();
         }
                
-        // Rotate 90 degrees so the cone tip points in the firing direction
+        // Rotate 90 degrees so the cone tip points opposite the firing direction
         cone.rotation.x -= Math.PI / 2;
         
         // Scale animation

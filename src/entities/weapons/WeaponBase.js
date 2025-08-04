@@ -440,6 +440,7 @@ export class WeaponBase {
             this.model,
             this.config.muzzleFlash
         );
+        console.log(`${this.name}: Muzzle flash created`);
     }
 
     /**
