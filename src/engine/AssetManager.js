@@ -528,6 +528,28 @@ export class AssetManager extends BaseManager {
             category: 'gameplay'
         });
 
+        // Add character assets for all animation states
+        const characterAssets = [
+            {
+                name: 'trun_standing',
+                folder: 'assets/characters/trun/',
+                filename: 'Animation_Standing.glb',
+                category: 'gameplay'
+            },
+            {
+                name: 'trun_walking',
+                folder: 'assets/characters/trun/',
+                filename: 'Animation_Walking_withSkin.glb',
+                category: 'gameplay'
+            },
+            {
+                name: 'trun_running',
+                folder: 'assets/characters/trun/',
+                filename: 'Animation_Running_withSkin.glb',
+                category: 'gameplay'
+            },
+        ];
+
         console.log('Loading essential assets...');
         await this.loadAssets(gameAssets);
     }

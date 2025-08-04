@@ -239,8 +239,8 @@ export class Game {
         this.lastFrameTime = performance.now();
 
         // Start render loop
-        this.engine.runRenderLoop(() => {
-            this.update();
+        this.engine.runRenderLoop(async () => {
+            await this.update();
             this.render();
         });
 
@@ -250,7 +250,7 @@ export class Game {
     /**
      * Main game update loop
      */
-    update() {
+    async update() {
         if (!this.isRunning) return;
 
         const currentTime = performance.now();
@@ -261,7 +261,7 @@ export class Game {
         this.updateFPS();
 
         // Update all managers
-        this.updateManagers();
+        await this.updateManagers();
 
         // Update player if in game
         if (this.player && this.stateManager.getCurrentState() === 'IN_GAME') {
@@ -272,13 +272,13 @@ export class Game {
     /**
      * Update all game managers
      */
-    updateManagers() {
+    async updateManagers() {
         if (this.inputManager) this.inputManager.update(this.deltaTime);
         if (this.audioSystem) this.audioSystem.update(this.deltaTime);
         if (this.physicsManager) this.physicsManager.update(this.deltaTime);
         if (this.projectileManager) this.projectileManager.update(this.deltaTime);
         if (this.particleManager) this.particleManager.update(this.deltaTime);
-        if (this.networkManager) this.networkManager.update(this.deltaTime);
+        if (this.networkManager) await this.networkManager.update(this.deltaTime);
         if (this.performanceMonitor) this.performanceMonitor.update(this.deltaTime);
         if (this.uiManager) this.uiManager.update(this.player);
     }

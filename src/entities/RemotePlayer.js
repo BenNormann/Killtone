@@ -48,8 +48,6 @@ export class RemotePlayer {
         // Animation state
         this.movementState = playerData.movement || "standing";
         this.lastMovementState = this.movementState;
-        this.animationGroups = new Map();
-        this.currentAnimation = null;
         this.isShooting = false;
     }
     
@@ -74,23 +72,25 @@ export class RemotePlayer {
      */
     async createPlayerMesh() {
         try {
+            // Load the appropriate animation file based on movement state
+            const animationFile = this.getAnimationFileForState(this.movementState);
+            
             // Try to load character model using AssetManager
             if (this.game.assetManager) {
-                const characterAsset = this.game.assetManager.getAsset('trun_character');
+                // Load the specific animation file for this movement state
+                await this.loadAnimationAsset(animationFile);
+                
+                const characterAsset = this.game.assetManager.getAsset(animationFile);
                 if (characterAsset?.meshes.length > 0) {
-                    this.mesh = characterAsset.meshes[0].clone(`remotePlayer_${this.id}`);
+                    const sourceMesh = characterAsset.meshes[0];
+                    this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
                     
-                    // Store animation groups
-                    if (characterAsset.animationGroups) {
-                        console.log(`RemotePlayer ${this.username}: Loading animation groups from character asset:`, characterAsset.animationGroups.map(ag => ag.name));
-                        characterAsset.animationGroups.forEach(animGroup => {
-                            this.animationGroups.set(animGroup.name.toLowerCase(), animGroup);
-                            animGroup.stop();
-                        });
-                        console.log(`RemotePlayer ${this.username}: Stored animation groups:`, Array.from(this.animationGroups.keys()));
-                    } else {
-                        console.log(`RemotePlayer ${this.username}: No animation groups found in character asset`);
-                    }
+                    // Ensure the new mesh is properly added to the scene and enabled
+                    this.mesh.setEnabled(true);
+                    this.mesh.isVisible = true;
+                    
+                    // No animation groups - using separate GLB files for each animation state
+                    console.log(`RemotePlayer ${this.username}: Using separate GLB files for animation states`);
                 } else {
                     this.createFallbackMesh();
                 }
@@ -114,6 +114,108 @@ export class RemotePlayer {
         } catch (error) {
             console.error(`Failed to create player mesh for ${this.username}:`, error);
             this.createFallbackMesh();
+        }
+    }
+    
+    /**
+     * Get the appropriate animation file name based on movement state
+     */
+    getAnimationFileForState(movementState) {
+        switch (movementState) {
+            case 'walking': return 'trun_walking';
+            case 'sprinting': return 'trun_running';
+            case 'standing':
+            default: return 'trun_standing';
+        }
+    }
+    
+    /**
+     * Load animation asset if not already loaded
+     */
+    async loadAnimationAsset(assetName) {
+        if (!this.game.assetManager.isAssetLoaded(assetName)) {
+            const animationConfig = this.getAnimationConfig(assetName);
+            if (animationConfig) {
+                await this.game.assetManager.loadModel(
+                    assetName,
+                    animationConfig.folder,
+                    animationConfig.filename,
+                    'gameplay'
+                );
+            }
+        }
+    }
+    
+    /**
+     * Get animation configuration for different movement states
+     */
+    getAnimationConfig(assetName) {
+        const configs = {
+            'trun_standing': {
+                folder: 'assets/characters/trun/',
+                filename: 'Animation_Standing.glb'
+            },
+            'trun_walking': {
+                folder: 'assets/characters/trun/',
+                filename: 'Animation_Walking_withSkin.glb'
+            },
+            'trun_running': {
+                folder: 'assets/characters/trun/',
+                filename: 'Animation_Running_withSkin.glb'
+            }
+        };
+        return configs[assetName];
+    }
+    
+    /**
+     * Swap mesh for new movement state
+     */
+    async swapMeshForMovementState(newMovementState) {
+        try {
+            // Get the new animation file for this movement state
+            const newAnimationFile = this.getAnimationFileForState(newMovementState);
+            
+            // Load the new animation asset if not already loaded
+            await this.loadAnimationAsset(newAnimationFile);
+            
+            // Get the new character asset
+            const newCharacterAsset = this.game.assetManager.getAsset(newAnimationFile);
+            if (!newCharacterAsset?.meshes.length) {
+                console.error(`RemotePlayer ${this.username}: Failed to load new animation asset: ${newAnimationFile}`);
+                return;
+            }
+            
+            // Store current position and rotation
+            const currentPosition = this.mesh ? this.mesh.position.clone() : this.position.clone();
+            const currentRotation = this.mesh ? this.mesh.rotation.clone() : this.rotation.clone();
+            
+            // Dispose old mesh
+            if (this.mesh) {
+                this.mesh.dispose();
+            }
+            
+            // Create new mesh from the source mesh
+            const sourceMesh = newCharacterAsset.meshes[0];
+            this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
+            
+            // Ensure the new mesh is properly added to the scene and enabled
+            this.mesh.setEnabled(true);
+            this.mesh.isVisible = true;
+            
+            // Restore position and rotation
+            this.mesh.position.copyFrom(currentPosition);
+            this.mesh.rotationQuaternion = null;
+            this.mesh.rotation.copyFrom(currentRotation);
+            
+            this.mesh.checkCollisions = true;
+            
+            // Play the appropriate animation
+            this.playAnimation(newMovementState);
+            
+            console.log(`RemotePlayer ${this.username}: Successfully swapped to ${newMovementState} animation`);
+            
+        } catch (error) {
+            console.error(`RemotePlayer ${this.username}: Failed to swap mesh for movement state ${newMovementState}:`, error);
         }
     }
     
@@ -344,47 +446,14 @@ export class RemotePlayer {
      */
     playAnimation(animationName) {
         console.log(`RemotePlayer ${this.username}: playAnimation called with: ${animationName}`);
-        console.log(`RemotePlayer ${this.username}: Available animation groups:`, Array.from(this.animationGroups.keys()));
         
-        if (!this.animationGroups.size) {
-            console.log(`RemotePlayer ${this.username}: No animation groups available, using fallback scaling`);
-            // Handle crouching state for fallback mesh
-            if (this.mesh) {
-                if (animationName === 'crouching') {
-                    this.mesh.scaling.y = 0.7; // Scale down for crouching
-                } else {
-                    this.mesh.scaling.y = 1.0; // Normal scale
-                }
+        // Handle crouching state for fallback mesh (scaling only)
+        if (this.mesh) {
+            if (animationName === 'crouching') {
+                this.mesh.scaling.y = 0.7; // Scale down for crouching
+            } else {
+                this.mesh.scaling.y = 1.0; // Normal scale
             }
-            return;
-        }
-        
-        // Stop current animation
-        if (this.currentAnimation) {
-            console.log(`RemotePlayer ${this.username}: Stopping current animation: ${this.currentAnimation}`);
-            this.animationGroups.get(this.currentAnimation)?.stop();
-        }
-        
-        // Map movement state to animation name
-        let animKey = animationName;
-        switch (animationName) {
-            case 'standing': animKey = 'idle'; break;
-            case 'walking': animKey = 'walk'; break;
-            case 'sprinting': animKey = 'run'; break;
-            case 'crouching': animKey = 'idle'; break; // Use idle for crouching if no crouch anim
-        }
-        
-        console.log(`RemotePlayer ${this.username}: Mapped ${animationName} to animation key: ${animKey}`);
-        
-        // Play the animation
-        const animation = this.animationGroups.get(animKey);
-        if (animation) {
-            console.log(`RemotePlayer ${this.username}: Playing animation: ${animKey}`);
-            animation.play(true);
-            this.currentAnimation = animKey;
-        } else {
-            console.log(`RemotePlayer ${this.username}: Animation not found: ${animKey}`);
-            console.log(`RemotePlayer ${this.username}: Available animations:`, Array.from(this.animationGroups.keys()));
         }
     }
     
@@ -423,7 +492,7 @@ export class RemotePlayer {
     /**
      * Update player state from network data
      */
-    updateFromNetworkData(data) {
+    async updateFromNetworkData(data) {
         // Update target position and rotation for smooth interpolation
         if (data.position) {
             this.targetPosition.set(data.position.x, data.position.y, data.position.z);
@@ -440,8 +509,8 @@ export class RemotePlayer {
         if (data.movement && data.movement !== this.movementState) {
             console.log(`RemotePlayer ${this.username}: Movement state changed from ${this.movementState} to ${data.movement}`);
             this.movementState = data.movement;
-            // Immediately update animation when movement state changes
-            this.playAnimation(this.movementState);
+            // Swap mesh for new movement state
+            await this.swapMeshForMovementState(this.movementState);
             this.lastMovementState = this.movementState;
         }
         
@@ -533,13 +602,7 @@ export class RemotePlayer {
     /**
      * Dispose of remote player resources
      */
-    dispose() {
-        // Stop and clear animations
-        if (this.animationGroups.size) {
-            this.animationGroups.forEach(animGroup => animGroup.stop());
-            this.animationGroups.clear();
-        }
-        
+    dispose() {        
         // Dispose mesh
         if (this.mesh) {
             this.mesh.dispose();
