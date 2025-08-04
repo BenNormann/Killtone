@@ -42,9 +42,6 @@ export class ProjectileManager {
         
         // Cleanup timer
         this.lastCleanupTime = 0;
-        
-        // Initialize glow layer for projectiles
-        this.initializeGlowLayer();
     }
     
     /**
@@ -64,24 +61,7 @@ export class ProjectileManager {
         console.log('ProjectileManager initialized');
     }
     
-    /**
-     * Initialize glow layer for enhanced projectile visibility
-     */
-    initializeGlowLayer() {
-        console.log('ProjectileManager: Initializing glow layer...');
-        if (!this.scene.glowLayer) {
-            console.log('ProjectileManager: Creating new glow layer');
-            this.scene.glowLayer = new BABYLON.GlowLayer("projectileGlow", this.scene, {
-                mainTextureSamples: 4,
-                blurHorizontalSize: 0.3,
-                blurVerticalSize: 0.3,
-                glowIntensity: 0.8
-            });
-            console.log('ProjectileManager: Glow layer created:', this.scene.glowLayer);
-        } else {
-            console.log('ProjectileManager: Glow layer already exists');
-        }
-    }
+
     
     /**
      * Fire a new projectile
