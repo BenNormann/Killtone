@@ -55,6 +55,7 @@ io.on('connection', (socket) => {
     score: 0, // Initialize kill score
     deaths: 0, // Initialize death count
     username: `Player ${socket.id.slice(-4)}`, // Default username
+    movement: "standing", // Default movement state
     lastUpdate: Date.now()
   };
   
@@ -76,13 +77,15 @@ io.on('connection', (socket) => {
     if (player && player.alive) {
       player.position = data.position;
       player.rotation = data.rotation;
+      player.movement = data.movement || "standing";
       player.lastUpdate = Date.now();
       
       // Broadcast to other players
       socket.broadcast.emit('playerMoved', {
         playerId: socket.id,
         position: data.position,
-        rotation: data.rotation
+        rotation: data.rotation,
+        movement: player.movement
       });
     }
   });
@@ -229,6 +232,7 @@ function respawnPlayer(playerId) {
     player.position = getSpawnPosition();
     player.health = gameConfig.maxHealth;
     player.alive = true;
+    player.movement = "standing"; // Reset movement state on respawn
     
     // Notify all players about respawn
     io.emit('playerRespawned', {

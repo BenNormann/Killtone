@@ -172,6 +172,14 @@ export class AssetManager extends BaseManager {
                 throw new Error('BABYLON.SceneLoader is not available. Make sure Babylon.js loaders are properly loaded.');
             }
 
+            // Hide weapon meshes from scene (they should only be used for cloning)
+            if (category === 'weapon' || name.includes('weapon') || name.includes('carbine') || name.includes('pistol') || name.includes('shotgun') || name.includes('smg') || name.includes('sniper') || name.includes('knife')) {
+                result.meshes.forEach(mesh => {
+                    mesh.setEnabled(false);
+                    console.log(`Hidden weapon mesh ${mesh.name} from scene (will be used for cloning)`);
+                });
+            }
+
             // Store the loaded asset
             const assetData = {
                 name,
@@ -512,8 +520,25 @@ export class AssetManager extends BaseManager {
             }
         }
 
+        // Add character assets
+        gameAssets.push({
+            name: 'trun_character',
+            folder: 'assets/characters/trun/',
+            filename: 'Animation_Standing.glb',
+            category: 'gameplay'
+        });
+
         console.log('Loading essential assets...');
         await this.loadAssets(gameAssets);
+    }
+
+    /**
+     * Subclass-specific initialization - override in subclasses
+     * @protected
+     */
+    async _doInitialize() {
+        // Load game assets during initialization
+        await this.loadGameAssets();
     }
 
     /**

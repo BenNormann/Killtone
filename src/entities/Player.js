@@ -563,6 +563,16 @@ export class Player {
                                Math.abs(this.rotationY - this.lastRotation.y) > 0.01;
         
         if (positionChanged || rotationChanged) {
+            // Determine movement state
+            let movementState = "standing";
+            if (this.movementInput.forward || this.movementInput.backward || this.movementInput.left || this.movementInput.right) {
+                if (this.isSprinting) {
+                    movementState = "sprinting";
+                } else {
+                    movementState = "walking";
+                }
+            }
+            
             // Send player update to server
             this.game.networkManager.emit('playerUpdate', {
                 position: {
@@ -574,7 +584,8 @@ export class Player {
                     x: this.rotationX,
                     y: this.rotationY,
                     z: 0
-                }
+                },
+                movement: movementState
             });
             
             // Update last sent values

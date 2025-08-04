@@ -50,6 +50,11 @@ export class RemotePlayer {
         this.isMoving = false;
         this.isShooting = false;
         this.currentWeapon = null;
+        this.movementState = playerData.movement || "standing";
+        this.lastMovementState = this.movementState;
+        this.characterAsset = null;
+        this.animationGroups = new Map();
+        this.currentAnimation = null;
     }
     
     /**
@@ -63,7 +68,7 @@ export class RemotePlayer {
             
             // Create player mesh
             console.log(`DEBUG: Creating player mesh for ${this.username}`);
-            this.createPlayerMesh();
+            await this.createPlayerMesh();
             
             // Create name tag
             console.log(`DEBUG: Creating name tag for ${this.username}`);
@@ -89,17 +94,59 @@ export class RemotePlayer {
     /**
      * Create the visual mesh for the remote player
      */
-    createPlayerMesh() {
-        // Create a simple capsule to represent the player
+    async createPlayerMesh() {
+        try {
+            // Try to load character model using AssetManager
+            if (this.game.assetManager) {
+                const characterAsset = this.game.assetManager.getAsset('trun_character');
+                if (characterAsset && characterAsset.meshes.length > 0) {
+                    // Clone the character model
+                    this.mesh = characterAsset.meshes[0].clone(`remotePlayer_${this.id}`);
+                    this.characterAsset = characterAsset;
+                    
+                    // Store animation groups
+                    if (characterAsset.animationGroups) {
+                        characterAsset.animationGroups.forEach(animGroup => {
+                            this.animationGroups.set(animGroup.name.toLowerCase(), animGroup);
+                            animGroup.stop(); // Stop all animations initially
+                        });
+                    }
+                    
+                    console.log(`Loaded character model for RemotePlayer: ${this.username}`);
+                } else {
+                    // Fallback to capsule if character not loaded
+                    this.createFallbackMesh();
+                }
+            } else {
+                // Fallback to capsule if AssetManager not available
+                this.createFallbackMesh();
+            }
+            
+            // Position the mesh
+            this.mesh.position.copyFrom(this.position);
+            this.mesh.rotation.copyFrom(this.rotation);
+            
+            // Add collision detection
+            this.mesh.checkCollisions = true;
+            
+            // Start with standing animation
+            this.playAnimation('standing');
+            
+        } catch (error) {
+            console.error(`Failed to create player mesh for ${this.username}:`, error);
+            this.createFallbackMesh();
+        }
+    }
+    
+    /**
+     * Create fallback capsule mesh
+     */
+    createFallbackMesh() {
         this.mesh = BABYLON.MeshBuilder.CreateCapsule(
             `remotePlayer_${this.id}`,
             { height: 1.8, radius: 0.3 },
             this.scene
         );
-        
-        // Position the mesh
-        this.mesh.position.copyFrom(this.position);
-        this.mesh.rotation.copyFrom(this.rotation);
         
         // Create material
         const material = new BABYLON.StandardMaterial(`remotePlayerMat_${this.id}`, this.scene);
@@ -107,10 +154,7 @@ export class RemotePlayer {
         material.emissiveColor = new BABYLON.Color3(0.1, 0.3, 0.5);
         this.mesh.material = material;
         
-        // Add collision detection
-        this.mesh.checkCollisions = true;
-        
-        console.log(`Created mesh for RemotePlayer: ${this.username}`);
+        console.log(`Created fallback mesh for RemotePlayer: ${this.username}`);
     }
     
     /**
@@ -295,16 +339,51 @@ export class RemotePlayer {
     }
     
     /**
+     * Play animation based on movement state
+     */
+    playAnimation(animationName) {
+        if (!this.animationGroups.size) return;
+        
+        // Stop current animation
+        if (this.currentAnimation) {
+            this.animationGroups.get(this.currentAnimation)?.stop();
+        }
+        
+        // Map movement state to animation name
+        let animKey = animationName;
+        switch (animationName) {
+            case 'standing':
+                animKey = 'idle';
+                break;
+            case 'walking':
+                animKey = 'walk';
+                break;
+            case 'sprinting':
+                animKey = 'run';
+                break;
+        }
+        
+        // Play the animation
+        const animation = this.animationGroups.get(animKey);
+        if (animation) {
+            animation.play(true); // Loop the animation
+            this.currentAnimation = animKey;
+            console.log(`Playing animation ${animKey} for ${this.username}`);
+        } else {
+            console.warn(`Animation ${animKey} not found for ${this.username}`);
+        }
+    }
+    
+    /**
      * Update animations based on state
      */
     updateAnimations(deltaTime) {
         if (!this.mesh) return;
         
-        // Simple bob animation when moving
-        if (this.isMoving) {
-            const time = Date.now() * 0.005;
-            const bobOffset = Math.sin(time) * 0.05;
-            this.mesh.position.y = this.position.y + bobOffset;
+        // Update animation based on movement state
+        if (this.movementState !== this.lastMovementState) {
+            this.playAnimation(this.movementState);
+            this.lastMovementState = this.movementState;
         }
         
         // Flash effect when shooting
@@ -339,6 +418,11 @@ export class RemotePlayer {
         
         if (data.rotation) {
             this.targetRotation.set(data.rotation.x, data.rotation.y, data.rotation.z);
+        }
+        
+        // Update movement state
+        if (data.movement && data.movement !== this.movementState) {
+            this.movementState = data.movement;
         }
         
         // Update health
@@ -454,6 +538,14 @@ export class RemotePlayer {
     dispose() {
         console.log(`Disposing RemotePlayer: ${this.username}`);
         
+        // Stop and clear animations
+        if (this.animationGroups.size) {
+            this.animationGroups.forEach(animGroup => {
+                animGroup.stop();
+            });
+            this.animationGroups.clear();
+        }
+        
         // Dispose mesh
         if (this.mesh) {
             this.mesh.dispose();
@@ -472,6 +564,7 @@ export class RemotePlayer {
         // Clear references
         this.game = null;
         this.scene = null;
+        this.characterAsset = null;
         
         console.log(`RemotePlayer ${this.username} disposed`);
     }

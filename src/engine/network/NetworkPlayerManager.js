@@ -110,7 +110,8 @@ export class NetworkPlayerManager {
         if (remotePlayer) {
             remotePlayer.updateFromNetworkData({
                 position: data.position,
-                rotation: data.rotation
+                rotation: data.rotation,
+                movement: data.movement
             });
         }
     }
