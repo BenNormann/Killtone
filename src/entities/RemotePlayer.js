@@ -85,6 +85,8 @@ export class RemotePlayer {
                     const sourceMesh = characterAsset.meshes[0];
                     this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
                     
+                    // The mesh is already normalized by AssetManager, don't overwrite it
+                    
                     // Ensure the new mesh is properly added to the scene and enabled
                     this.mesh.setEnabled(true);
                     this.mesh.isVisible = true;
@@ -98,8 +100,10 @@ export class RemotePlayer {
                 this.createFallbackMesh();
             }
             
-            // Position and setup mesh
-            this.mesh.position.copyFrom(this.position);
+            // Position and setup mesh - preserve AssetManager transformations
+            this.mesh.position.x = this.position.x;
+            this.mesh.position.z = this.position.z;
+            this.mesh.position.y = this.position.y + this.mesh.position.y; // Add player Y + AssetManager Y offset
             
             // Clear rotationQuaternion to use rotation property instead
             this.mesh.rotationQuaternion = null;
@@ -140,7 +144,7 @@ export class RemotePlayer {
                     assetName,
                     animationConfig.folder,
                     animationConfig.filename,
-                    'gameplay'
+                    'character'
                 );
             }
         }
@@ -202,8 +206,10 @@ export class RemotePlayer {
             this.mesh.setEnabled(true);
             this.mesh.isVisible = true;
             
-            // Restore position and rotation
-            this.mesh.position.copyFrom(currentPosition);
+            // Restore position and rotation - preserve AssetManager transformations
+            this.mesh.position.x = currentPosition.x;
+            this.mesh.position.z = currentPosition.z;
+            // Keep the AssetManager's Y offset as-is (it's already applied to the mesh)
             this.mesh.rotationQuaternion = null;
             this.mesh.rotation.copyFrom(currentRotation);
             
@@ -358,7 +364,10 @@ export class RemotePlayer {
                 this.targetPosition,
                 this.interpolationSpeed * deltaTime
             );
-            this.mesh.position.copyFrom(this.position);
+            // Preserve AssetManager Y offset when updating position
+            this.mesh.position.x = this.position.x;
+            this.mesh.position.z = this.position.z;
+            // Don't overwrite Y - keep the AssetManager offset
             
             // Update look ray position
             if (this.lookRay) {

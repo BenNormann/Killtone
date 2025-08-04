@@ -180,6 +180,25 @@ export class AssetManager extends BaseManager {
                 });
             }
 
+            // NORMALIZE CHARACTER MESH TRANSFORMATIONS
+            // Apply character-specific transformations based on animation state
+            if (category === 'character' || name.includes('trun') || name.includes('character')) {
+                console.log(`${name} - Before normalization:`, {
+                    position: result.meshes[0]?.position?.toString() || 'N/A',
+                    rotation: result.meshes[0]?.rotation?.toString() || 'N/A',
+                    scaling: result.meshes[0]?.scaling?.toString() || 'N/A'
+                });
+
+                // Apply character-specific transformations
+                this.applyCharacterTransformations(name, result.meshes);
+
+                console.log(`${name} - After normalization:`, {
+                    position: result.meshes[0]?.position?.toString() || 'N/A',
+                    rotation: result.meshes[0]?.rotation?.toString() || 'N/A',
+                    scaling: result.meshes[0]?.scaling?.toString() || 'N/A'
+                });
+            }
+
             // Store the loaded asset
             const assetData = {
                 name,
@@ -404,6 +423,53 @@ export class AssetManager extends BaseManager {
     }
 
     /**
+     * Apply character-specific transformations based on animation state
+     * @param {string} characterName - Name of the character asset
+     * @param {Array} meshes - Array of meshes to transform
+     */
+    applyCharacterTransformations(characterName, meshes) {
+        // Character-specific transformation configurations
+        const characterConfigs = {
+            'trun_standing': {
+                position: new BABYLON.Vector3(0, .4, 0),
+                rotation: new BABYLON.Vector3(0, 180 * Math.PI / 180, 0), // 180 degrees
+                scaling: new BABYLON.Vector3(.9, .9, .9)
+            },
+            'trun_walking': {
+                position: new BABYLON.Vector3(0, 0, 0),
+                rotation: new BABYLON.Vector3(0, 180 * Math.PI / 180, 0), // 180 degrees
+                scaling: new BABYLON.Vector3(1, 1, 1)
+            },
+            'trun_running': {
+                position: new BABYLON.Vector3(0, 0, 0),
+                rotation: new BABYLON.Vector3(0, 180 * Math.PI / 180, 0), // 180 degrees
+                scaling: new BABYLON.Vector3(1, 1, 1)
+            }
+        };
+
+        const config = characterConfigs[characterName];
+        if (!config) {
+            console.warn(`No transformation config found for character: ${characterName}`);
+            // Fallback to identity transformations
+            meshes.forEach(mesh => {
+                mesh.position = new BABYLON.Vector3(0, 0, 0);
+                mesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                mesh.scaling = new BABYLON.Vector3(1, 1, 1);
+            });
+            return;
+        }
+
+        // Apply the character-specific transformations
+        meshes.forEach(mesh => {
+            mesh.position = config.position.clone();
+            mesh.rotation = config.rotation.clone();
+            mesh.scaling = config.scaling.clone();
+        });
+
+        console.log(`Applied transformations for ${characterName}:`, config);
+    }
+
+    /**
      * Get loading progress information
      * @returns {Object} - Current loading progress
      */
@@ -534,21 +600,24 @@ export class AssetManager extends BaseManager {
                 name: 'trun_standing',
                 folder: 'assets/characters/trun/',
                 filename: 'Animation_Standing.glb',
-                category: 'gameplay'
+                category: 'character'
             },
             {
                 name: 'trun_walking',
                 folder: 'assets/characters/trun/',
                 filename: 'Animation_Walking_withSkin.glb',
-                category: 'gameplay'
+                category: 'character'
             },
             {
                 name: 'trun_running',
                 folder: 'assets/characters/trun/',
                 filename: 'Animation_Running_withSkin.glb',
-                category: 'gameplay'
+                category: 'character'
             },
         ];
+
+        // Add character assets to the game assets
+        gameAssets.push(...characterAssets);
 
         console.log('Loading essential assets...');
         await this.loadAssets(gameAssets);
