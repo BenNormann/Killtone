@@ -62,12 +62,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'purple',
-            size: 0.3,
-            length: 0.8,
+            color: 'PRIMARY',
+            size: 0.1,
+            length: 0.6,
             duration: 100,
-            position: { x: 0, y: 1, z: 10.0 },
-            alignment: { x: 0.0, y: 10.0 } // Slight right and down alignment offset
+            position: { x: 0.00, y: 0.315, z: 1.4 }
         },
         recoilPattern: {
             horizontal: 0.05,
@@ -112,12 +111,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'pink',
+            color: 'SECONDARY',
             size: 0.25,
             length: 0.6,
             duration: 80,
             position: { x: 0, y: 0, z: 0.8 },
-            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.04,
@@ -164,12 +162,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'purple',
+            color: 'PRIMARY',
             size: 0.4,
             length: 1.0,
             duration: 120,
             position: { x: 0, y: 0, z: 1.5 },
-            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.12,
@@ -214,12 +211,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'purple',
+            color: 'PRIMARY',
             size: 0.28,
             length: 0.7,
             duration: 90,
             position: { x: 0, y: 0, z: 1.0 },
-            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.06,
@@ -264,12 +260,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'purple',
+            color: 'PRIMARY',
             size: 0.35,
             length: 1.2,
             duration: 150,
             position: { x: 0, y: 0, z: 1.8 },
-            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.15,

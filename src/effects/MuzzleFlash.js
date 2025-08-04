@@ -3,10 +3,11 @@
  * Creates muzzle flash effects attached to weapon models
  */
 
+import { WeaponConstants } from '../entities/weapons/WeaponConfig.js';
+
 export class MuzzleFlash {
-    constructor(scene, effectsManager) {
+    constructor(scene) {
         this.scene = scene;
-        this.effectsManager = effectsManager;
         
         // Active muzzle flashes
         this.activeMuzzleFlashes = new Map();
@@ -27,21 +28,23 @@ export class MuzzleFlash {
      * Create muzzle flash materials
      */
     createMaterials() {
-        // Purple muzzle flash material
-        const purpleMaterial = new BABYLON.StandardMaterial('muzzleFlash_purple', this.scene);
-        purpleMaterial.emissiveColor = new BABYLON.Color3(1.0, 0.0, 1.0); // Bright purple
-        purpleMaterial.diffuseColor = new BABYLON.Color3(1.0, 0.0, 1.0);
-        purpleMaterial.disableLighting = true;
-        purpleMaterial.backFaceCulling = false;
-        this.materials.set('purple', purpleMaterial);
+        // Create materials using WeaponConstants.MUZZLE_FLASH_COLORS
+        Object.entries(WeaponConstants.MUZZLE_FLASH_COLORS).forEach(([colorKey, colorValue]) => {
+            const materialName = `muzzleFlash_${colorKey.toLowerCase()}`;
+            const material = new BABYLON.StandardMaterial(materialName, this.scene);
+            
+            // Convert RGBA to Color3 (ignore alpha for material)
+            material.emissiveColor = new BABYLON.Color3(colorValue.r, colorValue.g, colorValue.b);
+            material.diffuseColor = new BABYLON.Color3(colorValue.r, colorValue.g, colorValue.b);
+            material.disableLighting = true;
+            material.backFaceCulling = false;
+            
+            // Store with both the key name and a fallback name
+            this.materials.set(colorKey, material);
+            this.materials.set(colorKey.toLowerCase(), material);
+        });
         
-        // Pink muzzle flash material
-        const pinkMaterial = new BABYLON.StandardMaterial('muzzleFlash_pink', this.scene);
-        pinkMaterial.emissiveColor = new BABYLON.Color3(1.0, 0.0, 0.5); // Pink
-        pinkMaterial.diffuseColor = new BABYLON.Color3(1.0, 0.0, 0.5);
-        pinkMaterial.disableLighting = true;
-        pinkMaterial.backFaceCulling = false;
-        this.materials.set('pink', pinkMaterial);
+        console.log('MuzzleFlash: Created materials for colors:', Object.keys(WeaponConstants.MUZZLE_FLASH_COLORS));
     }
     
     /**
@@ -58,26 +61,35 @@ export class MuzzleFlash {
             tessellation: 8
         }, this.scene);
         
-        // Position and orient the cone
-        cone.position = position.clone();
-        
-        // Point the cone away from the weapon (tip pointing forward)
-        const lookDirection = direction.normalize();
-        cone.lookAt(position.add(lookDirection));
-        
-        // Rotate 90 degrees so the tip points in the direction
-        cone.rotation.x += Math.PI / 2;
-        
         // Apply material
-        const materialType = config.color || 'purple';
-        cone.material = this.materials.get(materialType) || this.materials.get('purple');
-        
-        // Attach to weapon if provided
-        if (weaponModel && weaponModel.isEnabled()) {
-            cone.parent = weaponModel;
-            // Adjust position relative to weapon
-            cone.position = new BABYLON.Vector3(0, 0, 1.2); // Forward from weapon
+        const materialType = config.color || 'PRIMARY';
+        const material = this.materials.get(materialType) || this.materials.get('PRIMARY');
+        if (material) {
+            cone.material = material;
+        } else {
+            console.warn(`MuzzleFlash: No material found for color '${materialType}', using PRIMARY`);
+            cone.material = this.materials.get('PRIMARY');
         }
+        
+        // Handle positioning based on whether we have a weapon model
+        if (weaponModel && weaponModel.isEnabled()) {
+            // Attach to weapon and use relative positioning from config
+            cone.parent = weaponModel;
+            
+            // Use the position from config as local coordinates relative to weapon
+            const localPosition = new BABYLON.Vector3(
+                config.position?.x || 0,
+                config.position?.y || 0,
+                config.position?.z || 0
+            );
+            cone.position = localPosition;
+        } else {
+            // Use world position if no weapon model
+            cone.position = position.clone();
+        }
+               
+        // Rotate 90 degrees so the cone tip points in the firing direction
+        cone.rotation.x -= Math.PI / 2;
         
         // Scale animation
         const initialScale = new BABYLON.Vector3(0.1, 0.1, 0.1);
