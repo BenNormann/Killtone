@@ -162,7 +162,7 @@ export class Game {
         this.audioSystem = new AudioSystem(this);
         await this.audioSystem.initialize();
 
-        this.physicsManager = new PhysicsManager(this);
+        this.physicsManager = new PhysicsManager(this.scene);
         await this.physicsManager.initialize();
 
         this.uiManager = new UIManager(this);
