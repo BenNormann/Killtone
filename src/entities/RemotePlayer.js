@@ -72,48 +72,41 @@ export class RemotePlayer {
      */
     async createPlayerMesh() {
         try {
-            // Load the appropriate animation file based on movement state
             const animationFile = this.getAnimationFileForState(this.movementState);
+            console.log(`RemotePlayer ${this.username}: Creating mesh with animation file: ${animationFile}`);
             
-            // Try to load character model using AssetManager
             if (this.game.assetManager) {
-                // Load the specific animation file for this movement state
                 await this.loadAnimationAsset(animationFile);
                 
                 const characterAsset = this.game.assetManager.getAsset(animationFile);
+                console.log(`RemotePlayer ${this.username}: Character asset:`, characterAsset);
+                
                 if (characterAsset?.meshes.length > 0) {
                     const sourceMesh = characterAsset.meshes[0];
                     this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
                     
-                    // The mesh is already normalized by AssetManager, don't overwrite it
-                    
-                    // Ensure the new mesh is properly added to the scene and enabled
                     this.mesh.setEnabled(true);
                     this.mesh.isVisible = true;
                     
-                    // No animation groups - using separate GLB files for each animation state
-                    console.log(`RemotePlayer ${this.username}: Using separate GLB files for animation states`);
+                    // Position mesh
+                    this.mesh.position.x = this.position.x;
+                    this.mesh.position.z = this.position.z;
+                    this.mesh.position.y = this.position.y + this.mesh.position.y;
+                    
+                    this.mesh.rotationQuaternion = null;
+                    this.mesh.rotation.y = this.rotation.y + Math.PI;
+                    
+                    this.mesh.checkCollisions = true;
+                    
+                    console.log(`RemotePlayer ${this.username}: Successfully created character mesh`);
                 } else {
+                    console.warn(`RemotePlayer ${this.username}: No meshes found in character asset, using fallback`);
                     this.createFallbackMesh();
                 }
             } else {
+                console.warn(`RemotePlayer ${this.username}: No asset manager available, using fallback`);
                 this.createFallbackMesh();
             }
-            
-            // Position and setup mesh - preserve AssetManager transformations
-            this.mesh.position.x = this.position.x;
-            this.mesh.position.z = this.position.z;
-            this.mesh.position.y = this.position.y + this.mesh.position.y; // Add player Y + AssetManager Y offset
-            
-            // Clear rotationQuaternion to use rotation property instead
-            this.mesh.rotationQuaternion = null;
-            // Fix mesh direction - add PI to make it face the same direction as camera
-            this.mesh.rotation.y = this.rotation.y + Math.PI;
-            
-            this.mesh.checkCollisions = true;
-            
-            // Start with standing animation
-            this.playAnimation('standing');
             
         } catch (error) {
             console.error(`Failed to create player mesh for ${this.username}:`, error);
@@ -138,37 +131,23 @@ export class RemotePlayer {
      */
     async loadAnimationAsset(assetName) {
         if (!this.game.assetManager.isAssetLoaded(assetName)) {
-            const animationConfig = this.getAnimationConfig(assetName);
-            if (animationConfig) {
+            const characterConfig = window.TrunCharacterConfig;
+            console.log(`RemotePlayer ${this.username}: Loading animation asset ${assetName}, config:`, characterConfig);
+            
+            if (characterConfig && characterConfig.animationFiles && characterConfig.animationFiles[assetName]) {
+                const config = characterConfig.animationFiles[assetName];
+                console.log(`RemotePlayer ${this.username}: Loading with config:`, config);
+                
                 await this.game.assetManager.loadModel(
                     assetName,
-                    animationConfig.folder,
-                    animationConfig.filename,
-                    'character'
+                    config.folder,
+                    config.filename,
+                    config.category
                 );
+            } else {
+                console.error(`RemotePlayer ${this.username}: No config found for ${assetName}`);
             }
         }
-    }
-    
-    /**
-     * Get animation configuration for different movement states
-     */
-    getAnimationConfig(assetName) {
-        const configs = {
-            'trun_standing': {
-                folder: 'assets/characters/trun/',
-                filename: 'Animation_Standing.glb'
-            },
-            'trun_walking': {
-                folder: 'assets/characters/trun/',
-                filename: 'Animation_Walking_withSkin.glb'
-            },
-            'trun_running': {
-                folder: 'assets/characters/trun/',
-                filename: 'Animation_Running_withSkin.glb'
-            }
-        };
-        return configs[assetName];
     }
     
     /**
@@ -176,47 +155,35 @@ export class RemotePlayer {
      */
     async swapMeshForMovementState(newMovementState) {
         try {
-            // Get the new animation file for this movement state
             const newAnimationFile = this.getAnimationFileForState(newMovementState);
             
-            // Load the new animation asset if not already loaded
             await this.loadAnimationAsset(newAnimationFile);
             
-            // Get the new character asset
             const newCharacterAsset = this.game.assetManager.getAsset(newAnimationFile);
             if (!newCharacterAsset?.meshes.length) {
                 console.error(`RemotePlayer ${this.username}: Failed to load new animation asset: ${newAnimationFile}`);
                 return;
             }
             
-            // Store current position and rotation
             const currentPosition = this.mesh ? this.mesh.position.clone() : this.position.clone();
             const currentRotation = this.mesh ? this.mesh.rotation.clone() : this.rotation.clone();
             
-            // Dispose old mesh
             if (this.mesh) {
                 this.mesh.dispose();
             }
             
-            // Create new mesh from the source mesh
             const sourceMesh = newCharacterAsset.meshes[0];
             this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
             
-            // Ensure the new mesh is properly added to the scene and enabled
             this.mesh.setEnabled(true);
             this.mesh.isVisible = true;
             
-            // Restore position and rotation - preserve AssetManager transformations
             this.mesh.position.x = currentPosition.x;
             this.mesh.position.z = currentPosition.z;
-            // Keep the AssetManager's Y offset as-is (it's already applied to the mesh)
             this.mesh.rotationQuaternion = null;
             this.mesh.rotation.copyFrom(currentRotation);
             
             this.mesh.checkCollisions = true;
-            
-            // Play the appropriate animation
-            this.playAnimation(newMovementState);
             
             console.log(`RemotePlayer ${this.username}: Successfully swapped to ${newMovementState} animation`);
             
@@ -229,6 +196,7 @@ export class RemotePlayer {
      * Create fallback capsule mesh
      */
     createFallbackMesh() {
+        console.log(`RemotePlayer ${this.username}: Creating fallback mesh`);
         this.mesh = BABYLON.MeshBuilder.CreateCapsule(
             `remotePlayer_${this.id}`,
             { height: 1.8, radius: 0.3 },
@@ -239,6 +207,30 @@ export class RemotePlayer {
         material.diffuseColor = new BABYLON.Color3(0.2, 0.6, 1.0);
         material.emissiveColor = new BABYLON.Color3(0.1, 0.3, 0.5);
         this.mesh.material = material;
+    }
+    
+    /**
+     * Create look ray to show where player is looking
+     */
+    createLookRay() {
+        const rayLength = 2.0;
+        const eyeHeight = 1.6;
+        
+        this.lookRay = BABYLON.MeshBuilder.CreateLines(`lookRay_${this.id}`, {
+            points: [
+                new BABYLON.Vector3(0, 0, 0),
+                new BABYLON.Vector3(0, 0, rayLength)
+            ]
+        }, this.scene);
+        
+        this.lookRay.color = new BABYLON.Color3(1, 0, 0);
+        this.lookRay.alpha = 0.7;
+        
+        this.lookRay.position.copyFrom(this.position);
+        this.lookRay.position.y += eyeHeight;
+        
+        this.lookRay.rotation.x = this.rotation.x;
+        this.lookRay.rotation.y = this.rotation.y;
     }
     
     /**
@@ -299,33 +291,6 @@ export class RemotePlayer {
     }
     
     /**
-     * Create look ray to show where player is looking
-     */
-    createLookRay() {
-        // Create a short ray from eye level showing direction
-        const rayLength = 2.0;
-        const eyeHeight = 1.6;
-        
-        this.lookRay = BABYLON.MeshBuilder.CreateLines(`lookRay_${this.id}`, {
-            points: [
-                new BABYLON.Vector3(0, 0, 0),
-                new BABYLON.Vector3(0, 0, rayLength)
-            ]
-        }, this.scene);
-        
-        this.lookRay.color = new BABYLON.Color3(1, 0, 0); // Red ray
-        this.lookRay.alpha = 0.7;
-        
-        // Position the ray at the player's eye level
-        this.lookRay.position.copyFrom(this.position);
-        this.lookRay.position.y += eyeHeight;
-        
-        // Set initial rotation - look ray shows exact camera direction
-        this.lookRay.rotation.x = this.rotation.x;
-        this.lookRay.rotation.y = this.rotation.y;
-    }
-    
-    /**
      * Get health bar color based on health percentage
      */
     getHealthColor() {
@@ -364,38 +329,31 @@ export class RemotePlayer {
                 this.targetPosition,
                 this.interpolationSpeed * deltaTime
             );
-            // Preserve AssetManager Y offset when updating position
+            
             this.mesh.position.x = this.position.x;
             this.mesh.position.z = this.position.z;
-            // Don't overwrite Y - keep the AssetManager offset
             
-            // Update look ray position
             if (this.lookRay) {
                 this.lookRay.position.copyFrom(this.position);
-                this.lookRay.position.y += 1.6; // Eye height
+                this.lookRay.position.y += 1.6;
             }
         }
         
-        // Always update rotation, even for small changes
-        if (rotationDistance > 0.001) { // Lower threshold for rotation
-            console.log(`RemotePlayer ${this.username}: Updating rotation from ${this.rotation.y} to ${this.targetRotation.y}`);
+        if (rotationDistance > 0.001) {
             this.rotation.y = BABYLON.Scalar.Lerp(
                 this.rotation.y,
                 this.targetRotation.y,
                 this.interpolationSpeed * deltaTime
             );
             
-            // Clear rotationQuaternion and apply Y rotation to mesh (horizontal facing direction)
             this.mesh.rotationQuaternion = null;
-            this.mesh.rotation.y = this.rotation.y + Math.PI; // Add PI to fix mesh direction
+            this.mesh.rotation.y = this.rotation.y + Math.PI;
             
-            // Update look ray Y rotation to match mesh rotation exactly
             if (this.lookRay) {
-                this.lookRay.rotation.y = this.rotation.y; // No longer parented, so no PI offset needed
+                this.lookRay.rotation.y = this.rotation.y;
             }
         }
         
-        // Update X rotation for look ray (vertical look direction)
         const xRotationDistance = Math.abs(this.rotation.x - this.targetRotation.x);
         if (xRotationDistance > 0.001) {
             this.rotation.x = BABYLON.Scalar.Lerp(
@@ -404,7 +362,6 @@ export class RemotePlayer {
                 this.interpolationSpeed * deltaTime
             );
             
-            // Update look ray X rotation to show vertical look direction (camera pitch)
             if (this.lookRay) {
                 this.lookRay.rotation.x = this.rotation.x;
             }
@@ -420,7 +377,6 @@ export class RemotePlayer {
         const camera = this.scene.activeCamera;
         if (!camera) return;
         
-        // Get position above player's head
         const worldPosition = this.mesh.position.add(new BABYLON.Vector3(0, 1.2, 0));
         const screenPosition = BABYLON.Vector3.Project(
             worldPosition,
@@ -430,17 +386,14 @@ export class RemotePlayer {
             this.scene.getEngine().getRenderingCanvasClientRect()
         );
         
-        // Update name tag position
         this.nameTag.background.leftInPixels = screenPosition.x - (this.nameTag.background.widthInPixels / 2);
         this.nameTag.background.topInPixels = screenPosition.y - 40;
         
-        // Update health bar position
         if (this.healthBar) {
             this.healthBar.background.leftInPixels = screenPosition.x - (this.healthBar.background.widthInPixels / 2);
             this.healthBar.background.topInPixels = screenPosition.y - 10;
         }
         
-        // Hide UI if player is too far or behind camera
         const distance = BABYLON.Vector3.Distance(camera.position, this.mesh.position);
         const isVisible = screenPosition.z > 0 && screenPosition.z < 1 && distance < 50;
         
@@ -454,14 +407,11 @@ export class RemotePlayer {
      * Play animation based on movement state
      */
     playAnimation(animationName) {
-        console.log(`RemotePlayer ${this.username}: playAnimation called with: ${animationName}`);
-        
-        // Handle crouching state for fallback mesh (scaling only)
         if (this.mesh) {
             if (animationName === 'crouching') {
-                this.mesh.scaling.y = 0.7; // Scale down for crouching
+                this.mesh.scaling.y = 0.7;
             } else {
-                this.mesh.scaling.y = 1.0; // Normal scale
+                this.mesh.scaling.y = 1.0;
             }
         }
     }
@@ -472,13 +422,11 @@ export class RemotePlayer {
     updateAnimations(deltaTime) {
         if (!this.mesh) return;
         
-        // Update animation based on movement state
         if (this.movementState !== this.lastMovementState) {
             this.playAnimation(this.movementState);
             this.lastMovementState = this.movementState;
         }
         
-        // Flash effect when shooting
         if (this.isShooting) {
             const material = this.mesh.material;
             if (material?.emissiveColor) {
@@ -502,43 +450,32 @@ export class RemotePlayer {
      * Update player state from network data
      */
     async updateFromNetworkData(data) {
-        // Update target position and rotation for smooth interpolation
         if (data.position) {
             this.targetPosition.set(data.position.x, data.position.y, data.position.z);
         }
         
         if (data.rotation) {
-            console.log(`RemotePlayer ${this.username}: Received rotation data:`, data.rotation);
-            console.log(`RemotePlayer ${this.username}: Current rotation:`, this.rotation);
             this.targetRotation.set(data.rotation.x, data.rotation.y, data.rotation.z);
-            console.log(`RemotePlayer ${this.username}: Target rotation set to:`, this.targetRotation);
         }
         
-        // Update movement state
         if (data.movement && data.movement !== this.movementState) {
-            console.log(`RemotePlayer ${this.username}: Movement state changed from ${this.movementState} to ${data.movement}`);
             this.movementState = data.movement;
-            // Swap mesh for new movement state
             await this.swapMeshForMovementState(this.movementState);
             this.lastMovementState = this.movementState;
         }
         
-        // Update health
         if (data.health !== undefined && data.health !== this.health) {
             this.setHealth(data.health);
         }
         
-        // Update alive state
         if (data.alive !== undefined) {
             this.setAlive(data.alive);
         }
         
-        // Update username
         if (data.username && data.username !== this.username) {
             this.setUsername(data.username);
         }
         
-        // Update score and deaths
         if (data.score !== undefined) this.score = data.score;
         if (data.deaths !== undefined) this.deaths = data.deaths;
     }
@@ -612,25 +549,21 @@ export class RemotePlayer {
      * Dispose of remote player resources
      */
     dispose() {        
-        // Dispose mesh
         if (this.mesh) {
             this.mesh.dispose();
             this.mesh = null;
         }
         
-        // Dispose look ray
         if (this.lookRay) {
             this.lookRay.dispose();
             this.lookRay = null;
         }
         
-        // Dispose name tag
         if (this.nameTag) {
             this.nameTag.texture.dispose();
             this.nameTag = null;
         }
         
-        // Clear references
         this.healthBar = null;
         this.game = null;
         this.scene = null;

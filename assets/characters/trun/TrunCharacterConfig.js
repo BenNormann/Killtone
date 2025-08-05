@@ -6,8 +6,7 @@ const TrunCharacterConfig = {
     
     // Model properties
     model: {
-        folder: "src/assets/characters/trun/",
-        file: "scene.gltf",
+        folder: "assets/characters/trun/",
         scale: { x: 1, y: 1, z: 1 },
         position: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0 }
@@ -18,6 +17,44 @@ const TrunCharacterConfig = {
         idle: "idle",
         walking: "walk", 
         running: "run"
+    },
+    
+    // Animation file configurations
+    animationFiles: {
+        'trun_standing': {
+            folder: 'assets/characters/trun/',
+            filename: 'Animation_Standing.glb',
+            category: 'character'
+        },
+        'trun_walking': {
+            folder: 'assets/characters/trun/',
+            filename: 'Animation_Walking_withSkin.glb',
+            category: 'character'
+        },
+        'trun_running': {
+            folder: 'assets/characters/trun/',
+            filename: 'Animation_Running_withSkin.glb',
+            category: 'character'
+        }
+    },
+    
+    // Character-specific transformation configurations
+    transformations: {
+        'trun_standing': {
+            position: { x: 0, y: 0.4, z: 0 },
+            rotation: { x: 0, y: 180, z: 0 }, // 180 degrees
+            scaling: { x: 0.92, y: 0.92, z: 0.92 }
+        },
+        'trun_walking': {
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 180, z: 0 }, // 180 degrees
+            scaling: { x: 1, y: 1, z: 1 }
+        },
+        'trun_running': {
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 180, z: 0 }, // 180 degrees
+            scaling: { x: 1, y: 1, z: 1 }
+        }
     },
     
     // Physics properties
