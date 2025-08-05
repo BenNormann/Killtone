@@ -421,6 +421,7 @@ export class WeaponBase {
     createMuzzleFlash(origin, direction) {
         // Skip muzzle flash for melee weapons
         if (!this.config.muzzleFlash) {
+            console.log(`${this.name}: No muzzle flash config, skipping`);
             return;
         }
 
@@ -429,34 +430,17 @@ export class WeaponBase {
             return;
         }
 
-        // Calculate muzzle position
-        let muzzleWorldPos = origin.clone();
-        let muzzleWorldDir = direction.clone();
-
-        if (this.model && this.model.isEnabled()) {
-            // Use configured muzzle position relative to weapon
-            const muzzleConfig = this.config.muzzleFlash.position;
-            const alignmentConfig = this.config.muzzleFlash.alignment || { x: 0, y: 0 };
-            
-            // Apply alignment offsets to muzzle position
-            const muzzleOffset = new BABYLON.Vector3(
-                muzzleConfig.x + (alignmentConfig.x || 0),
-                muzzleConfig.y + (alignmentConfig.y || 0),
-                muzzleConfig.z
-            );
-
-            const worldMatrix = this.model.getWorldMatrix();
-            muzzleWorldPos = BABYLON.Vector3.TransformCoordinates(muzzleOffset, worldMatrix);
-            muzzleWorldDir = BABYLON.Vector3.TransformNormal(direction, worldMatrix);
-        }
+        console.log(`${this.name}: Creating muzzle flash`);
 
         // Create muzzle flash with weapon-specific configuration
+        // The MuzzleFlash system will handle positioning based on the config
         this.effectsManager.muzzleFlash.createMuzzleFlash(
-            muzzleWorldPos,
-            muzzleWorldDir,
+            origin,
+            direction,
             this.model,
             this.config.muzzleFlash
         );
+        console.log(`${this.name}: Muzzle flash created`);
     }
 
     /**

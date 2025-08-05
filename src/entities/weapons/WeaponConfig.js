@@ -25,12 +25,6 @@ export const FiringMode = {
     MELEE: 'melee'
 };
 
-// Muzzle flash type enumeration
-export const MuzzleFlashType = {
-    DONUT: 'donut',
-    SPIKEY: 'spikey'
-};
-
 // Weapon configuration data structure
 export const WeaponConfigs = {
     [WeaponType.CARBINE]: {
@@ -45,7 +39,6 @@ export const WeaponConfigs = {
         recoilAmount: 0.1,
         reloadStartFrame: 40,
         reloadEndFrame: 138,
-        muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/carbine/fps_animated_carbine.glb',
         animations: {
             idle: 'idle',
@@ -62,12 +55,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'purple',
-            size: 0.3,
-            length: 0.8,
+            color: 'PRIMARY',
+            size: 0.1,
+            length: 0.6,
             duration: 100,
-            position: { x: 0, y: 1, z: 10.0 },
-            alignment: { x: 0.0, y: 10.0 } // Slight right and down alignment offset
+            position: { x: 0.00, y: 0.234, z: 1.2 }
         },
         recoilPattern: {
             horizontal: 0.05,
@@ -95,7 +87,6 @@ export const WeaponConfigs = {
         reloadTime: 3.0,
         accuracy: 0.90,
         recoilAmount: 0.08,
-        muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/pistol/fps_pistol_animated.glb',
         animations: {
             idle: 'idle',
@@ -112,12 +103,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'pink',
-            size: 0.25,
+            color: 'SECONDARY',
+            size: 0.15,
             length: 0.6,
             duration: 80,
-            position: { x: 0, y: 0, z: 0.8 },
-            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
+            position: { x: -0.077, y: 0.1, z: 1 },
         },
         recoilPattern: {
             horizontal: 0.04,
@@ -147,7 +137,6 @@ export const WeaponConfigs = {
         reloadTime: 3.0,
         accuracy: 0.85,
         recoilAmount: 0.25,
-        muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/shotgun/shotgun_animated.glb',
         animations: {
             idle: 'idle',
@@ -164,12 +153,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'purple',
+            color: 'PRIMARY',
             size: 0.4,
             length: 1.0,
             duration: 120,
-            position: { x: 0, y: 0, z: 1.5 },
-            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
+            position: { x: -0.077, y: 0.1, z: 1.5 },
         },
         recoilPattern: {
             horizontal: 0.12,
@@ -197,7 +185,6 @@ export const WeaponConfigs = {
         reloadTime: 3.0,
         accuracy: 0.80,
         recoilAmount: 0.12,
-        muzzleFlashType: MuzzleFlashType.SPIKEY,
         modelPath: './assets/weapons/smg/fps_smg9_animated.glb',
         animations: {
             idle: 'idle',
@@ -214,12 +201,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'purple',
+            color: 'PRIMARY',
             size: 0.28,
             length: 0.7,
             duration: 90,
-            position: { x: 0, y: 0, z: 1.0 },
-            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
+            position: { x: -0.077, y: 0, z: 1.2 },
         },
         recoilPattern: {
             horizontal: 0.06,
@@ -247,7 +233,6 @@ export const WeaponConfigs = {
         reloadTime: 3.0,
         accuracy: 0.98,
         recoilAmount: 0.3,
-        muzzleFlashType: MuzzleFlashType.DONUT,
         modelPath: './assets/weapons/sniper/fps_50cal.glb',
         animations: {
             idle: 'idle',
@@ -264,12 +249,11 @@ export const WeaponConfigs = {
             handedness: 'left' // 'left' or 'right' - flips model horizontally
         },
         muzzleFlash: {
-            color: 'purple',
+            color: 'PRIMARY',
             size: 0.35,
             length: 1.2,
             duration: 150,
             position: { x: 0, y: 0, z: 1.8 },
-            alignment: { x: 0, y: 0 } // Horizontal and vertical alignment offset
         },
         recoilPattern: {
             horizontal: 0.15,

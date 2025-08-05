@@ -31,7 +31,7 @@ export class ParticleManager {
         this.lastCleanupTime = 0;
         
         // Initialize muzzle flash system
-        this.muzzleFlash = new MuzzleFlash(this.scene, this);
+        this.muzzleFlash = new MuzzleFlash(this.scene);
         
         console.log('ParticleManager initialized');
     }
