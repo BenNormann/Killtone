@@ -19,6 +19,7 @@ const io = new Server(server, {
 
 // Game state
 const players = new Map();
+const projectiles = new Map(); // Track active projectiles
 const gameConfig = {
   maxHealth: 100,
   respawnTime: 3000
@@ -211,6 +212,75 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('botKilled', data);
   });
 
+  // Handle projectile firing
+  socket.on('projectileFire', (data) => {
+    console.log('Server: Received projectileFire event:', data);
+    
+    const shooter = players.get(socket.id);
+    if (shooter && shooter.alive) {
+      const projectileData = {
+        ...data.data,
+        ownerId: socket.id,
+        timestamp: Date.now()
+      };
+      
+      // Store projectile on server
+      projectiles.set(data.data.projectileId, projectileData);
+      
+      console.log('Server: Broadcasting projectile created:', data.data);
+      // Broadcast to other players
+      socket.broadcast.emit('projectileCreated', {
+        projectileId: data.data.projectileId,
+        position: data.data.position,
+        direction: data.data.direction,
+        speed: data.data.speed,
+        damage: data.data.damage,
+        maxDistance: data.data.maxDistance,
+        weapon: data.data.weapon,
+        ownerId: socket.id,
+        timestamp: Date.now() // Use server timestamp consistently
+      });
+      
+      console.log(`Projectile ${data.data.projectileId} fired by ${socket.id}`);
+    }
+  });
+
+  // Handle projectile updates
+  socket.on('projectileUpdate', (data) => {
+    const projectile = projectiles.get(data.projectileId);
+    if (projectile && projectile.ownerId === socket.id) {
+      // Update projectile position
+      projectile.position = data.position;
+      projectile.timestamp = Date.now();
+      
+      // Broadcast to other players
+      socket.broadcast.emit('projectileUpdated', {
+        projectileId: data.projectileId,
+        position: data.position,
+        timestamp: data.timestamp
+      });
+    }
+  });
+
+  // Handle projectile hits
+  socket.on('projectileHit', (data) => {
+    const projectile = projectiles.get(data.projectileId);
+    if (projectile && projectile.ownerId === socket.id) {
+      // Remove projectile from server
+      projectiles.delete(data.projectileId);
+      
+      // Broadcast hit to other players
+      socket.broadcast.emit('projectileHit', {
+        projectileId: data.projectileId,
+        hitPosition: data.hitPosition,
+        hitObject: data.hitObject,
+        ownerId: socket.id
+      });
+      
+      console.log(`Projectile ${data.projectileId} hit by ${socket.id}`);
+    }
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log(`Player disconnected: ${socket.id}`);
@@ -240,7 +310,7 @@ function respawnPlayer(playerId) {
 
 // Start server
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Kronkar FPS Server running on port ${PORT}`);
+  console.log(`KillTone FPS Server running on port ${PORT}`);
   console.log(`Connect from other devices on your network using your local IP:${PORT}`);
   
   // Try to display local IP addresses

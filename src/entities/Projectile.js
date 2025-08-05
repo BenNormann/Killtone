@@ -17,6 +17,13 @@ export class Projectile {
         this.ownerId = data.ownerId || 'local';
         this.weapon = data.weapon || { name: 'Unknown', type: 'unknown', damage: 50 };
         
+        console.log('Projectile: Created projectile with ID:', this.id);
+        console.log('Projectile: Position:', this.position.toString());
+        console.log('Projectile: Direction:', this.direction.toString());
+        console.log('Projectile: Speed:', this.speed);
+        console.log('Projectile: Damage:', this.damage);
+        console.log('Projectile: Owner ID:', this.ownerId);
+        
         // Visual settings
         this.showTrail = data.showTrail !== undefined ? data.showTrail : true;
         this.trailColor = data.trailColor || new BABYLON.Color3(0.8, 0.2, 0.8); // Purple
@@ -51,6 +58,7 @@ export class Projectile {
         this.hitPosition = null;
         this.hitNormal = null;
         this.hitTarget = null;
+        this.hitObject = null; // For network transmission
         
         // Performance tracking
         this.updateCount = 0;
@@ -234,6 +242,10 @@ export class Projectile {
         this.hitPosition = hit.point.clone();
         this.hitNormal = hit.normal;
         this.hitTarget = hit.mesh;
+        this.hitObject = {
+            name: hit.mesh ? hit.mesh.name : 'unknown',
+            type: hit.mesh ? hit.mesh.type || 'mesh' : 'unknown'
+        };
         
         // Update position to hit point
         this.position = this.hitPosition.clone();

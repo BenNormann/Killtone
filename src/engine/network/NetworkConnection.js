@@ -115,13 +115,24 @@ export class NetworkConnection {
     }
 
     /**
-     * Register additional event handler on the socket
+     * Register an event listener
      * @param {string} event - Event name
      * @param {Function} handler - Event handler function
      */
     on(event, handler) {
         if (this.socket) {
             this.socket.on(event, handler);
+        }
+    }
+
+    /**
+     * Unregister an event listener
+     * @param {string} event - Event name
+     * @param {Function} handler - Event handler function
+     */
+    off(event, handler) {
+        if (this.socket) {
+            this.socket.off(event, handler);
         }
     }
 

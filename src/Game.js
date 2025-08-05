@@ -447,6 +447,38 @@ export class Game {
     }
 
     /**
+     * Handle projectile created events from network
+     */
+    handleProjectileCreated(data) {
+        console.log('Game: handleProjectileCreated called with data:', data);
+        
+        if (this.projectileManager) {
+            console.log('Game: Calling projectileManager.handleServerProjectileCreated');
+            this.projectileManager.handleServerProjectileCreated(data);
+        } else {
+            console.warn('Game: projectileManager not available');
+        }
+    }
+
+    /**
+     * Handle projectile updated events from network
+     */
+    handleProjectileUpdated(data) {
+        if (this.projectileManager) {
+            this.projectileManager.handleServerProjectileUpdated(data);
+        }
+    }
+
+    /**
+     * Handle projectile hit events from network
+     */
+    handleProjectileHit(data) {
+        if (this.projectileManager) {
+            this.projectileManager.handleServerProjectileHit(data);
+        }
+    }
+
+    /**
      * Handle window resize
      */
     onResize() {
