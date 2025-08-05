@@ -43,7 +43,8 @@ export class RemotePlayer {
         this.mesh = null;
         this.nameTag = null;
         this.healthBar = null;
-        this.lookRay = null; // Ray to show where player is looking
+        this.lookRay = null; // Pie-slice to show where player is looking
+        this.lookRayEyeHeight = 0.26; // Height offset for look ray positioning
         
         // Animation state
         this.movementState = playerData.movement || "standing";
@@ -254,24 +255,107 @@ export class RemotePlayer {
     }
     
     /**
-     * Create look ray to show where player is looking
+     * Create look slice to show where player is looking
      */
     createLookRay() {
-        const rayLength = 2.0;
-        const eyeHeight = 1.6;
+        const sliceRadius = 0.24; // Head size radius
+        const sliceAngle = Math.PI / 6; // 45 degrees in radians
+        const radialSegments = 8; // Number of segments along the arc
+        const heightSegments = 6; // Number of segments from center to edge
         
-        this.lookRay = BABYLON.MeshBuilder.CreateLines(`lookRay_${this.id}`, {
-            points: [
-                new BABYLON.Vector3(0, 0, 0),
-                new BABYLON.Vector3(0, 0, rayLength)
-            ]
-        }, this.scene);
+        // Create spherical slice geometry using spherical coordinates
+        const positions = [];
+        const indices = [];
+        const normals = [];
         
-        this.lookRay.color = new BABYLON.Color3(1, 0, 0);
-        this.lookRay.alpha = 0.7;
+        const verticalSegments = 10; // From bottom to top of sphere
+        const horizontalSegments = radialSegments; // Along the 45-degree arc
         
+        // Generate vertices using spherical coordinates
+        for (let v = 0; v <= verticalSegments; v++) {
+            // Phi: vertical angle from 0 (bottom) to PI (top)
+            const phi = (v / verticalSegments) * Math.PI;
+            
+            for (let h = 0; h <= horizontalSegments; h++) {
+                // Theta: horizontal angle within the degree slice
+                const theta = (h / horizontalSegments) * sliceAngle - sliceAngle / 2;
+                
+                // Convert spherical to cartesian coordinates
+                const x = sliceRadius * Math.sin(phi) * Math.sin(theta);
+                const y = sliceRadius * Math.cos(phi); // Y goes from +radius (top) to -radius (bottom)
+                const z = sliceRadius * Math.sin(phi) * Math.cos(theta);
+                
+                positions.push(x, y, z);
+                
+                // Normal is just the normalized position vector (pointing outward from center)
+                const length = Math.sqrt(x * x + y * y + z * z);
+                if (length > 0) {
+                    normals.push(x / length, y / length, z / length);
+                } else {
+                    normals.push(0, 1, 0);
+                }
+            }
+        }
+        
+        // Create faces connecting the grid of vertices
+        for (let v = 0; v < verticalSegments; v++) {
+            for (let h = 0; h < horizontalSegments; h++) {
+                const current = v * (horizontalSegments + 1) + h;
+                const next = current + horizontalSegments + 1;
+                
+                // Two triangles per quad
+                indices.push(current, current + 1, next);
+                indices.push(current + 1, next + 1, next);
+            }
+        }
+        
+        // Create side faces to close the slice edges
+        // Left edge (theta = -sliceAngle/2)
+        for (let v = 0; v < verticalSegments; v++) {
+            const bottom = v * (horizontalSegments + 1);
+            const top = (v + 1) * (horizontalSegments + 1);
+            
+            // Add triangles to close the left edge (these will be degenerate at poles)
+            if (v > 0 && v < verticalSegments - 1) {
+                indices.push(bottom, top, bottom + horizontalSegments);
+                indices.push(top, top + horizontalSegments, bottom + horizontalSegments);
+            }
+        }
+        
+        // Right edge (theta = +sliceAngle/2)
+        for (let v = 0; v < verticalSegments; v++) {
+            const bottom = v * (horizontalSegments + 1) + horizontalSegments;
+            const top = (v + 1) * (horizontalSegments + 1) + horizontalSegments;
+            
+            // Add triangles to close the right edge
+            if (v > 0 && v < verticalSegments - 1) {
+                indices.push(bottom, bottom - horizontalSegments, top);
+                indices.push(top, bottom - horizontalSegments, top - horizontalSegments);
+            }
+        }
+        
+        // Create custom mesh
+        this.lookRay = new BABYLON.Mesh(`lookSlice_${this.id}`, this.scene);
+        
+        const vertexData = new BABYLON.VertexData();
+        vertexData.positions = positions;
+        vertexData.indices = indices;
+        vertexData.normals = normals;
+        
+        vertexData.applyToMesh(this.lookRay);
+        
+        // Create glowing pink material (same as muzzle flash)
+        const material = new BABYLON.StandardMaterial(`lookSliceMaterial_${this.id}`, this.scene);
+        material.diffuseColor = new BABYLON.Color3(1.0, 0.0, 0.5); // Pink (same as muzzle flash)
+        material.emissiveColor = new BABYLON.Color3(1.0, 0.0, 0.5); // Pink glow (same as muzzle flash)
+        material.alpha = 0.6; // Semitransparent
+        material.backFaceCulling = false; // Show both sides
+        
+        this.lookRay.material = material;
+        
+        // Position and rotation
         this.lookRay.position.copyFrom(this.position);
-        this.lookRay.position.y += eyeHeight;
+        this.lookRay.position.y += this.lookRayEyeHeight; // Add 0.2 to move sphere center down relative to attachment point
         
         this.lookRay.rotation.x = this.rotation.x;
         this.lookRay.rotation.y = this.rotation.y;
@@ -379,7 +463,7 @@ export class RemotePlayer {
             
             if (this.lookRay) {
                 this.lookRay.position.copyFrom(this.position);
-                this.lookRay.position.y += .4;
+                this.lookRay.position.y += this.lookRayEyeHeight;
             }
         }
         
