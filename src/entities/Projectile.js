@@ -221,7 +221,7 @@ export class Projectile {
         );
         
         if (hit) {
-            console.log(`Projectile ${this.id}: Hit detected at`, hit.pickedPoint.toString());
+            console.log(`Projectile ${this.id}: Hit detected at`, hit.point.toString());
             this.processHit(hit);
         }
     }
@@ -231,9 +231,9 @@ export class Projectile {
      */
     processHit(hit) {
         this.hasHit = true;
-        this.hitPosition = hit.pickedPoint.clone();
-        this.hitNormal = hit.getNormal();
-        this.hitTarget = hit.pickedMesh;
+        this.hitPosition = hit.point.clone();
+        this.hitNormal = hit.normal;
+        this.hitTarget = hit.mesh;
         
         // Update position to hit point
         this.position = this.hitPosition.clone();
