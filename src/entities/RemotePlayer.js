@@ -83,9 +83,23 @@ export class RemotePlayer {
                 
                 if (characterAsset?.meshes.length > 0) {
                     const sourceMesh = characterAsset.meshes[0];
+                    
+                    // Temporarily enable source mesh for cloning, then restore its state
+                    const wasSourceEnabled = sourceMesh.isEnabled();
+                    sourceMesh.setEnabled(true);
+                    
                     this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
                     
+                    // Restore source mesh state
+                    sourceMesh.setEnabled(wasSourceEnabled);
+                    
+                    // Ensure cloned mesh is enabled
                     this.mesh.setEnabled(true);
+                    
+                    // Enable all child meshes recursively
+                    this.enableAllChildMeshes(this.mesh);
+                    
+                    console.log(`RemotePlayer ${this.username}: Cloned mesh enabled:`, this.mesh.isEnabled(), 'visible:', this.mesh.isVisible);
                     
                     // Position mesh
                     this.mesh.position.x = this.position.x;
@@ -172,9 +186,23 @@ export class RemotePlayer {
             }
             
             const sourceMesh = newCharacterAsset.meshes[0];
+            
+            // Temporarily enable source mesh for cloning, then restore its state
+            const wasSourceEnabled = sourceMesh.isEnabled();
+            sourceMesh.setEnabled(true);
+            
             this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
             
+            // Restore source mesh state
+            sourceMesh.setEnabled(wasSourceEnabled);
+            
+            // Ensure cloned mesh is enabled
             this.mesh.setEnabled(true);
+            
+            // Enable all child meshes recursively
+            this.enableAllChildMeshes(this.mesh);
+            
+            console.log(`RemotePlayer ${this.username}: Swapped mesh enabled:`, this.mesh.isEnabled(), 'visible:', this.mesh.isVisible);
             
             this.mesh.position.x = currentPosition.x;
             this.mesh.position.z = currentPosition.z;
@@ -188,6 +216,24 @@ export class RemotePlayer {
         } catch (error) {
             console.error(`RemotePlayer ${this.username}: Failed to swap mesh for movement state ${newMovementState}:`, error);
         }
+    }
+    
+    /**
+     * Recursively enable all child meshes
+     */
+    enableAllChildMeshes(mesh) {
+        if (!mesh) return;
+        
+        // Enable the current mesh
+        mesh.setEnabled(true);
+        mesh.isVisible = true;
+        mesh.visibility = 1.0;
+        
+        // Enable all child meshes
+        const childMeshes = mesh.getChildMeshes();
+        childMeshes.forEach(childMesh => {
+            this.enableAllChildMeshes(childMesh);
+        });
     }
     
     /**
