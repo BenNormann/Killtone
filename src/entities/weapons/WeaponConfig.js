@@ -59,7 +59,7 @@ export const WeaponConfigs = {
             size: 0.1,
             length: 0.6,
             duration: 100,
-            position: { x: 0.00, y: 0.315, z: 1.4 }
+            position: { x: 0.00, y: 0.234, z: 1.2 }
         },
         recoilPattern: {
             horizontal: 0.05,
@@ -107,7 +107,7 @@ export const WeaponConfigs = {
             size: 0.15,
             length: 0.6,
             duration: 80,
-            position: { x: 0.00, y: 0.5, z: 1.4 },
+            position: { x: -0.077, y: 0.1, z: 1 },
         },
         recoilPattern: {
             horizontal: 0.04,
@@ -157,7 +157,7 @@ export const WeaponConfigs = {
             size: 0.4,
             length: 1.0,
             duration: 120,
-            position: { x: 0, y: 0, z: 1.5 },
+            position: { x: -0.077, y: 0.1, z: 1.5 },
         },
         recoilPattern: {
             horizontal: 0.12,
@@ -205,7 +205,7 @@ export const WeaponConfigs = {
             size: 0.28,
             length: 0.7,
             duration: 90,
-            position: { x: 0, y: 0, z: 1.0 },
+            position: { x: -0.077, y: 0, z: 1.2 },
         },
         recoilPattern: {
             horizontal: 0.06,
