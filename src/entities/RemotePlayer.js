@@ -379,7 +379,7 @@ export class RemotePlayer {
             
             if (this.lookRay) {
                 this.lookRay.position.copyFrom(this.position);
-                this.lookRay.position.y += 1.6;
+                this.lookRay.position.y += .4;
             }
         }
         

@@ -41,7 +41,7 @@ const TrunCharacterConfig = {
     // Character-specific transformation configurations
     transformations: {
         'trun_standing': {
-            position: { x: 0, y: 0.4, z: 0 },
+            position: { x: 0, y: 0.55, z: 0 },
             rotation: { x: 0, y: 180, z: 0 }, // 180 degrees
             scaling: { x: 1.1, y: 1.1, z: 1.1 }
         },
