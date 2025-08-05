@@ -8,7 +8,7 @@ import { WeaponBase } from './weapons/WeaponBase.js';
 import { AmmoRegistry } from './weapons/AmmoRegistry.js';
 
 export class Player {
-    constructor(game, initialPosition = new BABYLON.Vector3(0, 2, 0)) {
+    constructor(game, initialPosition = new BABYLON.Vector3(0, 3.6, 0)) {
         this.game = game;
         this.scene = game.scene;
         
@@ -66,8 +66,8 @@ export class Player {
         
         // Physics
         this.collisionRadius = 0.5;
-        this.playerHeight = 1.8;
-        this.crouchHeight = 1.2;
+        this.playerHeight = 3.8;
+        this.crouchHeight = 2;
         
         // Firing state
         this.isFiring = false;

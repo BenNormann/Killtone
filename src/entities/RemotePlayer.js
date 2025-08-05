@@ -86,7 +86,6 @@ export class RemotePlayer {
                     this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
                     
                     this.mesh.setEnabled(true);
-                    this.mesh.isVisible = true;
                     
                     // Position mesh
                     this.mesh.position.x = this.position.x;
@@ -176,7 +175,6 @@ export class RemotePlayer {
             this.mesh = sourceMesh.clone(`remotePlayer_${this.id}`);
             
             this.mesh.setEnabled(true);
-            this.mesh.isVisible = true;
             
             this.mesh.position.x = currentPosition.x;
             this.mesh.position.z = currentPosition.z;
@@ -199,7 +197,7 @@ export class RemotePlayer {
         console.log(`RemotePlayer ${this.username}: Creating fallback mesh`);
         this.mesh = BABYLON.MeshBuilder.CreateCapsule(
             `remotePlayer_${this.id}`,
-            { height: 1.8, radius: 0.3 },
+            { height: 3.6, radius: 0.3 },
             this.scene
         );
         

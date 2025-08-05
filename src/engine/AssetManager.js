@@ -110,9 +110,13 @@ export class AssetManager extends BaseManager {
                 });
             }
 
-            // Apply character transformations
-            if (category === 'character' || name.includes('trun')) {
+            // Hide character meshes from scene (they should only be used for cloning)
+            if (category === 'character') {
                 this.applyCharacterTransformations(name, result.meshes);
+                result.meshes.forEach(mesh => {
+                    mesh.setEnabled(false);
+                    console.log(`Hidden character mesh ${mesh.name} from scene (will be used for cloning)`);
+                });
             }
 
             // Store the loaded asset

@@ -73,7 +73,6 @@ io.on('connection', (socket) => {
   
   // Handle player movement updates
   socket.on('playerUpdate', (data) => {
-    console.log(`Server: Received playerUpdate from ${socket.id}:`, data);
     const player = players.get(socket.id);
     if (player && player.alive) {
       // Update player data
@@ -105,7 +104,6 @@ io.on('connection', (socket) => {
         rotation: data.rotation,
         movement: player.movement
       };
-      console.log(`Server: Broadcasting playerMoved:`, broadcastData);
       socket.broadcast.emit('playerMoved', broadcastData);
     }
   });

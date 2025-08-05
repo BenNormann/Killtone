@@ -340,14 +340,14 @@ export class Game {
             console.log('Initializing player...');
 
             // Get spawn point from map
-            let spawnPosition = new BABYLON.Vector3(0, 2, 0);
+            let spawnPosition = new BABYLON.Vector3(0, 3.6, 0); // Updated to match new player height
             if (this.mapManager && this.mapManager.currentMapData && Array.isArray(this.mapManager.currentMapData.spawnPoints) && this.mapManager.currentMapData.spawnPoints.length > 0) {
                 const spawn = this.mapManager.currentMapData.spawnPoints[0];
                 let y = spawn.position.y || 0;
                 if (this.mapManager.groundMesh) {
                     const groundY = this.mapManager.groundMesh.position.y;
-                    // Assume playerHeight is 1.8 (default) or get from config if available
-                    const playerHeight = (this.config && this.config.player && this.config.player.height) || 1.8;
+                    // Use updated playerHeight of 3.6 or get from config if available
+                    const playerHeight = (this.config && this.config.player && this.config.player.height) || 3.6;
                     y = Math.max(y, groundY + playerHeight / 2);
                 }
                 spawnPosition = new BABYLON.Vector3(
