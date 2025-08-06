@@ -46,7 +46,7 @@ const TrunCharacterConfig = {
             scaling: { x: 1.1, y: 1.1, z: 1.1 }
         },
         'trun_walking': {
-            position: { x: 0, y: -2, z: -0.2 },
+            position: { x: 0, y: -2, z: 0 },
             rotation: { x: 0, y: 180, z: 0 }, // 180 degrees
             scaling: { x: 1.24, y: 1.24, z: 1.24 }
         },
