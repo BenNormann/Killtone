@@ -6,9 +6,10 @@
 import { WeaponType, WeaponConfigs } from './weapons/WeaponConfig.js';
 import { WeaponBase } from './weapons/WeaponBase.js';
 import { AmmoRegistry } from './weapons/AmmoRegistry.js';
+import { NameGenerator } from '../utils/NameGenerator.js';
 
 export class Player {
-    constructor(game, initialPosition = new BABYLON.Vector3(0, 2, 0)) {
+    constructor(game, initialPosition = new BABYLON.Vector3(0, 3.6, 0)) {
         this.game = game;
         this.scene = game.scene;
         
@@ -43,6 +44,9 @@ export class Player {
         this.health = 100;
         this.maxHealth = 100;
         
+        // Player name
+        this.name = this.loadNameFromStorage() || NameGenerator.generateRandomName();
+        
         // Mouse look settings
         this.mouseSensitivity = this.game.config.controls.mouseSensitivity;
         this.invertY = this.game.config.controls.invertY;
@@ -66,12 +70,18 @@ export class Player {
         
         // Physics
         this.collisionRadius = 0.5;
-        this.playerHeight = 1.8;
-        this.crouchHeight = 1.2;
+        this.playerHeight = 3.8;
+        this.crouchHeight = 2;
         
         // Firing state
         this.isFiring = false;
         this.canFire = true;
+        
+        // Network sync
+        this.lastNetworkUpdate = 0;
+        this.networkUpdateRate = 1000 / 60; // 60Hz
+        this.lastPosition = this.position.clone();
+        this.lastRotation = { x: 0, y: 0 };
         
         this.isInitialized = false;
     }
@@ -445,13 +455,19 @@ export class Player {
         
         // Get camera direction for projectile
         const forward = this.camera.getForwardRay().direction;
-        const origin = this.camera.position.clone();
         
-        console.log('Player: Firing weapon from position:', origin.toString());
+        // Calculate firing position - offset from player position to avoid collision
+        // Use player position as base, then offset forward by collision radius + small buffer
+        const firingOffset = this.collisionRadius// + 0.2; // 0.2 buffer to ensure no collision
+        const firingPosition = this.camera.position.clone().add(forward.scale(firingOffset));
+        
+        console.log('Player: Firing weapon from position:', firingPosition.toString());
+        console.log('Player: Player position:', this.position.toString());
         console.log('Player: Firing direction:', forward.toString());
+        console.log('Player: Firing offset:', firingOffset);
         
         // Fire weapon
-        this.currentWeapon.fire(origin, forward);
+        this.currentWeapon.fire(firingPosition, forward);
         
         // Handle automatic firing
         if (this.isFiring && this.currentWeapon.firingMode === 'full-auto') {
@@ -533,6 +549,65 @@ export class Player {
         
         // Update ground check
         this.updateGroundCheck();
+        
+        // Send network updates
+        this.updateNetworkSync(deltaTime);
+    }
+
+    /**
+     * Update network synchronization
+     */
+    updateNetworkSync(deltaTime) {
+        if (!this.game.networkManager || !this.game.networkManager.isConnected) return;
+        
+        const now = Date.now();
+        
+        // Check if it's time to send an update (60Hz)
+        if (now - this.lastNetworkUpdate < this.networkUpdateRate) {
+            return;
+        }
+        
+        // Check if player has moved significantly
+        const positionChanged = BABYLON.Vector3.Distance(this.position, this.lastPosition) > 0.01;
+        const rotationChanged = Math.abs(this.rotationX - this.lastRotation.x) > 0.01 || 
+                               Math.abs(this.rotationY - this.lastRotation.y) > 0.01;
+        
+        if (positionChanged || rotationChanged) {
+            // Determine movement state
+            let movementState = "standing";
+            if (this.movementInput.forward || this.movementInput.backward || this.movementInput.left || this.movementInput.right) {
+                if (this.isSprinting) {
+                    movementState = "sprinting";
+                } else {
+                    movementState = "walking";
+                }
+            }
+            
+            // Send player update to server
+            const updateData = {
+                position: {
+                    x: this.position.x,
+                    y: this.position.y,
+                    z: this.position.z
+                },
+                rotation: {
+                    x: this.rotationX,
+                    y: this.rotationY,
+                    z: 0
+                },
+                movement: movementState,
+                health: this.health,
+                alive: this.health > 0
+            };
+            console.log(`Player: Sending playerUpdate:`, updateData);
+            this.game.networkManager.emit('playerUpdate', updateData);
+            
+            // Update last sent values
+            this.lastPosition.copyFrom(this.position);
+            this.lastRotation.x = this.rotationX;
+            this.lastRotation.y = this.rotationY;
+            this.lastNetworkUpdate = now;
+        }
     }
 
     /**
@@ -718,6 +793,83 @@ export class Player {
         }
         
         console.log('Player respawned');
+    }
+
+    /**
+     * Load player name from local storage
+     * @returns {string|null} Stored name or null if not found
+     */
+    loadNameFromStorage() {
+        try {
+            return localStorage.getItem('playerName');
+        } catch (error) {
+            console.warn('Failed to load name from storage:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Save player name to local storage
+     * @param {string} name - Name to save
+     */
+    saveNameToStorage(name) {
+        try {
+            localStorage.setItem('playerName', name);
+        } catch (error) {
+            console.warn('Failed to save name to storage:', error);
+        }
+    }
+
+    /**
+     * Get player name
+     * @returns {string} Current player name
+     */
+    getName() {
+        return this.name;
+    }
+
+    /**
+     * Set player name with validation
+     * @param {string} newName - New name to set
+     * @returns {Object} Result object with success boolean and error message
+     */
+    setName(newName) {
+        // Validate the name
+        const validation = NameGenerator.validateName(newName);
+        if (!validation.isValid) {
+            return {
+                success: false,
+                error: validation.error
+            };
+        }
+
+        const trimmedName = newName.trim();
+        
+        // Don't update if name is unchanged
+        if (trimmedName === this.name) {
+            return {
+                success: true,
+                error: null
+            };
+        }
+
+        // Update the name
+        this.name = trimmedName;
+        
+        // Save to local storage
+        this.saveNameToStorage(this.name);
+        
+        // Notify server if connected
+        if (this.game.networkManager && this.game.networkManager.isConnected) {
+            this.game.networkManager.emit('usernameUpdate', { username: this.name });
+        }
+
+        console.log(`Player name updated to: ${this.name}`);
+        
+        return {
+            success: true,
+            error: null
+        };
     }
 
     /**

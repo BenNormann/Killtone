@@ -40,11 +40,11 @@ export class ProjectileManager {
         this.pendingProjectiles = new Map();
         this.networkQueue = [];
         
+        // Projectile network updates
+        this.projectileUpdates = new Map(); // Track projectiles that need network updates
+        
         // Cleanup timer
         this.lastCleanupTime = 0;
-        
-        // Initialize glow layer for projectiles
-        this.initializeGlowLayer();
     }
     
     /**
@@ -56,6 +56,7 @@ export class ProjectileManager {
         // Set up network connection if available
         if (this.game.networkManager) {
             this.setupNetworkHandlers();
+            this.isOnline = true;
         }
         
         // Set up periodic cleanup
@@ -64,30 +65,13 @@ export class ProjectileManager {
         console.log('ProjectileManager initialized');
     }
     
-    /**
-     * Initialize glow layer for enhanced projectile visibility
-     */
-    initializeGlowLayer() {
-        console.log('ProjectileManager: Initializing glow layer...');
-        if (!this.scene.glowLayer) {
-            console.log('ProjectileManager: Creating new glow layer');
-            this.scene.glowLayer = new BABYLON.GlowLayer("projectileGlow", this.scene, {
-                mainTextureSamples: 4,
-                blurHorizontalSize: 0.3,
-                blurVerticalSize: 0.3,
-                glowIntensity: 0.8
-            });
-            console.log('ProjectileManager: Glow layer created:', this.scene.glowLayer);
-        } else {
-            console.log('ProjectileManager: Glow layer already exists');
-        }
-    }
+
     
     /**
      * Fire a new projectile
      */
-    fireProjectile(projectileData) {
-        console.log('ProjectileManager: Received projectile data:', projectileData);
+    fireProjectile(projectileData, isRemote = false) {
+        console.log('ProjectileManager: Received projectile data:', projectileData, 'isRemote:', isRemote);
         
         // Validate projectile data
         if (!this.validateProjectileData(projectileData)) {
@@ -130,9 +114,18 @@ export class ProjectileManager {
             console.log(`Fired projectile ${projectile.id} from ${projectileData.position.toString()}`);
         }
         
-        // Send to network if online
-        if (this.isOnline) {
+        // Send to network if online and not a remote projectile
+        if (this.isOnline && !isRemote) {
+            console.log('ProjectileManager: Sending projectile to server:', projectileData);
             this.sendProjectileToServer(projectileData);
+        }
+        
+        // Track for network updates (only for local projectiles)
+        if (!isRemote) {
+            this.projectileUpdates.set(projectile.id, {
+                lastUpdate: 0,
+                needsUpdate: true
+            });
         }
         
         console.log('ProjectileManager: Returning projectile ID:', projectile.id);
@@ -173,6 +166,9 @@ export class ProjectileManager {
             }
         }
         
+        // Send projectile updates to server
+        this.sendProjectileUpdates();
+        
         // Periodic cleanup
         this.performPeriodicCleanup();
         
@@ -190,6 +186,9 @@ export class ProjectileManager {
             if (projectile.hasHit) {
                 this.stats.totalHits++;
                 this.updateHitRate();
+                
+                // Send hit notification to server
+                this.sendProjectileHitToServer(projectile);
             }
             
             // Dispose resources
@@ -197,6 +196,9 @@ export class ProjectileManager {
             
             // Remove from active list
             this.activeProjectiles.delete(id);
+            
+            // Remove from network updates
+            this.projectileUpdates.delete(id);
             
             // Update statistics
             this.stats.activeCount = this.activeProjectiles.size;
@@ -319,7 +321,13 @@ export class ProjectileManager {
         
         // Handle projectile creation from server
         this.game.networkManager.on('projectileCreated', (data) => {
+            console.log('ProjectileManager: call handleServerProjectileCreated');
             this.handleServerProjectileCreated(data);
+        });
+        
+        // Handle projectile updates from server
+        this.game.networkManager.on('projectileUpdated', (data) => {
+            this.handleServerProjectileUpdated(data);
         });
         
         // Handle network connection status
@@ -347,8 +355,16 @@ export class ProjectileManager {
             type: 'projectileFire',
             data: {
                 projectileId: projectileData.id,
-                position: projectileData.position,
-                direction: projectileData.direction,
+                position: {
+                    x: projectileData.position.x,
+                    y: projectileData.position.y,
+                    z: projectileData.position.z
+                },
+                direction: {
+                    x: projectileData.direction.x,
+                    y: projectileData.direction.y,
+                    z: projectileData.direction.z
+                },
                 speed: projectileData.speed,
                 damage: projectileData.damage,
                 maxDistance: projectileData.maxDistance,
@@ -357,7 +373,59 @@ export class ProjectileManager {
             }
         };
         
-        this.game.networkManager.send(networkData);
+        console.log('ProjectileManager: Sending projectile to server:', networkData);
+        this.game.networkManager.emit('projectileFire', networkData);
+    }
+    
+    /**
+     * Send projectile updates to server
+     */
+    sendProjectileUpdates() {
+        if (!this.game.networkManager || !this.isOnline) return;
+        
+        for (const [id, updateInfo] of this.projectileUpdates) {
+            const projectile = this.activeProjectiles.get(id);
+            if (projectile && projectile.isActive) {
+                // Send position update
+                const updateData = {
+                    type: 'projectileUpdate',
+                    data: {
+                        projectileId: id,
+                        position: {
+                            x: projectile.position.x,
+                            y: projectile.position.y,
+                            z: projectile.position.z
+                        },
+                        timestamp: Date.now()
+                    }
+                };
+                
+                this.game.networkManager.emit('projectileUpdate', updateData);
+            }
+        }
+    }
+    
+    /**
+     * Send projectile hit to server
+     */
+    sendProjectileHitToServer(projectile) {
+        if (!this.game.networkManager || !this.isOnline) return;
+        
+        const hitData = {
+            type: 'projectileHit',
+            data: {
+                projectileId: projectile.id,
+                hitPosition: projectile.hitPosition ? {
+                    x: projectile.hitPosition.x,
+                    y: projectile.hitPosition.y,
+                    z: projectile.hitPosition.z
+                } : null,
+                hitObject: projectile.hitObject || null,
+                timestamp: Date.now()
+            }
+        };
+        
+        this.game.networkManager.emit('projectileHit', hitData);
     }
     
     /**
@@ -376,6 +444,8 @@ export class ProjectileManager {
      * Handle projectile creation from server (other players)
      */
     handleServerProjectileCreated(data) {
+        console.log('ProjectileManager: handleServerProjectileCreated called with data:', data);
+        
         // Create projectile from other player
         const projectileData = {
             id: data.projectileId,
@@ -389,7 +459,24 @@ export class ProjectileManager {
             showTrail: false // Don't show trails for other players' projectiles
         };
         
-        this.fireProjectile(projectileData);
+        console.log('ProjectileManager: Handling server projectile created:', projectileData);
+        this.fireProjectile(projectileData, true); // Pass true for isRemote
+    }
+    
+    /**
+     * Handle projectile updates from server (other players)
+     */
+    handleServerProjectileUpdated(data) {
+        const projectile = this.activeProjectiles.get(data.projectileId);
+        if (projectile) {
+            // Update position from server data
+            projectile.position.set(data.position.x, data.position.y, data.position.z);
+            
+            // Update mesh position if it exists
+            if (projectile.mesh) {
+                projectile.mesh.position.copyFrom(projectile.position);
+            }
+        }
     }
     
     /**
@@ -420,7 +507,7 @@ export class ProjectileManager {
             
             if (this.isOnline) {
                 // Try to send again
-                this.game.networkManager.send(item.data);
+                this.game.networkManager.emit(item.data.type, item.data);
                 processed.push(item);
             }
         }
@@ -504,6 +591,7 @@ export class ProjectileManager {
         if (this.game.networkManager) {
             this.game.networkManager.off('projectileHit');
             this.game.networkManager.off('projectileCreated');
+            this.game.networkManager.off('projectileUpdated'); // Added this line
             this.game.networkManager.off('connected');
             this.game.networkManager.off('disconnected');
         }

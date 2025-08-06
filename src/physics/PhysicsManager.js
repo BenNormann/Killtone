@@ -5,6 +5,7 @@
 
 import { GameConfig } from '../mainConfig.js';
 import { CommonUtils } from '../utils/CommonUtils.js';
+import { RaycastManager } from './RaycastManager.js';
 
 export class PhysicsManager {
     constructor(scene) {
@@ -14,6 +15,7 @@ export class PhysicsManager {
         this.isInitialized = false;
         this.collisionLayers = GameConfig.physics.collisionLayers;
         this.debugRenderer = null;
+        this.raycastManager = null;
         
         // Physics bodies registry
         this.physicsBodies = new Map();
@@ -61,6 +63,9 @@ export class PhysicsManager {
                 this.isInitialized = true;
                 return;
             }
+
+            // Initialize raycast manager
+            this.raycastManager = new RaycastManager(this.scene, this);
 
             // Set up collision detection
             this.setupCollisionDetection();

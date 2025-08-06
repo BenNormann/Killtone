@@ -162,7 +162,7 @@ export class Game {
         this.audioSystem = new AudioSystem(this);
         await this.audioSystem.initialize();
 
-        this.physicsManager = new PhysicsManager(this);
+        this.physicsManager = new PhysicsManager(this.scene);
         await this.physicsManager.initialize();
 
         this.uiManager = new UIManager(this);
@@ -239,8 +239,8 @@ export class Game {
         this.lastFrameTime = performance.now();
 
         // Start render loop
-        this.engine.runRenderLoop(() => {
-            this.update();
+        this.engine.runRenderLoop(async () => {
+            await this.update();
             this.render();
         });
 
@@ -250,7 +250,7 @@ export class Game {
     /**
      * Main game update loop
      */
-    update() {
+    async update() {
         if (!this.isRunning) return;
 
         const currentTime = performance.now();
@@ -261,7 +261,7 @@ export class Game {
         this.updateFPS();
 
         // Update all managers
-        this.updateManagers();
+        await this.updateManagers();
 
         // Update player if in game
         if (this.player && this.stateManager.getCurrentState() === 'IN_GAME') {
@@ -272,13 +272,13 @@ export class Game {
     /**
      * Update all game managers
      */
-    updateManagers() {
+    async updateManagers() {
         if (this.inputManager) this.inputManager.update(this.deltaTime);
         if (this.audioSystem) this.audioSystem.update(this.deltaTime);
         if (this.physicsManager) this.physicsManager.update(this.deltaTime);
         if (this.projectileManager) this.projectileManager.update(this.deltaTime);
         if (this.particleManager) this.particleManager.update(this.deltaTime);
-        if (this.networkManager) this.networkManager.update(this.deltaTime);
+        if (this.networkManager) await this.networkManager.update(this.deltaTime);
         if (this.performanceMonitor) this.performanceMonitor.update(this.deltaTime);
         if (this.uiManager) this.uiManager.update(this.player);
     }
@@ -340,14 +340,14 @@ export class Game {
             console.log('Initializing player...');
 
             // Get spawn point from map
-            let spawnPosition = new BABYLON.Vector3(0, 2, 0);
+            let spawnPosition = new BABYLON.Vector3(0, 3.6, 0); // Updated to match new player height
             if (this.mapManager && this.mapManager.currentMapData && Array.isArray(this.mapManager.currentMapData.spawnPoints) && this.mapManager.currentMapData.spawnPoints.length > 0) {
                 const spawn = this.mapManager.currentMapData.spawnPoints[0];
                 let y = spawn.position.y || 0;
                 if (this.mapManager.groundMesh) {
                     const groundY = this.mapManager.groundMesh.position.y;
-                    // Assume playerHeight is 1.8 (default) or get from config if available
-                    const playerHeight = (this.config && this.config.player && this.config.player.height) || 1.8;
+                    // Use updated playerHeight of 3.6 or get from config if available
+                    const playerHeight = (this.config && this.config.player && this.config.player.height) || 3.6;
                     y = Math.max(y, groundY + playerHeight / 2);
                 }
                 spawnPosition = new BABYLON.Vector3(
@@ -362,6 +362,11 @@ export class Game {
 
             // Setup player event handlers
             this.setupPlayerEventHandlers();
+            
+            // Connect player to network manager for multiplayer sync
+            if (this.networkManager) {
+                this.networkManager.setLocalPlayer(this.player);
+            }
 
             console.log('Player initialized');
 
@@ -439,6 +444,38 @@ export class Game {
         this.inputManager.registerActionHandler('weapon3', (pressed) => {
             if (pressed) this.player.equipWeapon('knife');
         });
+    }
+
+    /**
+     * Handle projectile created events from network
+     */
+    handleProjectileCreated(data) {
+        console.log('Game: handleProjectileCreated called with data:', data);
+        
+        if (this.projectileManager) {
+            console.log('Game: Calling projectileManager.handleServerProjectileCreated');
+            this.projectileManager.handleServerProjectileCreated(data);
+        } else {
+            console.warn('Game: projectileManager not available');
+        }
+    }
+
+    /**
+     * Handle projectile updated events from network
+     */
+    handleProjectileUpdated(data) {
+        if (this.projectileManager) {
+            this.projectileManager.handleServerProjectileUpdated(data);
+        }
+    }
+
+    /**
+     * Handle projectile hit events from network
+     */
+    handleProjectileHit(data) {
+        if (this.projectileManager) {
+            this.projectileManager.handleServerProjectileHit(data);
+        }
     }
 
     /**
@@ -540,8 +577,38 @@ export class Game {
             console.log('DEBUG: Connecting to multiplayer server...');
             if (this.networkManager) {
                 try {
-                    await this.networkManager.connect('Player');
+                    // Get player name from localStorage or generate one
+                    let playerName = 'Player';
+                    try {
+                        playerName = localStorage.getItem('playerName');
+                        if (!playerName) {
+                            // Import NameGenerator and generate a name
+                            const { NameGenerator } = await import('./utils/NameGenerator.js');
+                            playerName = NameGenerator.generateRandomName();
+                            localStorage.setItem('playerName', playerName);
+                        }
+                    } catch (error) {
+                        console.warn('Failed to get/set player name:', error);
+                        playerName = 'Player';
+                    }
+                    
+                    console.log('DEBUG: Connecting with player name:', playerName);
+                    await this.networkManager.connect(playerName);
+                    
+                    // Also send username update after connection to ensure server has it
+                    setTimeout(() => {
+                        console.log('DEBUG: Sending follow-up username update:', playerName);
+                        this.networkManager.emit('usernameUpdate', { username: playerName });
+                    }, 500);
                     console.log('DEBUG: Successfully connected to multiplayer server');
+                    
+                    // Send the actual player name after connection is established
+                    if (this.player && this.player.getName() !== 'Player') {
+                        console.log('DEBUG: Sending actual player name after connection:', this.player.getName());
+                        setTimeout(() => {
+                            this.networkManager.emit('usernameUpdate', { username: this.player.getName() });
+                        }, 100);
+                    }
                 } catch (error) {
                     console.error('DEBUG: Failed to connect to multiplayer server:', error);
                     // Continue anyway for offline testing

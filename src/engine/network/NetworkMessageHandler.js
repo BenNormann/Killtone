@@ -39,7 +39,7 @@ export class NetworkMessageHandler {
      * Handle incoming message
      * @param {string} data - Raw message data
      */
-    handleMessage(data) {
+    async handleMessage(data) {
         try {
             const message = JSON.parse(data);
             this.messagesReceived++;
@@ -47,7 +47,7 @@ export class NetworkMessageHandler {
             
             const handler = this.messageHandlers.get(message.type);
             if (handler) {
-                handler(message.data, message);
+                await handler(message.data, message);
             } else {
                 console.warn('Unhandled message type:', message.type);
             }
@@ -61,13 +61,13 @@ export class NetworkMessageHandler {
      * Process a structured message object
      * @param {Object} message - Message object with type and data
      */
-    processMessage(message) {
+    async processMessage(message) {
         this.messagesReceived++;
         
         const handler = this.messageHandlers.get(message.type);
         if (handler) {
             try {
-                handler(message.data, message);
+                await handler(message.data, message);
             } catch (error) {
                 console.error(`Error handling message type ${message.type}:`, error);
             }
@@ -117,10 +117,10 @@ export class NetworkMessageHandler {
     /**
      * Process all queued messages
      */
-    processQueuedMessages() {
+    async processQueuedMessages() {
         while (this.messageQueue.length > 0) {
             const message = this.messageQueue.shift();
-            this.processMessage(message);
+            await this.processMessage(message);
         }
     }
 

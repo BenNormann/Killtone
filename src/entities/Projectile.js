@@ -17,6 +17,13 @@ export class Projectile {
         this.ownerId = data.ownerId || 'local';
         this.weapon = data.weapon || { name: 'Unknown', type: 'unknown', damage: 50 };
         
+        console.log('Projectile: Created projectile with ID:', this.id);
+        console.log('Projectile: Position:', this.position.toString());
+        console.log('Projectile: Direction:', this.direction.toString());
+        console.log('Projectile: Speed:', this.speed);
+        console.log('Projectile: Damage:', this.damage);
+        console.log('Projectile: Owner ID:', this.ownerId);
+        
         // Visual settings
         this.showTrail = data.showTrail !== undefined ? data.showTrail : true;
         this.trailColor = data.trailColor || new BABYLON.Color3(0.8, 0.2, 0.8); // Purple
@@ -35,6 +42,13 @@ export class Projectile {
         console.log('Projectile: Initial velocity:', this.velocity.toString());
         console.log('Projectile: Speed:', this.speed);
         console.log('Projectile: Direction:', this.direction.toString());
+        console.log('Projectile: Owner ID:', this.ownerId);
+        console.log('Projectile: Is remote projectile:', this.ownerId !== 'local');
+        console.log('Projectile: Direction magnitude:', this.direction.length());
+        console.log('Projectile: Velocity magnitude:', this.velocity.length());
+        
+        // Determine if this is a remote projectile (owned by another player)
+        this.isRemote = this.ownerId !== 'local';
         
         // Timing
         this.createdTime = performance.now() / 1000;
@@ -51,6 +65,7 @@ export class Projectile {
         this.hitPosition = null;
         this.hitNormal = null;
         this.hitTarget = null;
+        this.hitObject = null; // For network transmission
         
         // Performance tracking
         this.updateCount = 0;
@@ -189,6 +204,11 @@ export class Projectile {
         const movement = this.velocity.scale(deltaTime);
         this.position.addInPlace(movement);
         
+        // Debug logging for remote projectiles
+        if (this.isRemote && this.updateCount % 60 === 0) { // Log every 60 frames (about once per second)
+            console.log(`Projectile ${this.id} (remote): Position: ${this.position.toString()}, Velocity: ${this.velocity.toString()}, Speed: ${this.speed}`);
+        }
+        
         // Update distance traveled
         this.distanceTraveled = BABYLON.Vector3.Distance(this.startPosition, this.position);
         
@@ -221,7 +241,7 @@ export class Projectile {
         );
         
         if (hit) {
-            console.log(`Projectile ${this.id}: Hit detected at`, hit.pickedPoint.toString());
+            console.log(`Projectile ${this.id}: Hit detected at`, hit.point.toString());
             this.processHit(hit);
         }
     }
@@ -231,9 +251,13 @@ export class Projectile {
      */
     processHit(hit) {
         this.hasHit = true;
-        this.hitPosition = hit.pickedPoint.clone();
-        this.hitNormal = hit.getNormal();
-        this.hitTarget = hit.pickedMesh;
+        this.hitPosition = hit.point.clone();
+        this.hitNormal = hit.normal;
+        this.hitTarget = hit.mesh;
+        this.hitObject = {
+            name: hit.mesh ? hit.mesh.name : 'unknown',
+            type: hit.mesh ? hit.mesh.type || 'mesh' : 'unknown'
+        };
         
         // Update position to hit point
         this.position = this.hitPosition.clone();

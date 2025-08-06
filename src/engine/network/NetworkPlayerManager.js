@@ -105,12 +105,14 @@ export class NetworkPlayerManager {
      * Handle player movement event
      * @param {Object} data - Movement data
      */
-    handlePlayerMoved(data) {
+    async handlePlayerMoved(data) {
+        console.log(`NetworkPlayerManager: Received playerMoved event:`, data);
         const remotePlayer = this.remotePlayers.get(data.playerId);
         if (remotePlayer) {
-            remotePlayer.updateFromNetworkData({
+            await remotePlayer.updateFromNetworkData({
                 position: data.position,
-                rotation: data.rotation
+                rotation: data.rotation,
+                movement: data.movement
             });
         }
     }
@@ -145,12 +147,12 @@ export class NetworkPlayerManager {
      * Handle player respawned event
      * @param {Object} data - Respawn event data
      */
-    handlePlayerRespawned(data) {
+    async handlePlayerRespawned(data) {
         console.log(`Player ${data.playerId} respawned`);
         
         const remotePlayer = this.remotePlayers.get(data.playerId);
         if (remotePlayer) {
-            remotePlayer.updateFromNetworkData(data.player);
+            await remotePlayer.updateFromNetworkData(data.player);
             remotePlayer.setAlive(true);
         }
         

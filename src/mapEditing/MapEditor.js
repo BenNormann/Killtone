@@ -415,15 +415,15 @@ export class MapEditor {
 
         // Create or switch to game camera (first-person)
         if (!this.gameCamera) {
-            this.gameCamera = new BABYLON.FreeCamera('editorPlayCamera', new BABYLON.Vector3(0, 1.8, 0), this.scene);
+            this.gameCamera = new BABYLON.FreeCamera('editorPlayCamera', new BABYLON.Vector3(0, 3.6, 0), this.scene);
             this.gameCamera.attachControl(this.canvas);
-            this.gameCamera.setTarget(new BABYLON.Vector3(0, 1.8, 1));
+            this.gameCamera.setTarget(new BABYLON.Vector3(0, 3.6, 1));
         }
 
         // Position camera at a spawn point if available
         if (this.currentMapData.spawnPoints.length > 0) {
             const spawn = this.currentMapData.spawnPoints[0];
-            this.gameCamera.position.set(spawn.position.x, spawn.position.y + 1.8, spawn.position.z);
+            this.gameCamera.position.set(spawn.position.x, spawn.position.y + 3.6, spawn.position.z);
 
             if (spawn.rotation) {
                 this.gameCamera.rotation.set(
