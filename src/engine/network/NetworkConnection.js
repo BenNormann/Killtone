@@ -38,9 +38,11 @@ export class NetworkConnection {
             return Promise.reject(new Error('Already connected'));
         }
         
+        this.initialPlayerName = playerName; // Store for use after connection
+        
         return new Promise(async (resolve, reject) => {
             try {
-                console.log(`Connecting to ${this.serverURL}...`);
+                console.log(`Connecting to ${this.serverURL} with name: ${playerName}...`);
                 
                 // Load Socket.IO client library
                 if (typeof io === 'undefined') {
@@ -88,6 +90,12 @@ export class NetworkConnection {
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.reconnectDelay = 1000;
+            
+            // Send initial username to server
+            if (this.initialPlayerName) {
+                console.log('Sending initial username to server:', this.initialPlayerName);
+                this.socket.emit('usernameUpdate', { username: this.initialPlayerName });
+            }
             
             const connectionData = { playerId: this.socket.id };
             

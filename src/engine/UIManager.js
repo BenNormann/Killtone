@@ -34,8 +34,14 @@ export class UIManager extends BaseManager {
         // Track which dropdown (if any) is currently open so only one is visible at a time
         this.openDropdown = null;
 
+        // Reference to nametag input field for updates
+        this.nametagInput = null;
+
         // Initialize GUI system
         this._initializeGUI();
+        
+        // Set up event listeners for name changes
+        this._setupEventListeners();
     }
 
     /**
@@ -46,6 +52,19 @@ export class UIManager extends BaseManager {
         this.fullscreenUI = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
         console.log('UIManager initialized');
+    }
+
+    /**
+     * Set up event listeners for name changes
+     */
+    _setupEventListeners() {
+        // Listen for initial name result from server
+        if (this.game && this.game.on) {
+            this.game.on('initialNameResult', (data) => {
+                console.log('UIManager: Received initial name result:', data);
+                this._updateNametagInputFromPlayer();
+            });
+        }
     }
 
     /**
@@ -219,15 +238,118 @@ export class UIManager extends BaseManager {
         title.top = "-250px";
         menuPanel.addControl(title);
 
+        // Create nametag input field
+        const nametagContainer = new BABYLON.GUI.Rectangle("nametagContainer");
+        nametagContainer.widthInPixels = panelWidth - 80;
+        nametagContainer.heightInPixels = 120;
+        nametagContainer.color = "transparent";
+        nametagContainer.background = "transparent";
+        nametagContainer.top = "-200px";
+        menuPanel.addControl(nametagContainer);
+
+        // Nametag input field
+        this.nametagInput = new BABYLON.GUI.InputText("nametagInput");
+        this.nametagInput.widthInPixels = panelWidth - 100;
+        this.nametagInput.heightInPixels = 50;
+        this.nametagInput.color = GameConfig.theme.colors.textPrimary;
+        this.nametagInput.background = GameConfig.theme.colors.backgroundButton;
+        this.nametagInput.focusedBackground = GameConfig.theme.colors.backgroundButtonHover;
+        this.nametagInput.thickness = 2;
+        this.nametagInput.cornerRadius = GameConfig.theme.borderRadius.small;
+        this.nametagInput.fontSize = 16;
+        this.nametagInput.fontFamily = GameConfig.theme.fonts.primary;
+        this.nametagInput.maxWidth = 20; // Character limit
+        this.nametagInput.top = "25px";
+        
+        // Set current player name in input field
+        this._updateNametagInput(this.nametagInput);
+        
+        // Track if user has modified the input to prevent overriding their changes
+        let userHasModifiedInput = false;
+        
+        // Input validation and character limits with real-time updates
+        this.nametagInput.onTextChangedObservable.add((inputText) => {
+            const text = inputText.text;
+            
+            // Mark that user has interacted with the input
+            if (this.nametagInput.isFocused) {
+                userHasModifiedInput = true;
+                console.log('UIManager: User has modified input, preventing auto-updates');
+            }
+            
+            // Enforce character limit (1-20 characters)
+            if (text.length > 20) {
+                inputText.text = text.substring(0, 20);
+                return;
+            }
+            
+            // Basic character filtering - allow alphanumeric, underscore, hyphen
+            const validChars = /^[a-zA-Z0-9_\-]*$/;
+            if (!validChars.test(text)) {
+                // Remove invalid characters
+                inputText.text = text.replace(/[^a-zA-Z0-9_\-]/g, '');
+                return;
+            }
+            
+            // Just validate input, don't update name on every keystroke
+        });
+        
+        // Connect to Player.setName() method on blur/enter (final validation and update)
+        this.nametagInput.onBlurObservable.add(() => {
+            console.log('UIManager: Input field lost focus, updating player name with:', this.nametagInput.text);
+            this._updatePlayerName(this.nametagInput.text);
+        });
+        
+        this.nametagInput.onKeyboardEventProcessedObservable.add((evt) => {
+            console.log('UIManager: Key pressed:', evt.key);
+            if (evt.key === "Enter") {
+                console.log('UIManager: Enter pressed, updating player name with:', this.nametagInput.text);
+                this._updatePlayerName(this.nametagInput.text);
+                this.nametagInput.blur();
+            }
+        });
+        
+        nametagContainer.addControl(this.nametagInput);
+
+        // Update the input field after a short delay to ensure player is initialized
+        // Only do this once when the menu is first created and user hasn't modified it
+        setTimeout(() => {
+            if (!userHasModifiedInput && (this.nametagInput.text === "" || this.nametagInput.text === "SteelIce")) {
+                console.log('UIManager: Delayed update of nametag input');
+                this._updateNametagInput(this.nametagInput);
+            }
+        }, 100);
+        
+        // Also try again after a longer delay to catch late player initialization
+        setTimeout(() => {
+            if (!userHasModifiedInput && this.game.player && this.game.player.getName && this.nametagInput.text !== this.game.player.getName()) {
+                console.log('UIManager: Final delayed update of nametag input');
+                this._updateNametagInput(this.nametagInput);
+            }
+        }, 500);
+
         // Create menu buttons container
         const buttonContainer = new BABYLON.GUI.StackPanel("buttonContainer");
         buttonContainer.widthInPixels = panelWidth - 80;
         buttonContainer.heightInPixels = 400;
         buttonContainer.spacing = 15;
+        buttonContainer.top = "100px";
         menuPanel.addControl(buttonContainer);
 
         // Play button
         const playButton = this._createCleanMenuButton("PLAY", () => {
+            // Update player name with current input value before starting game
+            if (this.nametagInput && this.nametagInput.text.trim()) {
+                console.log('UIManager: PLAY clicked, updating name to:', this.nametagInput.text.trim());
+                this._updatePlayerName(this.nametagInput.text.trim());
+                
+                // Also send to server if connected
+                if (this.game.networkManager && this.game.networkManager.isConnected) {
+                    console.log('UIManager: PLAY clicked, sending username to server:', this.nametagInput.text.trim());
+                    this.game.networkManager.emit('usernameUpdate', { username: this.nametagInput.text.trim() });
+                }
+            }
+            
             this.game.stateManager.transitionTo('IN_GAME');
         });
         buttonContainer.addControl(playButton);
@@ -1559,5 +1681,138 @@ export class UIManager extends BaseManager {
         // Main Weapon Section
         this._addSectionTitle(container, "MAIN WEAPON");
         this._createWeaponSelector(container);
+    }
+
+    /**
+     * Update player name with validation
+     * @param {string} newName - New name to set
+     */
+    _updatePlayerName(newName) {
+        console.log('UIManager: _updatePlayerName called with:', newName);
+        
+        if (!this.game.player || !this.game.player.setName) {
+            console.warn('Player not available for name update, storing in localStorage');
+            // Store the name in localStorage for when player is created
+            try {
+                const trimmedName = newName.trim();
+                if (trimmedName) {
+                    localStorage.setItem('playerName', trimmedName);
+                    console.log('UIManager: Stored name in localStorage:', trimmedName);
+                }
+            } catch (error) {
+                console.warn('Failed to store name in localStorage:', error);
+            }
+            return;
+        }
+
+        const trimmedName = newName.trim();
+        console.log('UIManager: Trimmed name:', trimmedName);
+        
+        // Handle empty names - don't clear existing name
+        if (!trimmedName) {
+            console.log('Empty name provided, keeping current name');
+            // Restore the input field to show current name
+            if (this.nametagInput) {
+                this.nametagInput.text = this.game.player.getName() || "";
+            }
+            return;
+        }
+        
+        // Don't update if name is unchanged
+        const currentName = this.game.player.getName();
+        console.log('UIManager: Current player name:', currentName);
+        if (trimmedName === currentName) {
+            console.log('UIManager: Name unchanged, skipping update');
+            return;
+        }
+
+        console.log('UIManager: Attempting to update player name from', currentName, 'to:', trimmedName);
+        const result = this.game.player.setName(trimmedName);
+        console.log('UIManager: setName result:', result);
+        
+        if (!result.success) {
+            console.warn('Failed to update player name:', result.error);
+            // Revert the input field to show current valid name
+            if (this.nametagInput) {
+                this.nametagInput.text = this.game.player.getName() || "";
+            }
+        } else {
+            console.log('Player name successfully updated to:', trimmedName);
+            // Update the input field to show the accepted name
+            if (this.nametagInput) {
+                this.nametagInput.text = this.game.player.getName() || "";
+            }
+        }
+    }
+
+    /**
+     * Update nametag input field with current player name
+     * @param {BABYLON.GUI.InputText} nametagInput - The nametag input field
+     */
+    _updateNametagInput(nametagInput) {
+        if (!nametagInput) return;
+        
+        // Store reference to input field for later updates
+        this.nametagInput = nametagInput;
+        
+        // Try to get player name from multiple sources
+        let playerName = "";
+        
+        // First try from initialized player
+        if (this.game.player && this.game.player.getName) {
+            playerName = this.game.player.getName() || "";
+            console.log('UIManager: Got player name from player object:', playerName);
+        }
+        
+        // If no player name, try from localStorage
+        if (!playerName) {
+            try {
+                playerName = localStorage.getItem('playerName') || "";
+                console.log('UIManager: Got player name from localStorage:', playerName);
+            } catch (error) {
+                console.warn('Failed to load player name from storage:', error);
+            }
+        }
+        
+        // If still no name, generate a random one
+        if (!playerName) {
+            console.log('UIManager: No name found, will wait for player initialization');
+        }
+        
+        // Set the input field text
+        nametagInput.text = playerName;
+        
+        console.log('Nametag input updated with name:', playerName);
+    }
+
+    /**
+     * Update nametag input field from current player name
+     * Updates the input field to reflect the current player name
+     */
+    _updateNametagInputFromPlayer() {
+        if (!this.nametagInput) return;
+        
+        // Don't update if user is currently editing the field or has focus
+        if (this.nametagInput.isFocused) {
+            console.log('UIManager: Skipping name update - input field is focused');
+            return;
+        }
+        
+        // Don't update if user has typed something different from stored name
+        // This prevents overriding user input that hasn't been saved yet
+        if (this.game.player && this.game.player.getName) {
+            const currentName = this.game.player.getName();
+            const inputText = this.nametagInput.text;
+            
+            // Only update if the input is empty or matches the stored name exactly
+            if (inputText === "" || inputText === currentName) {
+                if (currentName && currentName !== inputText) {
+                    this.nametagInput.text = currentName;
+                    console.log('Nametag input updated from player:', currentName);
+                }
+            } else {
+                console.log('UIManager: Skipping name update - user has modified input');
+            }
+        }
     }
 }

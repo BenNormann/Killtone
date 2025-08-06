@@ -13,7 +13,9 @@ export class RemotePlayer {
         
         // Player identification
         this.id = playerData.id;
-        this.username = PlayerUtils.getDisplayName(playerData);
+        this.username = playerData.username || playerData.name || `Player ${playerData.id?.slice(-4) || 'Unknown'}`;
+        
+        console.log(`RemotePlayer constructor: ID=${this.id}, username="${this.username}", playerData:`, playerData);
         
         // Player state
         this.isAlive = playerData.alive !== undefined ? playerData.alive : true;
@@ -362,62 +364,128 @@ export class RemotePlayer {
     }
     
     /**
-     * Create name tag above the player
+     * Create 3D name tag above the player that always faces the camera
      */
     createNameTag() {
-        const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI(`nameTag_${this.id}`);
+        // Create a plane for the nametag
+        this.nameTagPlane = BABYLON.MeshBuilder.CreatePlane(`nameTag_${this.id}`, {
+            width: 2,
+            height: 0.4
+        }, this.scene);
         
-        const nameText = new BABYLON.GUI.TextBlock(`nameText_${this.id}`);
-        nameText.text = this.username;
-        nameText.color = "white";
-        nameText.fontSize = 16;
-        nameText.fontFamily = "Arial";
+        // Position above player
+        this.nameTagPlane.position.y = 2.2;
+        this.nameTagPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
         
-        const nameBackground = new BABYLON.GUI.Rectangle(`nameBg_${this.id}`);
-        nameBackground.widthInPixels = this.username.length * 8 + 20;
-        nameBackground.heightInPixels = 25;
-        nameBackground.cornerRadius = 5;
-        nameBackground.color = "white";
-        nameBackground.thickness = 1;
-        nameBackground.background = "rgba(0, 0, 0, 0.7)";
+        // Create dynamic texture for the nametag
+        this.nameTagTexture = new BABYLON.DynamicTexture(`nameTagTexture_${this.id}`, {
+            width: 512,
+            height: 128
+        }, this.scene);
         
-        nameBackground.addControl(nameText);
-        advancedTexture.addControl(nameBackground);
+        // Create material
+        const nameTagMaterial = new BABYLON.StandardMaterial(`nameTagMaterial_${this.id}`, this.scene);
+        nameTagMaterial.diffuseTexture = this.nameTagTexture;
+        nameTagMaterial.emissiveTexture = this.nameTagTexture;
+        nameTagMaterial.disableLighting = true;
+        nameTagMaterial.backFaceCulling = false;
+        this.nameTagPlane.material = nameTagMaterial;
         
-        this.nameTag = { texture: advancedTexture, background: nameBackground, text: nameText };
+        // Update the nametag text
+        this.updateNameTagText();
+        
+        // Position relative to player, but don't parent to mesh (mesh changes during movement)
+        this.updateNameTagPosition();
+        
+        console.log(`RemotePlayer ${this.username}: Created 3D nametag`);
     }
     
     /**
-     * Create health bar above the player
+     * Create 3D health bar above the player that always faces the camera
      */
     createHealthBar() {
-        if (!this.nameTag) return;
+        // Create a plane for the health bar
+        this.healthBarPlane = BABYLON.MeshBuilder.CreatePlane(`healthBar_${this.id}`, {
+            width: 1.5,
+            height: 0.2
+        }, this.scene);
         
-        const healthBg = new BABYLON.GUI.Rectangle(`healthBg_${this.id}`);
-        healthBg.widthInPixels = 60;
-        healthBg.heightInPixels = 6;
-        healthBg.cornerRadius = 2;
-        healthBg.color = "white";
-        healthBg.thickness = 1;
-        healthBg.background = "rgba(0, 0, 0, 0.5)";
-        healthBg.topInPixels = 30;
+        // Position above nametag
+        this.healthBarPlane.position.y = 1.8;
+        this.healthBarPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
         
-        const healthFill = new BABYLON.GUI.Rectangle(`healthFill_${this.id}`);
-        healthFill.widthInPixels = 56;
-        healthFill.heightInPixels = 4;
-        healthFill.cornerRadius = 1;
-        healthFill.color = "transparent";
-        healthFill.thickness = 0;
-        healthFill.background = this.getHealthColor();
-        healthFill.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        healthFill.leftInPixels = 2;
+        // Create dynamic texture for the health bar
+        this.healthBarTexture = new BABYLON.DynamicTexture(`healthBarTexture_${this.id}`, {
+            width: 256,
+            height: 64
+        }, this.scene);
         
-        healthBg.addControl(healthFill);
-        this.nameTag.texture.addControl(healthBg);
+        // Create material
+        const healthBarMaterial = new BABYLON.StandardMaterial(`healthBarMaterial_${this.id}`, this.scene);
+        healthBarMaterial.diffuseTexture = this.healthBarTexture;
+        healthBarMaterial.emissiveTexture = this.healthBarTexture;
+        healthBarMaterial.disableLighting = true;
+        healthBarMaterial.backFaceCulling = false;
+        this.healthBarPlane.material = healthBarMaterial;
         
-        this.healthBar = { background: healthBg, fill: healthFill };
+        // Update the health bar
+        this.updateHealthBarDisplay();
+        
+        // Position relative to player, but don't parent to mesh (mesh changes during movement)
+        this.updateHealthBarPosition();
+        
+        console.log(`RemotePlayer ${this.username}: Created 3D health bar`);
     }
     
+    /**
+     * Update the nametag text on the dynamic texture
+     */
+    updateNameTagText() {
+        if (!this.nameTagTexture) {
+            console.warn(`RemotePlayer ${this.id}: Cannot update nametag text - texture not available`);
+            return;
+        }
+        
+        // Clear the texture
+        this.nameTagTexture.clear();
+        
+        // Draw background
+        this.nameTagTexture.drawText(this.username, null, null, "bold 60px Arial", "white", "rgba(0, 0, 0, 0.8)", true);
+        
+        console.log(`RemotePlayer ${this.id}: Updated nametag text to: "${this.username}"`);
+    }
+    
+    /**
+     * Update the health bar display on the dynamic texture
+     */
+    updateHealthBarDisplay() {
+        if (!this.healthBarTexture) return;
+        
+        // Clear the texture
+        this.healthBarTexture.clear();
+        
+        const healthPercent = this.health / this.maxHealth;
+        const healthColor = this.getHealthColor();
+        
+        // Draw background (dark gray)
+        const ctx = this.healthBarTexture.getContext();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillRect(0, 0, 256, 64);
+        
+        // Draw health bar border (white)
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(8, 16, 240, 32);
+        
+        // Draw health fill
+        ctx.fillStyle = healthColor;
+        ctx.fillRect(10, 18, (236 * healthPercent), 28);
+        
+        this.healthBarTexture.update();
+        
+        console.log(`RemotePlayer: Updated health bar: ${this.health}/${this.maxHealth} (${Math.round(healthPercent * 100)}%)`);
+    }
+
     /**
      * Get health bar color based on health percentage
      */
@@ -425,11 +493,11 @@ export class RemotePlayer {
         const healthPercent = PlayerUtils.getHealthPercentage(this);
         
         if (healthPercent > 0.6) {
-            return GameConfig.theme.colors.healthHigh;
+            return "#00ff00"; // Green
         } else if (healthPercent > 0.3) {
-            return GameConfig.theme.colors.healthMedium;
+            return "#ffff00"; // Yellow
         } else {
-            return GameConfig.theme.colors.healthLow;
+            return "#ff0000"; // Red
         }
     }
     
@@ -497,37 +565,49 @@ export class RemotePlayer {
     }
     
     /**
-     * Update UI elements position
+     * Update nametag position to follow player
+     */
+    updateNameTagPosition() {
+        if (!this.nameTagPlane || !this.mesh) return;
+        
+        this.nameTagPlane.position.x = this.mesh.position.x;
+        this.nameTagPlane.position.y = this.mesh.position.y + 2.2;
+        this.nameTagPlane.position.z = this.mesh.position.z;
+    }
+    
+    /**
+     * Update health bar position to follow player
+     */
+    updateHealthBarPosition() {
+        if (!this.healthBarPlane || !this.mesh) return;
+        
+        this.healthBarPlane.position.x = this.mesh.position.x;
+        this.healthBarPlane.position.y = this.mesh.position.y + 1.8;
+        this.healthBarPlane.position.z = this.mesh.position.z;
+    }
+
+    /**
+     * Update visibility of nametag and health bar based on distance
      */
     updateUI() {
-        if (!this.nameTag || !this.mesh) return;
+        if (!this.mesh) return;
+        
+        // Update positions to follow player
+        this.updateNameTagPosition();
+        this.updateHealthBarPosition();
         
         const camera = this.scene.activeCamera;
         if (!camera) return;
         
-        const worldPosition = this.mesh.position.add(new BABYLON.Vector3(0, 1.2, 0));
-        const screenPosition = BABYLON.Vector3.Project(
-            worldPosition,
-            BABYLON.Matrix.Identity(),
-            camera.getViewMatrix(),
-            camera.getProjectionMatrix(),
-            this.scene.getEngine().getRenderingCanvasClientRect()
-        );
+        const distance = BABYLON.Vector3.Distance(camera.position, this.mesh.position);
+        const isVisible = distance < 50; // Show within 50 units
         
-        this.nameTag.background.leftInPixels = screenPosition.x - (this.nameTag.background.widthInPixels / 2);
-        this.nameTag.background.topInPixels = screenPosition.y - 40;
-        
-        if (this.healthBar) {
-            this.healthBar.background.leftInPixels = screenPosition.x - (this.healthBar.background.widthInPixels / 2);
-            this.healthBar.background.topInPixels = screenPosition.y - 10;
+        if (this.nameTagPlane) {
+            this.nameTagPlane.isVisible = isVisible;
         }
         
-        const distance = BABYLON.Vector3.Distance(camera.position, this.mesh.position);
-        const isVisible = screenPosition.z > 0 && screenPosition.z < 1 && distance < 50;
-        
-        this.nameTag.background.isVisible = isVisible;
-        if (this.healthBar) {
-            this.healthBar.background.isVisible = isVisible;
+        if (this.healthBarPlane) {
+            this.healthBarPlane.isVisible = isVisible;
         }
     }
     
@@ -613,12 +693,7 @@ export class RemotePlayer {
      */
     setHealth(health) {
         this.health = Math.max(0, Math.min(this.maxHealth, health));
-        
-        if (this.healthBar) {
-            const healthPercent = this.health / this.maxHealth;
-            this.healthBar.fill.widthInPixels = 56 * healthPercent;
-            this.healthBar.fill.background = this.getHealthColor();
-        }
+        this.updateHealthBarDisplay();
     }
     
     /**
@@ -637,12 +712,9 @@ export class RemotePlayer {
      * Set player username and update name tag
      */
     setUsername(username) {
+        console.log(`RemotePlayer ${this.id}: Updating username from "${this.username}" to "${username}"`);
         this.username = username;
-        
-        if (this.nameTag) {
-            this.nameTag.text.text = username;
-            this.nameTag.background.widthInPixels = username.length * 8 + 20;
-        }
+        this.updateNameTagText();
     }
     
     /**
@@ -687,12 +759,26 @@ export class RemotePlayer {
             this.lookRay = null;
         }
         
-        if (this.nameTag) {
-            this.nameTag.texture.dispose();
-            this.nameTag = null;
+        if (this.nameTagPlane) {
+            this.nameTagPlane.dispose();
+            this.nameTagPlane = null;
         }
         
-        this.healthBar = null;
+        if (this.nameTagTexture) {
+            this.nameTagTexture.dispose();
+            this.nameTagTexture = null;
+        }
+        
+        if (this.healthBarPlane) {
+            this.healthBarPlane.dispose();
+            this.healthBarPlane = null;
+        }
+        
+        if (this.healthBarTexture) {
+            this.healthBarTexture.dispose();
+            this.healthBarTexture = null;
+        }
+        
         this.game = null;
         this.scene = null;
     }

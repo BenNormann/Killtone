@@ -545,8 +545,38 @@ export class Game {
             console.log('DEBUG: Connecting to multiplayer server...');
             if (this.networkManager) {
                 try {
-                    await this.networkManager.connect('Player');
+                    // Get player name from localStorage or generate one
+                    let playerName = 'Player';
+                    try {
+                        playerName = localStorage.getItem('playerName');
+                        if (!playerName) {
+                            // Import NameGenerator and generate a name
+                            const { NameGenerator } = await import('./utils/NameGenerator.js');
+                            playerName = NameGenerator.generateRandomName();
+                            localStorage.setItem('playerName', playerName);
+                        }
+                    } catch (error) {
+                        console.warn('Failed to get/set player name:', error);
+                        playerName = 'Player';
+                    }
+                    
+                    console.log('DEBUG: Connecting with player name:', playerName);
+                    await this.networkManager.connect(playerName);
+                    
+                    // Also send username update after connection to ensure server has it
+                    setTimeout(() => {
+                        console.log('DEBUG: Sending follow-up username update:', playerName);
+                        this.networkManager.emit('usernameUpdate', { username: playerName });
+                    }, 500);
                     console.log('DEBUG: Successfully connected to multiplayer server');
+                    
+                    // Send the actual player name after connection is established
+                    if (this.player && this.player.getName() !== 'Player') {
+                        console.log('DEBUG: Sending actual player name after connection:', this.player.getName());
+                        setTimeout(() => {
+                            this.networkManager.emit('usernameUpdate', { username: this.player.getName() });
+                        }, 100);
+                    }
                 } catch (error) {
                     console.error('DEBUG: Failed to connect to multiplayer server:', error);
                     // Continue anyway for offline testing

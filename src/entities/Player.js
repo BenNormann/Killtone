@@ -6,6 +6,7 @@
 import { WeaponType, WeaponConfigs } from './weapons/WeaponConfig.js';
 import { WeaponBase } from './weapons/WeaponBase.js';
 import { AmmoRegistry } from './weapons/AmmoRegistry.js';
+import { NameGenerator } from '../utils/NameGenerator.js';
 
 export class Player {
     constructor(game, initialPosition = new BABYLON.Vector3(0, 3.6, 0)) {
@@ -42,6 +43,9 @@ export class Player {
         this.isAiming = false;
         this.health = 100;
         this.maxHealth = 100;
+        
+        // Player name
+        this.name = this.loadNameFromStorage() || NameGenerator.generateRandomName();
         
         // Mouse look settings
         this.mouseSensitivity = this.game.config.controls.mouseSensitivity;
@@ -783,6 +787,83 @@ export class Player {
         }
         
         console.log('Player respawned');
+    }
+
+    /**
+     * Load player name from local storage
+     * @returns {string|null} Stored name or null if not found
+     */
+    loadNameFromStorage() {
+        try {
+            return localStorage.getItem('playerName');
+        } catch (error) {
+            console.warn('Failed to load name from storage:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Save player name to local storage
+     * @param {string} name - Name to save
+     */
+    saveNameToStorage(name) {
+        try {
+            localStorage.setItem('playerName', name);
+        } catch (error) {
+            console.warn('Failed to save name to storage:', error);
+        }
+    }
+
+    /**
+     * Get player name
+     * @returns {string} Current player name
+     */
+    getName() {
+        return this.name;
+    }
+
+    /**
+     * Set player name with validation
+     * @param {string} newName - New name to set
+     * @returns {Object} Result object with success boolean and error message
+     */
+    setName(newName) {
+        // Validate the name
+        const validation = NameGenerator.validateName(newName);
+        if (!validation.isValid) {
+            return {
+                success: false,
+                error: validation.error
+            };
+        }
+
+        const trimmedName = newName.trim();
+        
+        // Don't update if name is unchanged
+        if (trimmedName === this.name) {
+            return {
+                success: true,
+                error: null
+            };
+        }
+
+        // Update the name
+        this.name = trimmedName;
+        
+        // Save to local storage
+        this.saveNameToStorage(this.name);
+        
+        // Notify server if connected
+        if (this.game.networkManager && this.game.networkManager.isConnected) {
+            this.game.networkManager.emit('usernameUpdate', { username: this.name });
+        }
+
+        console.log(`Player name updated to: ${this.name}`);
+        
+        return {
+            success: true,
+            error: null
+        };
     }
 
     /**

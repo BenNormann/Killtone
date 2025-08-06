@@ -198,12 +198,28 @@ io.on('connection', (socket) => {
     const player = players.get(socket.id);
     if (player && data.username) {
       const sanitizedUsername = data.username.trim().substring(0, 20); // Limit length and trim
+      const oldUsername = player.username;
       player.username = sanitizedUsername;
       
-      console.log(`Player ${socket.id} updated username to: ${sanitizedUsername}`);
+      console.log(`Player ${socket.id} updated username from "${oldUsername}" to: ${sanitizedUsername}`);
       
-      // Broadcast the username update to all other players
-      socket.broadcast.emit('playerUsernameUpdated', {
+      // If this is the first real username (not the default), notify all players about the new player with correct name
+      if (oldUsername.startsWith('Player ') && !sanitizedUsername.startsWith('Player ')) {
+        console.log(`Player ${socket.id} set their first real username, re-broadcasting playerConnected with correct name`);
+        socket.broadcast.emit('playerConnected', {
+          ...player,
+          username: sanitizedUsername
+        });
+      } else {
+        // Regular username update
+        socket.broadcast.emit('playerUsernameUpdated', {
+          playerId: socket.id,
+          username: sanitizedUsername
+        });
+      }
+      
+      // Also send back to the sender to confirm
+      socket.emit('playerUsernameUpdated', {
         playerId: socket.id,
         username: sanitizedUsername
       });
