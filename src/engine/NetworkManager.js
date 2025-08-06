@@ -84,6 +84,11 @@ export class NetworkManager extends BaseManager {
         this.messageHandler.registerHandler('playerJoined', (data) => {
             console.log('DEBUG: NetworkManager received playerJoined event:', data);
             this.playerManager.handlePlayerJoined(data);
+            
+            // Also notify the game to set the player ID
+            if (this.game && this.game.handlePlayerJoined) {
+                this.game.handlePlayerJoined(data);
+            }
         });
         this.messageHandler.registerHandler('playerConnected', (data) => {
             console.log('DEBUG: NetworkManager received playerConnected event:', data);
@@ -253,6 +258,11 @@ export class NetworkManager extends BaseManager {
         this.isHost = data.isHost || false;
         
         console.log('DEBUG: NetworkManager connection state - isConnected:', this.isConnected, 'playerId:', this.playerId);
+        
+        // Set the player ID on the game instance if available
+        if (this.game && this.game.setPlayerId) {
+            this.game.setPlayerId(data.playerId);
+        }
         
         if (this.onConnected) {
             this.onConnected(data);

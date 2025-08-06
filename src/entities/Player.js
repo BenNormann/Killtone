@@ -831,6 +831,23 @@ export class Player {
     }
 
     /**
+     * Set player ID from server
+     * @param {string} playerId - The player ID from the server
+     */
+    setId(playerId) {
+        this.id = playerId;
+        console.log(`Player: ID set to ${playerId}`);
+    }
+
+    /**
+     * Get player ID
+     * @returns {string} Current player ID
+     */
+    getId() {
+        return this.id;
+    }
+
+    /**
      * Set player name with validation
      * @param {string} newName - New name to set
      * @returns {Object} Result object with success boolean and error message

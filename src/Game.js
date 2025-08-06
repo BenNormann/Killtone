@@ -48,6 +48,9 @@ export class Game {
         this.lastFrameTime = 0;
         this.deltaTime = 0;
 
+        // Network state
+        this.pendingPlayerId = null; // Store player ID until player is initialized
+
         // Performance tracking
         this.frameCount = 0;
         this.fps = 0;
@@ -368,6 +371,13 @@ export class Game {
                 this.networkManager.setLocalPlayer(this.player);
             }
 
+            // Set the player ID if it was pending
+            if (this.pendingPlayerId) {
+                this.player.setId(this.pendingPlayerId);
+                this.pendingPlayerId = null; // Clear pending ID after setting
+                console.log('Game: Set player ID from pending:', this.player.id);
+            }
+
             console.log('Player initialized');
 
         } catch (error) {
@@ -444,6 +454,55 @@ export class Game {
         this.inputManager.registerActionHandler('weapon3', (pressed) => {
             if (pressed) this.player.equipWeapon('knife');
         });
+
+        console.log('Player event handlers set up');
+    }
+
+    /**
+     * Handle player joined event from server
+     * @param {Object} data - Player join data containing playerId
+     */
+    handlePlayerJoined(data) {
+        console.log('Game: handlePlayerJoined called with data:', data);
+        
+        // Store the player ID for when the player is initialized
+        if (data.playerId) {
+            this.pendingPlayerId = data.playerId;
+            console.log('Game: Stored pending player ID:', data.playerId);
+        }
+        
+        // If player is already initialized, set the ID immediately
+        if (this.player && data.playerId) {
+            this.player.setId(data.playerId);
+            console.log('Game: Set player ID to:', data.playerId);
+        }
+    }
+
+    /**
+     * Set player ID on the Player instance
+     * @param {string} playerId - The player ID from the server
+     */
+    setPlayerId(playerId) {
+        if (this.player) {
+            this.player.setId(playerId);
+            console.log('Game: Set player ID to:', playerId);
+        } else {
+            // Store for later when player is initialized
+            this.pendingPlayerId = playerId;
+            console.log('Game: Stored pending player ID:', playerId);
+        }
+    }
+
+    /**
+     * Get current player ID status
+     * @returns {Object} Status object with playerId and pendingPlayerId
+     */
+    getPlayerIdStatus() {
+        return {
+            playerId: this.player ? this.player.getId() : null,
+            pendingPlayerId: this.pendingPlayerId,
+            playerInitialized: !!this.player
+        };
     }
 
     /**
