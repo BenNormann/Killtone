@@ -3,7 +3,7 @@ const TrunCharacterConfig = {
     name: "Trun",
     type: "character",
     description: "Default character model with 3 animations",
-    
+
     // Model properties
     model: {
         folder: "assets/characters/trun/",
@@ -11,14 +11,14 @@ const TrunCharacterConfig = {
         position: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0 }
     },
-    
+
     // Animation mappings
     animations: {
         idle: "idle",
-        walking: "walk", 
+        walking: "walk",
         running: "run"
     },
-    
+
     // Animation file configurations
     animationFiles: {
         'trun_standing': {
@@ -37,26 +37,26 @@ const TrunCharacterConfig = {
             category: 'character'
         }
     },
-    
+
     // Character-specific transformation configurations
     transformations: {
         'trun_standing': {
-            position: { x: 0, y: 0.55, z: 0 },
+            position: { x: 0, y: -0.35, z: 0 },
             rotation: { x: 0, y: 180, z: 0 }, // 180 degrees
             scaling: { x: 1.1, y: 1.1, z: 1.1 }
         },
         'trun_walking': {
-            position: { x: 0, y: 0, z: 0 },
+            position: { x: 0, y: -2, z: -0.2 },
             rotation: { x: 0, y: 180, z: 0 }, // 180 degrees
-            scaling: { x: 1.2, y: 1.2, z: 1.2 }
+            scaling: { x: 1.24, y: 1.24, z: 1.24 }
         },
         'trun_running': {
-            position: { x: 0, y: 0, z: 0 },
+            position: { x: 0, y: -2, z: 0 },
             rotation: { x: 0, y: 180, z: 0 }, // 180 degrees
-            scaling: { x: 1.2, y: 1.2, z: 1.2 }
+            scaling: { x: 1.24, y: 1.24, z: 1.24 }
         }
     },
-    
+
     // Physics properties
     physics: {
         radius: 1.2,

@@ -104,10 +104,13 @@ export class RemotePlayer {
                     
                     console.log(`RemotePlayer ${this.username}: Cloned mesh enabled:`, this.mesh.isEnabled(), 'visible:', this.mesh.isVisible);
                     
-                    // Position mesh
-                    this.mesh.position.x = this.position.x;
-                    this.mesh.position.z = this.position.z;
-                    this.mesh.position.y = this.position.y + this.mesh.position.y;
+                    // Apply character-specific transformations
+                    this.applyCharacterTransformations(animationFile);
+                    
+                    // Position mesh at world position with transformation offset
+                    this.mesh.position.x = this.position.x + (this.meshOffset?.x || 0);
+                    this.mesh.position.y = this.position.y + (this.meshOffset?.y || 0);
+                    this.mesh.position.z = this.position.z + (this.meshOffset?.z || 0);
                     
                     this.mesh.rotationQuaternion = null;
                     this.mesh.rotation.y = this.rotation.y + Math.PI;
@@ -207,8 +210,13 @@ export class RemotePlayer {
             
             console.log(`RemotePlayer ${this.username}: Swapped mesh enabled:`, this.mesh.isEnabled(), 'visible:', this.mesh.isVisible);
             
-            this.mesh.position.x = currentPosition.x;
-            this.mesh.position.z = currentPosition.z;
+            // Apply character-specific transformations
+            this.applyCharacterTransformations(newAnimationFile);
+            
+            // Set world position (player position + transformation offset)
+            this.mesh.position.x = currentPosition.x + (this.meshOffset?.x || 0);
+            this.mesh.position.y = currentPosition.y + (this.meshOffset?.y || 0);
+            this.mesh.position.z = currentPosition.z + (this.meshOffset?.z || 0);
             this.mesh.rotationQuaternion = null;
             this.mesh.rotation.copyFrom(currentRotation);
             
@@ -221,6 +229,48 @@ export class RemotePlayer {
         }
     }
     
+    /**
+     * Apply character-specific transformations based on animation state
+     */
+    applyCharacterTransformations(animationFile) {
+        if (!this.mesh) return;
+        
+        const characterConfig = window.TrunCharacterConfig;
+        if (!characterConfig || !characterConfig.transformations) {
+            console.warn(`RemotePlayer ${this.username}: No character transformations found`);
+            return;
+        }
+        
+        const transformation = characterConfig.transformations[animationFile];
+        if (!transformation) {
+            console.warn(`RemotePlayer ${this.username}: No transformation found for ${animationFile}`);
+            return;
+        }
+        
+        // Store transformation offset for later use in positioning
+        this.meshOffset = {
+            x: transformation.position?.x || 0,
+            y: transformation.position?.y || 0,
+            z: transformation.position?.z || 0
+        };
+        
+        // Apply rotation
+        if (transformation.rotation) {
+            this.mesh.rotation.x += (transformation.rotation.x || 0) * Math.PI / 180; // Convert to radians
+            this.mesh.rotation.y += (transformation.rotation.y || 0) * Math.PI / 180;
+            this.mesh.rotation.z += (transformation.rotation.z || 0) * Math.PI / 180;
+        }
+        
+        // Apply scaling
+        if (transformation.scaling) {
+            this.mesh.scaling.x = transformation.scaling.x || 1;
+            this.mesh.scaling.y = transformation.scaling.y || 1;
+            this.mesh.scaling.z = transformation.scaling.z || 1;
+        }
+        
+        console.log(`RemotePlayer ${this.username}: Applied transformations for ${animationFile}:`, transformation);
+    }
+
     /**
      * Recursively enable all child meshes
      */
@@ -526,8 +576,9 @@ export class RemotePlayer {
                 this.interpolationSpeed * deltaTime
             );
             
-            this.mesh.position.x = this.position.x;
-            this.mesh.position.z = this.position.z;
+            this.mesh.position.x = this.position.x + (this.meshOffset?.x || 0);
+            this.mesh.position.y = this.position.y + (this.meshOffset?.y || 0);
+            this.mesh.position.z = this.position.z + (this.meshOffset?.z || 0);
             
             if (this.lookRay) {
                 this.lookRay.position.copyFrom(this.position);
@@ -565,25 +616,27 @@ export class RemotePlayer {
     }
     
     /**
-     * Update nametag position to follow player
+     * Update nametag position to follow player (positioned relative to visor/head, not mesh)
      */
     updateNameTagPosition() {
-        if (!this.nameTagPlane || !this.mesh) return;
+        if (!this.nameTagPlane) return;
         
-        this.nameTagPlane.position.x = this.mesh.position.x;
-        this.nameTagPlane.position.y = this.mesh.position.y + 2.2;
-        this.nameTagPlane.position.z = this.mesh.position.z;
+        // Position relative to player's actual position (visor/head), not the mesh
+        this.nameTagPlane.position.x = this.position.x;
+        this.nameTagPlane.position.y = this.position.y + 2.2; // Above the player's head/visor
+        this.nameTagPlane.position.z = this.position.z;
     }
     
     /**
-     * Update health bar position to follow player
+     * Update health bar position to follow player (positioned relative to visor/head, not mesh)
      */
     updateHealthBarPosition() {
-        if (!this.healthBarPlane || !this.mesh) return;
+        if (!this.healthBarPlane) return;
         
-        this.healthBarPlane.position.x = this.mesh.position.x;
-        this.healthBarPlane.position.y = this.mesh.position.y + 1.8;
-        this.healthBarPlane.position.z = this.mesh.position.z;
+        // Position relative to player's actual position (visor/head), not the mesh
+        this.healthBarPlane.position.x = this.position.x;
+        this.healthBarPlane.position.y = this.position.y + 1.8; // Above the player's head/visor, below nametag
+        this.healthBarPlane.position.z = this.position.z;
     }
 
     /**
