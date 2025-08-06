@@ -130,27 +130,27 @@ export class NetworkManager extends BaseManager {
             const connectionData = await this.connection.connect(playerName);
             
             // Set up Socket.IO event handlers for message processing
-            this.connection.on('playerJoined', (data) => {
+            this.connection.on('playerJoined', async (data) => {
                 console.log('DEBUG: NetworkManager received playerJoined socket event:', data);
-                this.messageHandler.processMessage({ type: 'playerJoined', data });
+                await this.messageHandler.processMessage({ type: 'playerJoined', data });
             });
-            this.connection.on('playerConnected', (data) => {
+            this.connection.on('playerConnected', async (data) => {
                 console.log('DEBUG: NetworkManager received playerConnected socket event:', data);
-                this.messageHandler.processMessage({ type: 'playerConnected', data });
+                await this.messageHandler.processMessage({ type: 'playerConnected', data });
             });
-            this.connection.on('playerDisconnected', (playerId) => {
+            this.connection.on('playerDisconnected', async (playerId) => {
                 console.log('DEBUG: NetworkManager received playerDisconnected socket event:', playerId);
-                this.messageHandler.processMessage({ type: 'playerDisconnected', data: playerId });
+                await this.messageHandler.processMessage({ type: 'playerDisconnected', data: playerId });
             });
-            this.connection.on('playerMoved', (data) => {
-                this.messageHandler.processMessage({ type: 'playerMoved', data });
+            this.connection.on('playerMoved', async (data) => {
+                await this.messageHandler.processMessage({ type: 'playerMoved', data });
             });
-            this.connection.on('playerShot', (data) => this.messageHandler.processMessage({ type: 'playerShot', data }));
-            this.connection.on('playerKilled', (data) => this.messageHandler.processMessage({ type: 'playerKilled', data }));
-            this.connection.on('playerRespawned', (data) => this.messageHandler.processMessage({ type: 'playerRespawned', data }));
-            this.connection.on('playerDamaged', (data) => this.messageHandler.processMessage({ type: 'playerDamaged', data }));
-            this.connection.on('playerHealthUpdated', (data) => this.messageHandler.processMessage({ type: 'playerHealthUpdated', data }));
-            this.connection.on('playerUsernameUpdated', (data) => this.messageHandler.processMessage({ type: 'playerUsernameUpdated', data }));
+            this.connection.on('playerShot', async (data) => await this.messageHandler.processMessage({ type: 'playerShot', data }));
+            this.connection.on('playerKilled', async (data) => await this.messageHandler.processMessage({ type: 'playerKilled', data }));
+            this.connection.on('playerRespawned', async (data) => await this.messageHandler.processMessage({ type: 'playerRespawned', data }));
+            this.connection.on('playerDamaged', async (data) => await this.messageHandler.processMessage({ type: 'playerDamaged', data }));
+            this.connection.on('playerHealthUpdated', async (data) => await this.messageHandler.processMessage({ type: 'playerHealthUpdated', data }));
+            this.connection.on('playerUsernameUpdated', async (data) => await this.messageHandler.processMessage({ type: 'playerUsernameUpdated', data }));
             
             // Projectile events
             this.connection.on('projectileCreated', (data) => {
@@ -478,13 +478,13 @@ export class NetworkManager extends BaseManager {
      * Update method called from game loop
      * @param {number} deltaTime - Time since last update
      */
-    _doUpdate(deltaTime) {
+    async _doUpdate(deltaTime) {
         // Update components
         this.playerManager.update(deltaTime);
         this.stats.update(deltaTime);
         
         // Process any queued messages
-        this.messageHandler.processQueuedMessages();
+        await this.messageHandler.processQueuedMessages();
         
         // Clean up old pending messages
         this.messageHandler.cleanupPendingMessages();

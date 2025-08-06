@@ -63,13 +63,13 @@ export class BaseManager {
      * Update method called from game loop - override in subclasses
      * @param {number} deltaTime - Time elapsed since last update
      */
-    update(deltaTime) {
+    async update(deltaTime) {
         if (!this.isInitialized || this.isDisposed) {
             return;
         }
         
         // Call subclass update
-        this._doUpdate(deltaTime);
+        await this._doUpdate(deltaTime);
     }
 
     /**

@@ -239,8 +239,8 @@ export class Game {
         this.lastFrameTime = performance.now();
 
         // Start render loop
-        this.engine.runRenderLoop(() => {
-            this.update();
+        this.engine.runRenderLoop(async () => {
+            await this.update();
             this.render();
         });
 
@@ -250,7 +250,7 @@ export class Game {
     /**
      * Main game update loop
      */
-    update() {
+    async update() {
         if (!this.isRunning) return;
 
         const currentTime = performance.now();
@@ -261,7 +261,7 @@ export class Game {
         this.updateFPS();
 
         // Update all managers
-        this.updateManagers();
+        await this.updateManagers();
 
         // Update player if in game
         if (this.player && this.stateManager.getCurrentState() === 'IN_GAME') {
@@ -272,13 +272,13 @@ export class Game {
     /**
      * Update all game managers
      */
-    updateManagers() {
+    async updateManagers() {
         if (this.inputManager) this.inputManager.update(this.deltaTime);
         if (this.audioSystem) this.audioSystem.update(this.deltaTime);
         if (this.physicsManager) this.physicsManager.update(this.deltaTime);
         if (this.projectileManager) this.projectileManager.update(this.deltaTime);
         if (this.particleManager) this.particleManager.update(this.deltaTime);
-        if (this.networkManager) this.networkManager.update(this.deltaTime);
+        if (this.networkManager) await this.networkManager.update(this.deltaTime);
         if (this.performanceMonitor) this.performanceMonitor.update(this.deltaTime);
         if (this.uiManager) this.uiManager.update(this.player);
     }
@@ -340,14 +340,14 @@ export class Game {
             console.log('Initializing player...');
 
             // Get spawn point from map
-            let spawnPosition = new BABYLON.Vector3(0, 2, 0);
+            let spawnPosition = new BABYLON.Vector3(0, 3.6, 0); // Updated to match new player height
             if (this.mapManager && this.mapManager.currentMapData && Array.isArray(this.mapManager.currentMapData.spawnPoints) && this.mapManager.currentMapData.spawnPoints.length > 0) {
                 const spawn = this.mapManager.currentMapData.spawnPoints[0];
                 let y = spawn.position.y || 0;
                 if (this.mapManager.groundMesh) {
                     const groundY = this.mapManager.groundMesh.position.y;
-                    // Assume playerHeight is 1.8 (default) or get from config if available
-                    const playerHeight = (this.config && this.config.player && this.config.player.height) || 1.8;
+                    // Use updated playerHeight of 3.6 or get from config if available
+                    const playerHeight = (this.config && this.config.player && this.config.player.height) || 3.6;
                     y = Math.max(y, groundY + playerHeight / 2);
                 }
                 spawnPosition = new BABYLON.Vector3(

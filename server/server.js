@@ -56,6 +56,7 @@ io.on('connection', (socket) => {
     score: 0, // Initialize kill score
     deaths: 0, // Initialize death count
     username: `Player ${socket.id.slice(-4)}`, // Default username
+    movement: "standing", // Default movement state
     lastUpdate: Date.now()
   };
   
@@ -75,16 +76,36 @@ io.on('connection', (socket) => {
   socket.on('playerUpdate', (data) => {
     const player = players.get(socket.id);
     if (player && player.alive) {
+      // Update player data
       player.position = data.position;
       player.rotation = data.rotation;
+      player.movement = data.movement || "standing";
       player.lastUpdate = Date.now();
       
-      // Broadcast to other players
-      socket.broadcast.emit('playerMoved', {
+      // Update health if provided
+      if (data.health !== undefined) {
+        const healthChanged = player.health !== data.health;
+        player.health = data.health;
+        player.alive = data.alive !== undefined ? data.alive : player.health > 0;
+        
+        // Broadcast health update if it changed
+        if (healthChanged) {
+          socket.broadcast.emit('playerHealthUpdated', {
+            playerId: socket.id,
+            health: player.health,
+            alive: player.alive
+          });
+        }
+      }
+      
+      // Broadcast movement to other players
+      const broadcastData = {
         playerId: socket.id,
         position: data.position,
-        rotation: data.rotation
-      });
+        rotation: data.rotation,
+        movement: player.movement
+      };
+      socket.broadcast.emit('playerMoved', broadcastData);
     }
   });
   
@@ -299,6 +320,7 @@ function respawnPlayer(playerId) {
     player.position = getSpawnPosition();
     player.health = gameConfig.maxHealth;
     player.alive = true;
+    player.movement = "standing"; // Reset movement state on respawn
     
     // Notify all players about respawn
     io.emit('playerRespawned', {

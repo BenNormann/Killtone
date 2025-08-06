@@ -8,7 +8,7 @@ import { WeaponBase } from './weapons/WeaponBase.js';
 import { AmmoRegistry } from './weapons/AmmoRegistry.js';
 
 export class Player {
-    constructor(game, initialPosition = new BABYLON.Vector3(0, 2, 0)) {
+    constructor(game, initialPosition = new BABYLON.Vector3(0, 3.6, 0)) {
         this.game = game;
         this.scene = game.scene;
         
@@ -66,8 +66,8 @@ export class Player {
         
         // Physics
         this.collisionRadius = 0.5;
-        this.playerHeight = 1.8;
-        this.crouchHeight = 1.2;
+        this.playerHeight = 3.8;
+        this.crouchHeight = 2;
         
         // Firing state
         this.isFiring = false;
@@ -569,8 +569,18 @@ export class Player {
                                Math.abs(this.rotationY - this.lastRotation.y) > 0.01;
         
         if (positionChanged || rotationChanged) {
+            // Determine movement state
+            let movementState = "standing";
+            if (this.movementInput.forward || this.movementInput.backward || this.movementInput.left || this.movementInput.right) {
+                if (this.isSprinting) {
+                    movementState = "sprinting";
+                } else {
+                    movementState = "walking";
+                }
+            }
+            
             // Send player update to server
-            this.game.networkManager.emit('playerUpdate', {
+            const updateData = {
                 position: {
                     x: this.position.x,
                     y: this.position.y,
@@ -580,8 +590,13 @@ export class Player {
                     x: this.rotationX,
                     y: this.rotationY,
                     z: 0
-                }
-            });
+                },
+                movement: movementState,
+                health: this.health,
+                alive: this.health > 0
+            };
+            console.log(`Player: Sending playerUpdate:`, updateData);
+            this.game.networkManager.emit('playerUpdate', updateData);
             
             // Update last sent values
             this.lastPosition.copyFrom(this.position);
