@@ -309,7 +309,9 @@ export class InputManager extends BaseManager {
         // Handle ESC key specially - always works regardless of context
         if (key === 'Escape') {
             console.log('ESC key pressed, current state:', this.game.stateManager?.getCurrentState());
-            this._handleESCKey();
+            this._handleESCKey().catch(error => {
+                console.error('ESC key handling failed:', error);
+            });
             event.preventDefault();
             return;
         }
@@ -456,7 +458,7 @@ export class InputManager extends BaseManager {
     /**
      * Handle ESC key - context-sensitive behavior
      */
-    _handleESCKey() {
+    async _handleESCKey() {
         const stateManager = this.game.stateManager;
         const uiManager = this.game.uiManager;
         if (!stateManager || !uiManager) {
@@ -464,28 +466,38 @@ export class InputManager extends BaseManager {
             return;
         }
         
+        // Prevent multiple concurrent ESC key handling
+        if (stateManager.isTransitioning) {
+            console.log('ESC: State transition already in progress, ignoring');
+            return;
+        }
+        
         const currentState = stateManager.getCurrentState();
         console.log('ESC: Current state is', currentState);
         
-        switch (currentState) {
-            case 'IN_GAME':
-                console.log('ESC: Transitioning to PAUSED');
-                stateManager.transitionTo('PAUSED');
-                break;
-                
-            case 'PAUSED':
-                console.log('ESC: Transitioning to IN_GAME');
-                stateManager.transitionTo('IN_GAME');
-                break;
-                
-            case 'MAP_EDITOR':
-                // Exit editor to main menu
-                stateManager.transitionTo('MAIN_MENU');
-                break;
-                
-            case 'MAIN_MENU':
-                // Could close game or do nothing
-                break;
+        try {
+            switch (currentState) {
+                case 'IN_GAME':
+                    console.log('ESC: Transitioning to PAUSED');
+                    await stateManager.transitionTo('PAUSED');
+                    break;
+                    
+                case 'PAUSED':
+                    console.log('ESC: Transitioning to IN_GAME');
+                    await stateManager.transitionTo('IN_GAME');
+                    break;
+                    
+                case 'MAP_EDITOR':
+                    // Exit editor to main menu
+                    await stateManager.transitionTo('MAIN_MENU');
+                    break;
+                    
+                case 'MAIN_MENU':
+                    // Could close game or do nothing
+                    break;
+            }
+        } catch (error) {
+            console.error('ESC: State transition failed:', error);
         }
     }
 
@@ -720,7 +732,10 @@ export class InputManager extends BaseManager {
             const currentState = this.game.stateManager?.getCurrentState();
             if (currentState === 'IN_GAME') {
                 console.log('Pointer lock disabled while in game - showing settings');
-                this.game.stateManager.transitionTo('PAUSED');
+                // Use async transition to prevent race conditions
+                this.game.stateManager.transitionTo('PAUSED').catch(error => {
+                    console.error('Pointer lock state transition failed:', error);
+                });
             }
         }
     }

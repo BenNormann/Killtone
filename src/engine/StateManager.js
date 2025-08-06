@@ -275,13 +275,15 @@ export class StateManager extends BaseManager {
      * @param {number} deltaTime - Time since last frame
      */
     update(deltaTime) {
-        // Handle ESC key for state transitions
-        this._handleEscapeKey();
+        // ESC key handling is now done by InputManager to prevent race conditions
+        // No longer setting up duplicate ESC listeners here
     }
 
     /**
      * Handle ESC key for pausing/unpausing
+     * DEPRECATED: ESC handling moved to InputManager to prevent race conditions
      */
+    /*
     _handleEscapeKey() {
         // This will be handled by input manager when it's implemented
         // For now, we'll set up a simple keyboard listener
@@ -298,7 +300,9 @@ export class StateManager extends BaseManager {
 
     /**
      * Handle escape key press
+     * DEPRECATED: ESC handling moved to InputManager to prevent race conditions
      */
+    /*
     async _handleEscapePress() {
         if (this.isTransitioning) return;
 
@@ -314,6 +318,7 @@ export class StateManager extends BaseManager {
                 break;
         }
     }
+    */
 
     /**
      * Check if state is valid
