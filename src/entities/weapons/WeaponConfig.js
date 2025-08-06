@@ -75,7 +75,7 @@ export const WeaponConfigs = {
             recovery: 2.0
         },
         projectile: {
-            speed: 8, // m/s - moderate speed for carbine
+            speed: 800, // m/s - moderate speed for carbine
             maxDistance: 500
         },
         audio: {

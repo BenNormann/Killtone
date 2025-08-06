@@ -451,13 +451,19 @@ export class Player {
         
         // Get camera direction for projectile
         const forward = this.camera.getForwardRay().direction;
-        const origin = this.camera.position.clone();
         
-        console.log('Player: Firing weapon from position:', origin.toString());
+        // Calculate firing position - offset from player position to avoid collision
+        // Use player position as base, then offset forward by collision radius + small buffer
+        const firingOffset = this.collisionRadius// + 0.2; // 0.2 buffer to ensure no collision
+        const firingPosition = this.camera.position.clone().add(forward.scale(firingOffset));
+        
+        console.log('Player: Firing weapon from position:', firingPosition.toString());
+        console.log('Player: Player position:', this.position.toString());
         console.log('Player: Firing direction:', forward.toString());
+        console.log('Player: Firing offset:', firingOffset);
         
         // Fire weapon
-        this.currentWeapon.fire(origin, forward);
+        this.currentWeapon.fire(firingPosition, forward);
         
         // Handle automatic firing
         if (this.isFiring && this.currentWeapon.firingMode === 'full-auto') {

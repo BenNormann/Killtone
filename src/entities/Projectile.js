@@ -42,6 +42,13 @@ export class Projectile {
         console.log('Projectile: Initial velocity:', this.velocity.toString());
         console.log('Projectile: Speed:', this.speed);
         console.log('Projectile: Direction:', this.direction.toString());
+        console.log('Projectile: Owner ID:', this.ownerId);
+        console.log('Projectile: Is remote projectile:', this.ownerId !== 'local');
+        console.log('Projectile: Direction magnitude:', this.direction.length());
+        console.log('Projectile: Velocity magnitude:', this.velocity.length());
+        
+        // Determine if this is a remote projectile (owned by another player)
+        this.isRemote = this.ownerId !== 'local';
         
         // Timing
         this.createdTime = performance.now() / 1000;
@@ -196,6 +203,11 @@ export class Projectile {
         // Update position based on velocity
         const movement = this.velocity.scale(deltaTime);
         this.position.addInPlace(movement);
+        
+        // Debug logging for remote projectiles
+        if (this.isRemote && this.updateCount % 60 === 0) { // Log every 60 frames (about once per second)
+            console.log(`Projectile ${this.id} (remote): Position: ${this.position.toString()}, Velocity: ${this.velocity.toString()}, Speed: ${this.speed}`);
+        }
         
         // Update distance traveled
         this.distanceTraveled = BABYLON.Vector3.Distance(this.startPosition, this.position);

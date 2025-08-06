@@ -375,8 +375,16 @@ export class ProjectileManager {
             type: 'projectileFire',
             data: {
                 projectileId: projectileData.id,
-                position: projectileData.position,
-                direction: projectileData.direction,
+                position: {
+                    x: projectileData.position.x,
+                    y: projectileData.position.y,
+                    z: projectileData.position.z
+                },
+                direction: {
+                    x: projectileData.direction.x,
+                    y: projectileData.direction.y,
+                    z: projectileData.direction.z
+                },
                 speed: projectileData.speed,
                 damage: projectileData.damage,
                 maxDistance: projectileData.maxDistance,
