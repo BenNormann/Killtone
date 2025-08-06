@@ -12,6 +12,8 @@ export class Player {
     constructor(game, initialPosition = new BABYLON.Vector3(0, 3.6, 0)) {
         this.game = game;
         this.scene = game.scene;
+
+        this.id = null;
         
         // Camera and movement
         this.camera = null;
@@ -453,7 +455,7 @@ export class Player {
     fireWeapon() {
         if (!this.currentWeapon || !this.canFire) return;
         
-        // Get camera direction for projectile
+        // Get camera direction for shooting
         const forward = this.camera.getForwardRay().direction;
         
         // Calculate firing position - offset from player position to avoid collision

@@ -828,6 +828,27 @@ export class AudioSystem {
     }
 
     /**
+     * Play hit sound based on weapon type and hit type
+     * @param {string} weaponType - Type of weapon that caused the hit
+     * @param {string} hitType - Type of hit ('player' or 'map')
+     */
+    playHitSound(weaponType, hitType) {
+        let soundName = 'hit';
+        
+        if (hitType === 'player') {
+            soundName = 'player_hit';
+        } else if (hitType === 'map') {
+            soundName = 'wall_hit';
+        }
+        
+        // Play the hit sound
+        this.playSound(soundName, {
+            volume: 0.6,
+            spatial: false
+        });
+    }
+
+    /**
      * Handle weapon reload events - play reload sound
      * @param {Object} data - Weapon reload event data
      */

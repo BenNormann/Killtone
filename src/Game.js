@@ -447,34 +447,52 @@ export class Game {
     }
 
     /**
-     * Handle projectile created events from network
+     * Handle weapon hit events from server
      */
-    handleProjectileCreated(data) {
-        console.log('Game: handleProjectileCreated called with data:', data);
-        
-        if (this.projectileManager) {
-            console.log('Game: Calling projectileManager.handleServerProjectileCreated');
-            this.projectileManager.handleServerProjectileCreated(data);
+    handleWeaponHit(data) {
+        console.log('Game: handleWeaponHit called with data:', data);
+        // Create hit effects based on hit type
+        if (data.hitType === 'player') {
+            console.log('Game: hitObject.id: ' + data.hitObject.id + ", player.id: " + this.player.id);
+            if (data.hitObject.id === this.player.id) {
+                this.player.health = data.hitObject.health;
+                console.log('Game: health updated to', this.player.health);
+            }
+            /*
+            // Player hit - create blood effects
+            if (this.particleManager) {
+                this.particleManager.createBloodSplatter(
+                    new BABYLON.Vector3(data.hitPosition.x, data.hitPosition.y, data.hitPosition.z),
+                    new BABYLON.Vector3(0, 1, 0) // Default normal
+                );
+            }*/
         } else {
-            console.warn('Game: projectileManager not available');
+            /*
+            // Map hit - create impact effects
+            if (this.particleManager) {
+                this.particleManager.createHitSpark(
+                    new BABYLON.Vector3(data.hitPosition.x, data.hitPosition.y, data.hitPosition.z),
+                    new BABYLON.Vector3(0, 1, 0) // Default normal
+                );
+            }
+                */
+        }
+        
+        // Play hit sound
+        if (this.audioSystem) {
+            this.audioSystem.playHitSound(data.weaponType, data.hitType);
         }
     }
 
     /**
-     * Handle projectile updated events from network
+     * Handle weapon miss events from server
      */
-    handleProjectileUpdated(data) {
-        if (this.projectileManager) {
-            this.projectileManager.handleServerProjectileUpdated(data);
-        }
-    }
-
-    /**
-     * Handle projectile hit events from network
-     */
-    handleProjectileHit(data) {
-        if (this.projectileManager) {
-            this.projectileManager.handleServerProjectileHit(data);
+    handleWeaponMiss(data) {
+        console.log('Game: handleWeaponMiss called with data:', data);
+        
+        // Create miss effects (optional - could show bullet trails)
+        if (this.particleManager) {
+            // Could create bullet trail effects here
         }
     }
 

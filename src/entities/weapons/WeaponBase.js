@@ -132,7 +132,7 @@ export class WeaponBase {
                 success = this.performMeleeAttack(origin, direction, game);
                 break;
             default:
-                success = this.fireProjectile(origin, direction, game);
+                success = this.fireHitscan(origin, direction, game);
                 break;
         }
 
@@ -173,24 +173,41 @@ export class WeaponBase {
     }
 
     /**
-     * Fire a single projectile (rifles, pistols, SMGs, snipers)
+     * Fire a hitscan weapon
+     * @param {BABYLON.Vector3} origin - The starting position of the shot
+     * @param {BABYLON.Vector3} direction - The direction vector of the shot
+     * @param {Object} game - The game instance containing managers and systems
+     * @returns {boolean} - True if the shot was fired successfully, false otherwise
      */
-    fireProjectile(origin, direction, game) {
+    fireHitscan(origin, direction, game) {
         // Apply accuracy to shot direction
         const accurateDirection = this.applyAccuracyToDirection(direction);
 
-        // Create projectile data
-        const projectileData = this.createProjectileData(origin, accurateDirection, game);
-
-        // Create projectile through game's projectile manager
-        if (game && game.projectileManager) {
-            console.log(`${this.name}: Firing projectile with data:`, projectileData);
-            const projectileId = game.projectileManager.fireProjectile(projectileData);
-            console.log(`${this.name}: Projectile fired with ID:`, projectileId);
-            return projectileId !== null;
+        // Send weapon attack to server for server-side raycast
+        if (game && game.networkManager && game.networkManager.isConnected) {
+            const weaponAttackData = {
+                origin: {
+                    x: origin.x,
+                    y: origin.y,
+                    z: origin.z
+                },
+                direction: {
+                    x: accurateDirection.x,
+                    y: accurateDirection.y,
+                    z: accurateDirection.z
+                },
+                weaponType: this.type
+            };
+            
+            console.log(`${this.name}: Sending weapon attack to server:`, weaponAttackData);
+            game.networkManager.emit('weaponAttack', weaponAttackData);
+            
+            return true;
         } else {
-            console.warn(`${this.name}: No projectile manager available`);
-            return false;
+            // Fallback to client-side raycast if not connected
+            console.warn(`${this.name}: Not connected to server`);
+            
+            return true;
         }
     }
 
@@ -393,26 +410,6 @@ export class WeaponBase {
                 }
             }
         );
-    }
-
-    /**
-     * Create projectile data (can be overridden by subclasses)
-     */
-    createProjectileData(origin, direction, gameInstance = null) {
-        return {
-            position: origin.clone(), // Changed from 'origin' to 'position' to match ProjectileManager
-            direction: direction,
-            speed: this.config.projectile?.speed || 700, // Use weapon-specific speed from config
-            damage: this.damage,
-            maxDistance: this.config.projectile?.maxDistance || 400, // Use weapon-specific max distance
-            ownerId: 'local', // Changed from 'playerId' to 'ownerId' to match ProjectileManager
-            weapon: {
-                name: this.name,
-                type: this.type,
-                damage: this.damage
-            },
-            showTrail: true
-        };
     }
 
     /**
