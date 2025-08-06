@@ -94,6 +94,33 @@ export const GameConfig = {
         weaponRespawnTime: 15000
     },
 
+    // HUD Settings
+    hud: {
+        color: '#00FFAA',         // Default cyan-green HUD color
+        alpha: 0.8,               // HUD transparency (0-1)
+        colorWarning: '#FFAA00',  // Warning color (orange)
+        colorDanger: '#FF4444',   // Danger color (red)
+        colorSuccess: '#44FF44',  // Success color (green)
+        
+        crosshair: {
+            style: 'brackets',    // 'brackets', 'lines', 'cross', 'dot'
+            thickness: 2,
+            length: 20,
+            gap: 8
+        },
+        
+        updateIntervals: {
+            performance: 500,     // Performance metrics update interval (ms)
+            audio: 100,          // Audio info update interval (ms)
+            player: 16           // Player stats update interval (ms)
+        },
+        
+        showFPS: true,           // Show FPS counter
+        showMemory: true,        // Show memory usage
+        showAudioMeter: true,    // Show audio visualization
+        showSpeed: true          // Show player speed
+    },
+
     // Network Settings
     network: {
         serverURL: 'ws://localhost:8080',

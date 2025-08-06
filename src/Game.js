@@ -14,7 +14,7 @@ import { MapManager } from './engine/MapManager.js';
 import { ProjectileManager } from './engine/ProjectileManager.js';
 import { ParticleManager } from './effects/ParticleManager.js';
 import { PhysicsManager } from './physics/PhysicsManager.js';
-import { PerformanceMonitor } from './hud/PerformanceMonitor.js';
+
 import { Player } from './entities/Player.js';
 
 export class Game {
@@ -37,7 +37,7 @@ export class Game {
         this.projectileManager = null;
         this.particleManager = null;
         this.physicsManager = null;
-        this.performanceMonitor = null;
+
 
         // Game entities
         this.player = null;
@@ -182,8 +182,7 @@ export class Game {
         this.particleManager = new ParticleManager(this);
         await this.particleManager.initialize();
 
-        this.performanceMonitor = new PerformanceMonitor(this);
-        await this.performanceMonitor.initialize();
+
 
         console.log('All managers initialized');
     }
@@ -279,7 +278,7 @@ export class Game {
         if (this.projectileManager) this.projectileManager.update(this.deltaTime);
         if (this.particleManager) this.particleManager.update(this.deltaTime);
         if (this.networkManager) await this.networkManager.update(this.deltaTime);
-        if (this.performanceMonitor) this.performanceMonitor.update(this.deltaTime);
+
         if (this.uiManager) this.uiManager.update(this.player);
     }
 
@@ -359,6 +358,11 @@ export class Game {
 
             this.player = new Player(this, spawnPosition);
             await this.player.initialize();
+
+            // Update HUD to use player camera
+            if (this.uiManager && this.player.camera) {
+                this.uiManager.updateHUDCamera(this.player.camera);
+            }
 
             // Setup player event handlers
             this.setupPlayerEventHandlers();
@@ -691,7 +695,7 @@ export class Game {
      */
     disposeManagers() {
         const managers = [
-            'performanceMonitor',
+
             'particleManager',
             'projectileManager',
             'mapManager',

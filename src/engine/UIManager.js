@@ -7,6 +7,11 @@ import { GameConfig } from '../mainConfig.js';
 import { BaseManager } from './BaseManager.js';
 // Dropdowns & weapon selector need weapon data
 import WeaponConfigs, { WeaponConstants } from '../entities/weapons/WeaponConfig.js';
+// HUD components
+import { HUDConfig } from '../hud/HUDConfig.js';
+import { CrosshairComponent } from '../hud/CrosshairComponent.js';
+import { LeftInfoPanel } from '../hud/LeftInfoPanel.js';
+import { RightInfoPanel } from '../hud/RightInfoPanel.js';
 
 export class UIManager extends BaseManager {
     constructor(game) {
@@ -18,8 +23,13 @@ export class UIManager extends BaseManager {
         this.mainMenu = null;
         this.settingsOverlay = null;
         this.leaderboard = null;
-        this.gameHUD = null;
         this.mapEditor = null;
+
+        // HUD components
+        this.hudConfig = null;
+        this.crosshairComponent = null;
+        this.leftInfoPanel = null;
+        this.rightInfoPanel = null;
 
         // GUI textures
         this.fullscreenUI = null;
@@ -55,6 +65,38 @@ export class UIManager extends BaseManager {
         this.fullscreenUI = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
         console.log('UIManager initialized');
+    }
+
+    /**
+     * Initialize HUD components
+     */
+    async _doInitialize() {
+        // Initialize HUD configuration
+        this.hudConfig = new HUDConfig();
+        
+        // Initialize HUD components with proper scene and camera
+        this.crosshairComponent = new CrosshairComponent();
+        this.crosshairComponent.game = this.game;
+        this.crosshairComponent.scene = this.game.scene;
+        this.crosshairComponent.camera = this.game.camera;
+        this.crosshairComponent.config = this.hudConfig;
+        await this.crosshairComponent.initialize();
+        
+        this.leftInfoPanel = new LeftInfoPanel();
+        this.leftInfoPanel.game = this.game;
+        this.leftInfoPanel.scene = this.game.scene;
+        this.leftInfoPanel.camera = this.game.camera;
+        this.leftInfoPanel.config = this.hudConfig;
+        await this.leftInfoPanel.initialize();
+        
+        this.rightInfoPanel = new RightInfoPanel();
+        this.rightInfoPanel.game = this.game;
+        this.rightInfoPanel.scene = this.game.scene;
+        this.rightInfoPanel.camera = this.game.camera;
+        this.rightInfoPanel.config = this.hudConfig;
+        await this.rightInfoPanel.initialize();
+        
+        console.log('HUD components initialized');
     }
 
     /**
@@ -633,72 +675,6 @@ export class UIManager extends BaseManager {
     }
 
     /**
-     * Show game HUD
-     */
-    async showGameHUD() {
-        if (this.gameHUD) {
-            this.gameHUD.isVisible = true;
-            return;
-        }
-
-        // Create HUD container
-        this.gameHUD = new BABYLON.GUI.Rectangle("gameHUD");
-        this.gameHUD.widthInPixels = this.engine.getRenderWidth();
-        this.gameHUD.heightInPixels = this.engine.getRenderHeight();
-        this.gameHUD.color = "transparent";
-        this.gameHUD.background = "transparent";
-        this.fullscreenUI.addControl(this.gameHUD);
-
-        // Crosshair
-        const crosshair = new BABYLON.GUI.Ellipse("crosshair");
-        crosshair.widthInPixels = 4;
-        crosshair.heightInPixels = 4;
-        crosshair.color = GameConfig.theme.colors.primary;
-        crosshair.background = GameConfig.theme.colors.primary;
-        this.gameHUD.addControl(crosshair);
-
-        // Health display
-        const healthText = new BABYLON.GUI.TextBlock("healthText");
-        healthText.text = "Health: 100";
-        healthText.color = GameConfig.theme.colors.healthHigh;
-        healthText.fontSize = 18;
-        healthText.fontFamily = GameConfig.theme.fonts.primary;
-        healthText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        healthText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
-        healthText.left = "20px";
-        healthText.top = "-20px";
-        this.gameHUD.addControl(healthText);
-
-        // Ammo display
-        const ammoText = new BABYLON.GUI.TextBlock("ammoText");
-        ammoText.text = "Ammo: 30/90";
-        ammoText.color = GameConfig.theme.colors.textPrimary;
-        ammoText.fontSize = 18;
-        ammoText.fontFamily = GameConfig.theme.fonts.primary;
-        ammoText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        ammoText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
-        ammoText.left = "-20px";
-        ammoText.top = "-20px";
-        this.gameHUD.addControl(ammoText);
-
-        // Store references for updates
-        this.gameHUD.healthText = healthText;
-        this.gameHUD.ammoText = ammoText;
-
-        console.log('Game HUD created');
-    }
-
-    /**
-     * Hide game HUD
-     */
-    hideGameHUD() {
-        if (this.gameHUD) {
-            this.gameHUD.isVisible = false;
-            console.log('Game HUD hidden');
-        }
-    }
-
-    /**
      * Show map editor UI
      */
     async showMapEditor() {
@@ -816,37 +792,47 @@ export class UIManager extends BaseManager {
     }
 
     /**
-     * Update HUD elements
-     * @param {Object} gameState - Current game state
+     * Show game HUD
      */
-    updateHUD(playerState) {
-        if (!this.gameHUD || !this.gameHUD.isVisible) return;
-
-        // Update health
-        if (this.gameHUD.healthText && playerState.health !== undefined) {
-            this.gameHUD.healthText.text = `Health: ${playerState.health}`;
-            this.gameHUD.healthText.color = playerState.health > 50 ? GameConfig.theme.colors.healthHigh :
-                playerState.health > 25 ? GameConfig.theme.colors.healthMedium : GameConfig.theme.colors.healthLow;
-        }
-
-        // Update ammo
-        if (this.gameHUD.ammoText && playerState.currentAmmo !== undefined && playerState.maxAmmo !== undefined) {
-            this.gameHUD.ammoText.text = `Ammo: ${playerState.currentAmmo}/${playerState.maxAmmo}`;
-        }
+    showGameHUD() {
+        if (this.crosshairComponent) this.crosshairComponent.show();
+        if (this.leftInfoPanel) this.leftInfoPanel.show();
+        if (this.rightInfoPanel) this.rightInfoPanel.show();
+        console.log('Game HUD shown');
     }
 
     /**
-     * Per-frame update for UIManager. Call this every frame from the game loop.
-     * Includes HUD updates and any other UI elements that need to be updated constantly.
-     * @param {Object} gameState - Current game state (optional, for HUD)
+     * Hide game HUD
      */
-    update(playerState) {
-        // Update HUD elements if visible
-        if (playerState) {
-            this.updateHUD(playerState);
+    hideGameHUD() {
+        if (this.crosshairComponent) this.crosshairComponent.hide();
+        if (this.leftInfoPanel) this.leftInfoPanel.hide();
+        if (this.rightInfoPanel) this.rightInfoPanel.hide();
+        console.log('Game HUD hidden');
+    }
+
+    /**
+     * Update UI elements
+     * @param {Player} player - Current player state
+     */
+    update(player) {
+        // Update loading progress if loading screen is visible
+        if (this.loadingScreen && this.loadingScreen.isVisible) {
+            this.updateLoadingProgress(this.loadingProgress, this.loadingText);
         }
-        // Add other per-frame UI updates here as needed
-        // e.g., animations, timers, notifications, etc.
+
+        // Create update flags for HUD components
+        const now = Date.now();
+        const updateFlags = {
+            shouldUpdatePerformance: true, // Always update performance for now
+            shouldUpdateAudio: true,       // Always update audio for now
+            shouldUpdatePlayer: true       // Always update player data for now
+        };
+
+        // Update HUD components with proper flags
+        if (this.crosshairComponent) this.crosshairComponent.update(0, updateFlags);
+        if (this.leftInfoPanel) this.leftInfoPanel.update(0, updateFlags);
+        if (this.rightInfoPanel) this.rightInfoPanel.update(0, updateFlags);
     }
 
     /**
@@ -1383,11 +1369,7 @@ export class UIManager extends BaseManager {
                 this.leaderboard.heightInPixels = height;
             }
 
-            // Update game HUD
-            if (this.gameHUD) {
-                this.gameHUD.widthInPixels = width;
-                this.gameHUD.heightInPixels = height;
-            }
+            // Game HUD now handled by HUDManager - no resize needed here
 
             // Update map editor
             if (this.mapEditor) {
@@ -1419,7 +1401,7 @@ export class UIManager extends BaseManager {
         this.mainMenu = null;
         this.settingsOverlay = null;
         this.leaderboard = null;
-        this.gameHUD = null;
+        // gameHUD removed - now handled by HUDManager
         this.mapEditor = null;
         this.fullscreenUI = null;
 
@@ -1861,5 +1843,47 @@ export class UIManager extends BaseManager {
                 console.log('UIManager: Skipping name update - user has modified input');
             }
         }
+    }
+
+    /**
+     * Update HUD camera reference to use player camera
+     * @param {BABYLON.Camera} playerCamera - Player's camera
+     */
+    updateHUDCamera(playerCamera) {
+        if (!playerCamera) {
+            console.warn('UIManager: No player camera provided for HUD update');
+            return;
+        }
+        
+        console.log('UIManager: Updating HUD components to use player camera');
+        
+        // Update crosshair component
+        if (this.crosshairComponent) {
+            this.crosshairComponent.camera = playerCamera;
+            // Re-parent crosshair to new camera
+            if (this.crosshairComponent.crosshairGroup) {
+                this.crosshairComponent.crosshairGroup.parent = playerCamera;
+            }
+        }
+        
+        // Update left info panel
+        if (this.leftInfoPanel) {
+            this.leftInfoPanel.camera = playerCamera;
+            // Re-parent panel to new camera
+            if (this.leftInfoPanel.panelMesh) {
+                this.leftInfoPanel.panelMesh.parent = playerCamera;
+            }
+        }
+        
+        // Update right info panel
+        if (this.rightInfoPanel) {
+            this.rightInfoPanel.camera = playerCamera;
+            // Re-parent panel to new camera
+            if (this.rightInfoPanel.panelMesh) {
+                this.rightInfoPanel.panelMesh.parent = playerCamera;
+            }
+        }
+        
+        console.log('UIManager: HUD camera references updated');
     }
 }

@@ -80,17 +80,22 @@ export class StateManager extends BaseManager {
                         console.error('Failed to load default map:', error);
                     }
                 }
-                // Enable game controls (this will handle pointer lock)
-                if (this.game.inputManager) {
-                    this.game.inputManager.enableGameControls();
-                }
-                // Hide any UI overlays
+                // Game controls will be enabled via the state change event in Game.js
+                // Hide any UI overlays and show HUD
                 if (this.game.uiManager) {
                     this.game.uiManager.hideSettingsOverlay();
                     await this.game.uiManager.showGameHUD();
                 }
+                // Show game HUD
+                if (this.game.uiManager) {
+                    this.game.uiManager.showGameHUD();
+                }
             },
             exit: async () => {
+                // Hide game HUD
+                if (this.game.uiManager) {
+                    this.game.uiManager.hideGameHUD();
+                }
                 // Show cursor and exit pointer lock
                 document.body.style.cursor = 'default';
                 if (document.pointerLockElement) {
@@ -124,6 +129,10 @@ export class StateManager extends BaseManager {
         this.registerStateHandler(StateManager.STATES.MAP_EDITOR, {
             enter: async () => {
                 console.log('Entering MAP_EDITOR state');
+                // Hide game HUD in editor mode
+                if (this.game.uiManager) {
+                    this.game.uiManager.hideGameHUD();
+                }
                 // Show cursor for editor mode
                 document.body.style.cursor = 'default';
                 if (document.pointerLockElement) {
@@ -279,46 +288,7 @@ export class StateManager extends BaseManager {
         // No longer setting up duplicate ESC listeners here
     }
 
-    /**
-     * Handle ESC key for pausing/unpausing
-     * DEPRECATED: ESC handling moved to InputManager to prevent race conditions
-     */
-    /*
-    _handleEscapeKey() {
-        // This will be handled by input manager when it's implemented
-        // For now, we'll set up a simple keyboard listener
-        if (!this._escKeyListener) {
-            this._escKeyListener = (event) => {
-                if (event.code === 'Escape') {
-                    event.preventDefault();
-                    this._handleEscapePress();
-                }
-            };
-            document.addEventListener('keydown', this._escKeyListener);
-        }
-    }
 
-    /**
-     * Handle escape key press
-     * DEPRECATED: ESC handling moved to InputManager to prevent race conditions
-     */
-    /*
-    async _handleEscapePress() {
-        if (this.isTransitioning) return;
-
-        switch (this.currentState) {
-            case StateManager.STATES.IN_GAME:
-                await this.transitionTo(StateManager.STATES.PAUSED);
-                break;
-            case StateManager.STATES.PAUSED:
-                await this.transitionTo(StateManager.STATES.IN_GAME);
-                break;
-            case StateManager.STATES.MAP_EDITOR:
-                await this.transitionTo(StateManager.STATES.MAIN_MENU);
-                break;
-        }
-    }
-    */
 
     /**
      * Check if state is valid
