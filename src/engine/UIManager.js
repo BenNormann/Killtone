@@ -37,6 +37,9 @@ export class UIManager extends BaseManager {
         // Reference to nametag input field for updates
         this.nametagInput = null;
 
+        // Leaderboard data
+        this.latestPlayerData = null;
+
         // Initialize GUI system
         this._initializeGUI();
         
@@ -497,9 +500,9 @@ export class UIManager extends BaseManager {
         this.leaderboard.background = GameConfig.theme.colors.backgroundOverlay;
         this.fullscreenUI.addControl(this.leaderboard);
 
-        // Create right-side leaderboard panel (1/3 of screen width)
+        // Create right-side leaderboard panel (slightly wider for better column layout)
         const leaderboardPanel = new BABYLON.GUI.Rectangle("leaderboardPanel");
-        const panelWidth = Math.floor(this.engine.getRenderWidth() / 3);
+        const panelWidth = Math.max(350, Math.floor(this.engine.getRenderWidth() * 0.4)); // Minimum 350px or 40% of screen
         leaderboardPanel.widthInPixels = panelWidth;
         leaderboardPanel.heightInPixels = this.engine.getRenderHeight();
         leaderboardPanel.color = GameConfig.theme.colors.border;
@@ -523,61 +526,98 @@ export class UIManager extends BaseManager {
         const contentContainer = new BABYLON.GUI.StackPanel("leaderboardContent");
         contentContainer.widthInPixels = panelWidth - 40;
         contentContainer.heightInPixels = 500;
-        contentContainer.spacing = 8;
-        contentContainer.top = "-50px";
+        contentContainer.spacing = 6; // Slightly tighter spacing for more entries
+        contentContainer.top = "10px";
         leaderboardPanel.addControl(contentContainer);
 
-        // Header row
+        // Header row with proper column layout
         const headerContainer = new BABYLON.GUI.Rectangle("headerContainer");
         headerContainer.heightInPixels = 35;
         headerContainer.color = "transparent";
         headerContainer.background = GameConfig.theme.colors.backgroundButtonHover;
+        headerContainer.cornerRadius = GameConfig.theme.borderRadius.small;
         contentContainer.addControl(headerContainer);
 
-        const rankHeader = new BABYLON.GUI.TextBlock("rankHeader");
-        rankHeader.text = "#";
-        rankHeader.color = GameConfig.theme.colors.textPrimary;
-        rankHeader.fontSize = 14;
-        rankHeader.fontFamily = GameConfig.theme.fonts.primary;
-        rankHeader.fontWeight = "bold";
-        rankHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        rankHeader.left = "-110px";
-        headerContainer.addControl(rankHeader);
+        // Column positioning - Player shifted right, gap reduced between name and kills
+        const columnLayout = {
+            player: { left: 10, width: 120 },
+            kills: { left: 30, width: 35 },
+            deaths: { left: 70, width: 35 }, 
+            connection: { left: 140, width: 50 },
+            ping: { left: 190, width: 40 }      
+        };
+        
+        // Debug column positions
+        console.log('Panel width:', panelWidth);
+        console.log('Column layout:', columnLayout);
 
+        // Player name header (first column)
         const nameHeader = new BABYLON.GUI.TextBlock("nameHeader");
         nameHeader.text = "PLAYER";
-        nameHeader.color = GameConfig.theme.colors.textPrimary;
-        nameHeader.fontSize = 14;
+        nameHeader.color = GameConfig.theme.colors.textPrimary || "#FFFFFF";
+        nameHeader.fontSize = 13;
         nameHeader.fontFamily = GameConfig.theme.fonts.primary;
         nameHeader.fontWeight = "bold";
         nameHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        nameHeader.left = "-60px";
+        nameHeader.left = `${columnLayout.player.left}px`;
         headerContainer.addControl(nameHeader);
+        
+        // Debug header creation
+        console.log('Created PLAYER header at position:', columnLayout.player.left, 'with text:', nameHeader.text);
 
+        // Kills header
         const killsHeader = new BABYLON.GUI.TextBlock("killsHeader");
-        killsHeader.text = "KILLS";
+        killsHeader.text = "K";
         killsHeader.color = GameConfig.theme.colors.textPrimary;
-        killsHeader.fontSize = 14;
+        killsHeader.fontSize = 13;
         killsHeader.fontFamily = GameConfig.theme.fonts.primary;
         killsHeader.fontWeight = "bold";
-        killsHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        killsHeader.left = "100px";
+        killsHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        killsHeader.left = `${columnLayout.kills.left}px`;
         headerContainer.addControl(killsHeader);
+
+        // Deaths header
+        const deathsHeader = new BABYLON.GUI.TextBlock("deathsHeader");
+        deathsHeader.text = "D";
+        deathsHeader.color = GameConfig.theme.colors.textPrimary;
+        deathsHeader.fontSize = 13;
+        deathsHeader.fontFamily = GameConfig.theme.fonts.primary;
+        deathsHeader.fontWeight = "bold";
+        deathsHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        deathsHeader.left = `${columnLayout.deaths.left}px`;
+        headerContainer.addControl(deathsHeader);
+
+        // Connection header
+        const connectionHeader = new BABYLON.GUI.TextBlock("connectionHeader");
+        connectionHeader.text = "STATUS";
+        connectionHeader.color = GameConfig.theme.colors.textPrimary;
+        connectionHeader.fontSize = 13;
+        connectionHeader.fontFamily = GameConfig.theme.fonts.primary;
+        connectionHeader.fontWeight = "bold";
+        connectionHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        connectionHeader.left = `${columnLayout.connection.left}px`;
+        headerContainer.addControl(connectionHeader);
+
+        // Ping header
+        const pingHeader = new BABYLON.GUI.TextBlock("pingHeader");
+        pingHeader.text = "PING";
+        pingHeader.color = GameConfig.theme.colors.textPrimary;
+        pingHeader.fontSize = 13;
+        pingHeader.fontFamily = GameConfig.theme.fonts.primary;
+        pingHeader.fontWeight = "bold";
+        pingHeader.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        pingHeader.left = `${columnLayout.ping.left}px`;
+        headerContainer.addControl(pingHeader);
 
         // Get leaderboard data (sample data for now, in real game this would come from server)
         const sampleData = this._getLeaderboardData();
+        console.log('Leaderboard data being used:', sampleData);
 
         // Create leaderboard entries
         sampleData.forEach((player, index) => {
             this._createLeaderboardEntry(contentContainer, player, index === 0); // Highlight first place
         });
 
-        // Close button
-        const closeButton = this._createCleanMenuButton("CLOSE", () => {
-            this.hideLeaderboard();
-        });
-        closeButton.top = "250px";
-        leaderboardPanel.addControl(closeButton);
 
         console.log('Leaderboard created');
     }
@@ -1096,8 +1136,10 @@ export class UIManager extends BaseManager {
     updateLeaderboardData(playerData) {
         if (!this.leaderboard || !this.leaderboard.isVisible) return;
 
-        // In a real implementation, this would update the existing leaderboard entries
-        // For now, we'll hide and recreate the leaderboard
+        // Store the latest player data
+        this.latestPlayerData = playerData;
+        
+        // Recreate the leaderboard with new data
         this.hideLeaderboard();
         this.showLeaderboard();
     }
@@ -1107,181 +1149,186 @@ export class UIManager extends BaseManager {
      * @returns {Array} Array of player data objects
      */
     _getLeaderboardData() {
-        // Sample multiplayer leaderboard data structure
-        // In a real game, this would come from the server/NetworkManager
-        const players = [
-            {
-                id: 'player1',
-                name: "CyberKiller",
-                kills: 24,
-                deaths: 8,
-                assists: 12,
-                score: 360,
-                ping: 45,
-                isLocal: false
-            },
-            {
-                id: 'player2',
-                name: "NeonAssassin",
-                kills: 21,
-                deaths: 12,
-                assists: 8,
-                score: 315,
-                ping: 32,
-                isLocal: false
-            },
-            {
-                id: 'player3',
-                name: "RedPhantom",
-                kills: 18,
-                deaths: 9,
-                assists: 15,
-                score: 285,
-                ping: 67,
-                isLocal: false
-            },
-            {
-                id: 'player4',
-                name: "YOU",
-                kills: 16,
-                deaths: 11,
-                assists: 9,
-                score: 255,
-                ping: 0,
-                isLocal: true
-            },
-            {
-                id: 'player5',
-                name: "PurpleStorm",
-                kills: 14,
-                deaths: 13,
-                assists: 7,
-                score: 225,
-                ping: 89,
-                isLocal: false
-            },
-            {
-                id: 'player6',
-                name: "PinkViper",
-                kills: 12,
-                deaths: 15,
-                assists: 11,
-                score: 195,
-                ping: 54,
-                isLocal: false
-            },
-            {
-                id: 'player7',
-                name: "ElectroHunter",
-                kills: 9,
-                deaths: 18,
-                assists: 6,
-                score: 150,
-                ping: 123,
-                isLocal: false
-            },
-            {
-                id: 'player8',
-                name: "NightRider",
-                kills: 7,
-                deaths: 20,
-                assists: 4,
-                score: 115,
-                ping: 76,
-                isLocal: false
+        // Use real network data if available
+        if (this.latestPlayerData && this.latestPlayerData.length > 0) {
+            return this.latestPlayerData.map(player => ({
+                id: player.id,
+                name: player.username || 'Unknown',
+                kills: player.kills || 0,
+                deaths: player.deaths || 0,
+                assists: 0, // TODO: Track assists in the future
+                score: player.score || 0,
+                ping: player.ping || 0,
+                isLocal: player.isLocal,
+                rank: player.rank || 1,
+                kdr: player.kdr || '0.00',
+                isAlive: player.isAlive !== false
+            }));
+        }
+
+        // Get data from NetworkManager if available
+        if (this.game.networkManager && this.game.networkManager.getAllPlayerStats) {
+            const networkStats = this.game.networkManager.getAllPlayerStats();
+            if (networkStats && networkStats.length > 0) {
+                return networkStats.map(player => ({
+                    id: player.id,
+                    name: player.username || 'Unknown',
+                    kills: player.kills || 0,
+                    deaths: player.deaths || 0,
+                    assists: 0, // TODO: Track assists in the future
+                    score: player.score || 0,
+                    ping: player.ping || 0,
+                    isLocal: player.isLocal,
+                    rank: player.rank || 1,
+                    kdr: player.kdr || '0.00',
+                    isAlive: player.isAlive !== false
+                }));
             }
-        ];
+        }
 
-        // Sort by score (kills * 15 + assists * 5 - deaths * 5)
-        players.sort((a, b) => b.score - a.score);
+        // Fallback to local player data if no network data
+        const localPlayerData = [];
+        if (this.game.player) {
+            localPlayerData.push({
+                id: 'local',
+                name: this.game.player.getName() || 'YOU',
+                kills: this.game.player.kills || 0,
+                deaths: this.game.player.deaths || 0,
+                assists: 0,
+                score: (this.game.player.kills || 0) * 15 - (this.game.player.deaths || 0) * 5,
+                ping: 0,
+                isLocal: true,
+                rank: 1,
+                kdr: this.game.player.deaths > 0 ? 
+                    (this.game.player.kills / this.game.player.deaths).toFixed(2) : 
+                    (this.game.player.kills || 0).toFixed(2),
+                isAlive: this.game.player.health > 0
+            });
+        }
 
-        // Add rank based on sorted position
-        players.forEach((player, index) => {
-            player.rank = index + 1;
-            player.kdr = player.deaths > 0 ? (player.kills / player.deaths).toFixed(2) : player.kills.toFixed(2);
-        });
-
-        return players;
+        return localPlayerData;
     }
 
     /**
-     * Create enhanced leaderboard entry with kill/death statistics
+     * Create enhanced leaderboard entry with proper column alignment
      * @param {BABYLON.GUI.Container} container - Parent container
      * @param {Object} player - Player data
      * @param {boolean} isFirst - Whether this is first place
      */
     _createLeaderboardEntry(container, player, isFirst = false) {
         const entryContainer = new BABYLON.GUI.Rectangle(`entry_${player.rank}`);
-        entryContainer.heightInPixels = 45;
+        entryContainer.heightInPixels = 40;
         entryContainer.color = "transparent";
         entryContainer.background = isFirst ? GameConfig.theme.colors.backgroundButtonHover :
             player.isLocal ? 'rgba(253, 52, 43, 0.2)' : "transparent";
         entryContainer.cornerRadius = GameConfig.theme.borderRadius.small;
         container.addControl(entryContainer);
 
-        // Rank
-        const rankText = new BABYLON.GUI.TextBlock(`rank_${player.rank}`);
-        rankText.text = `#${player.rank}`;
-        rankText.color = isFirst ? GameConfig.theme.colors.primary :
-            player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
-        rankText.fontSize = 16;
-        rankText.fontFamily = GameConfig.theme.fonts.primary;
-        rankText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
-        rankText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        rankText.left = "-110px";
-        rankText.top = "-8px";
-        entryContainer.addControl(rankText);
+        // Use the same column layout as headers - Player shifted right, gap reduced between name and kills
+        const columnLayout = {
+            player: { left: 10, width: 120 },
+            kills: { left: 30, width: 35 },
+            deaths: { left: 70, width: 35 }, 
+            connection: { left: 140, width: 50 },
+            ping: { left: 190, width: 40 }  
+        };
 
-        // Player name
-        const nameText = new BABYLON.GUI.TextBlock(`name_${player.rank}`);
-        nameText.text = player.name;
-        nameText.color = isFirst ? GameConfig.theme.colors.primary :
+        // Determine colors based on rank and local player
+        const primaryColor = isFirst ? GameConfig.theme.colors.primary :
             player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textPrimary;
-        nameText.fontSize = 15;
-        nameText.fontFamily = GameConfig.theme.fonts.primary;
-        nameText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
-        nameText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        nameText.left = "-60px";
-        nameText.top = "-8px";
-        entryContainer.addControl(nameText);
+        const secondaryColor = isFirst ? GameConfig.theme.colors.primary :
+            player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
+        const fontWeight = isFirst || player.isLocal ? "bold" : "normal";
 
-        // Kills
+        // Player name column - first column, more space now, truncate if too long
+        const nameText = new BABYLON.GUI.TextBlock(`name_${player.rank || player.id}`);
+        const maxNameLength = 18; // Increased since we have more space without rank column
+        const displayName = (player.name && player.name.length > maxNameLength) ? `${player.name.substring(0, maxNameLength - 3)}...` : (player.name || 'Unknown Player');
+        nameText.text = displayName;
+        nameText.color = primaryColor || "#FFFFFF";
+        nameText.fontSize = 14;
+        nameText.fontFamily = GameConfig.theme.fonts.primary;
+        nameText.fontWeight = fontWeight;
+        nameText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        nameText.left = `${columnLayout.player.left}px`;
+        entryContainer.addControl(nameText);
+        
+        // Debug log to see what data we're getting
+        console.log('Creating player name text:', { 
+            originalName: player.name, 
+            displayName: displayName, 
+            textContent: nameText.text,
+            leftPosition: columnLayout.player.left,
+            color: nameText.color,
+            kills: player.kills, 
+            deaths: player.deaths,
+            isLocal: player.isLocal,
+            rank: player.rank
+        });
+
+        // Kills column
         const killsText = new BABYLON.GUI.TextBlock(`kills_${player.rank}`);
         killsText.text = player.kills.toString();
-        killsText.color = isFirst ? GameConfig.theme.colors.primary :
-            player.isLocal ? GameConfig.theme.colors.primary : GameConfig.theme.colors.textSecondary;
-        killsText.fontSize = 15;
+        killsText.color = primaryColor;
+        killsText.fontSize = 14;
         killsText.fontFamily = GameConfig.theme.fonts.primary;
-        killsText.fontWeight = isFirst || player.isLocal ? "bold" : "normal";
-        killsText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        killsText.left = "100px";
-        killsText.top = "-8px";
+        killsText.fontWeight = fontWeight;
+        killsText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        killsText.left = `${columnLayout.kills.left}px`;
         entryContainer.addControl(killsText);
 
-        // K/D Ratio and Deaths (smaller text below main info)
-        const statsText = new BABYLON.GUI.TextBlock(`stats_${player.rank}`);
-        statsText.text = `${player.deaths}D • ${player.kdr} K/D • ${player.assists}A`;
-        statsText.color = GameConfig.theme.colors.textSecondary;
-        statsText.fontSize = 11;
-        statsText.fontFamily = GameConfig.theme.fonts.primary;
-        statsText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        statsText.left = "-60px";
-        statsText.top = "8px";
-        entryContainer.addControl(statsText);
+        // Deaths column
+        const deathsText = new BABYLON.GUI.TextBlock(`deaths_${player.rank}`);
+        deathsText.text = player.deaths.toString();
+        deathsText.color = secondaryColor;
+        deathsText.fontSize = 14;
+        deathsText.fontFamily = GameConfig.theme.fonts.primary;
+        deathsText.fontWeight = fontWeight;
+        deathsText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        deathsText.left = `${columnLayout.deaths.left}px`;
+        entryContainer.addControl(deathsText);
 
-        // Ping (for multiplayer)
-        if (!player.isLocal) {
-            const pingText = new BABYLON.GUI.TextBlock(`ping_${player.rank}`);
-            pingText.text = `${player.ping}ms`;
-            pingText.color = player.ping < 50 ? GameConfig.theme.colors.textSuccess :
-                player.ping < 100 ? GameConfig.theme.colors.textWarning : GameConfig.theme.colors.textDanger;
-            pingText.fontSize = 11;
-            pingText.fontFamily = GameConfig.theme.fonts.primary;
-            pingText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-            pingText.left = "100px";
-            pingText.top = "8px";
-            entryContainer.addControl(pingText);
+        // Connection status column
+        const connectionText = new BABYLON.GUI.TextBlock(`connection_${player.rank}`);
+        let connectionStatus, connectionColor;
+        
+        if (player.isLocal) {
+            connectionStatus = "LOCAL";
+            connectionColor = GameConfig.theme.colors.textSuccess || "#00ff00";
+        } else if (player.isAlive !== false) {
+            connectionStatus = "ONLINE";
+            connectionColor = GameConfig.theme.colors.textSuccess || "#00ff00";
+        } else {
+            connectionStatus = "DISC";
+            connectionColor = GameConfig.theme.colors.textDanger || "#ff0000";
         }
+        
+        connectionText.text = connectionStatus;
+        connectionText.color = connectionColor;
+        connectionText.fontSize = 11;
+        connectionText.fontFamily = GameConfig.theme.fonts.primary;
+        connectionText.fontWeight = "normal";
+        connectionText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        connectionText.left = `${columnLayout.connection.left}px`;
+        entryContainer.addControl(connectionText);
+
+        // Ping column
+        const pingText = new BABYLON.GUI.TextBlock(`ping_${player.rank}`);
+        if (player.isLocal) {
+            pingText.text = "-";
+            pingText.color = GameConfig.theme.colors.textSecondary;
+        } else {
+            pingText.text = `${player.ping}`;
+            pingText.color = player.ping < 50 ? (GameConfig.theme.colors.textSuccess || "#00ff00") :
+                player.ping < 100 ? (GameConfig.theme.colors.textWarning || "#ffff00") : 
+                (GameConfig.theme.colors.textDanger || "#ff0000");
+        }
+        pingText.fontSize = 11;
+        pingText.fontFamily = GameConfig.theme.fonts.primary;
+        pingText.fontWeight = "normal";
+        pingText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        pingText.left = `${columnLayout.ping.left}px`;
+        entryContainer.addControl(pingText);
     }
 
     /**

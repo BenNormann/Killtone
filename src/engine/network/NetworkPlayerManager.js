@@ -13,6 +13,7 @@ export class NetworkPlayerManager {
         this.localPlayer = null;
         this.remotePlayers = new Map();
         this.playerStates = new Map();
+        this.playerStats = new Map(); // Track kills, deaths, ping for all players
         
         // State synchronization
         this.lastStateUpdate = 0;
@@ -23,6 +24,7 @@ export class NetworkPlayerManager {
         this.onPlayerJoined = null;
         this.onPlayerLeft = null;
         this.onStateUpdate = null;
+        this.onPlayerStatsUpdated = null;
     }
 
     /**
@@ -44,6 +46,9 @@ export class NetworkPlayerManager {
         // Initialize local player data if this is our join event
         if (data.playerId === this.game.networkManager?.playerId) {
             console.log('DEBUG: This is our player join event');
+            // Initialize our own stats
+            this.initializePlayerStats(data.player);
+            
             // Create all existing players as remote players
             if (data.allPlayers) {
                 console.log(`DEBUG: Creating ${data.allPlayers.length} existing players as remote players`);
@@ -51,6 +56,7 @@ export class NetworkPlayerManager {
                     if (playerData.id !== this.game.networkManager?.playerId) {
                         console.log(`DEBUG: Creating existing player: ${playerData.username} (${playerData.id})`);
                         await this.createRemotePlayer(playerData);
+                        this.initializePlayerStats(playerData);
                     }
                 }
             } else {
@@ -78,6 +84,12 @@ export class NetworkPlayerManager {
         }
         
         await this.createRemotePlayer(playerData);
+        this.initializePlayerStats(playerData);
+        
+        // Notify about stats update
+        if (this.onPlayerStatsUpdated) {
+            this.onPlayerStatsUpdated(this.getAllPlayerStats());
+        }
     }
 
     /**
@@ -95,9 +107,15 @@ export class NetworkPlayerManager {
         }
         
         this.playerStates.delete(playerId);
+        this.playerStats.delete(playerId);
         
         if (this.onPlayerLeft) {
             this.onPlayerLeft({ playerId });
+        }
+        
+        // Notify about stats update
+        if (this.onPlayerStatsUpdated) {
+            this.onPlayerStatsUpdated(this.getAllPlayerStats());
         }
     }
 
@@ -124,22 +142,36 @@ export class NetworkPlayerManager {
     handlePlayerKilled(data) {
         console.log(`Player ${data.victimId} killed by ${data.killerId}`);
         
-        // Update victim
+        // Update victim stats
         const victim = this.remotePlayers.get(data.victimId);
         if (victim) {
             victim.setAlive(false);
             victim.deaths = data.victimDeaths;
         }
         
-        // Update killer
+        // Update killer stats
         const killer = this.remotePlayers.get(data.killerId);
         if (killer) {
             killer.score = data.killerScore;
         }
         
-        // Handle local player death
+        // Update player statistics tracking
+        this.updatePlayerStats(data.killerId, { kills: data.killerScore });
+        this.updatePlayerStats(data.victimId, { deaths: data.victimDeaths });
+        
+        // Handle local player events
         if (data.victimId === this.game.networkManager?.playerId && this.localPlayer) {
-            this.localPlayer.die();
+            // Local player died
+            this.localPlayer.recordDeath();
+            this.localPlayer.onDeath();
+        } else if (data.killerId === this.game.networkManager?.playerId && this.localPlayer) {
+            // Local player got a kill
+            this.localPlayer.recordKill();
+        }
+        
+        // Notify about stats update
+        if (this.onPlayerStatsUpdated) {
+            this.onPlayerStatsUpdated(this.getAllPlayerStats());
         }
     }
 
@@ -369,6 +401,128 @@ export class NetworkPlayerManager {
     }
 
     /**
+     * Update player statistics
+     * @param {string} playerId - Player ID
+     * @param {Object} stats - Stats to update (kills, deaths, ping, etc.)
+     */
+    updatePlayerStats(playerId, stats) {
+        if (!this.playerStats.has(playerId)) {
+            this.playerStats.set(playerId, {
+                id: playerId,
+                username: 'Unknown',
+                kills: 0,
+                deaths: 0,
+                ping: 0,
+                isAlive: true,
+                isLocal: playerId === this.game.networkManager?.playerId
+            });
+        }
+        
+        const playerStats = this.playerStats.get(playerId);
+        Object.assign(playerStats, stats);
+        
+        // Update username from remote player if available
+        const remotePlayer = this.remotePlayers.get(playerId);
+        if (remotePlayer && remotePlayer.username) {
+            playerStats.username = remotePlayer.username;
+        }
+    }
+
+    /**
+     * Get all player statistics for leaderboard
+     * @returns {Array} Array of player stats sorted by score
+     */
+    getAllPlayerStats() {
+        const allStats = [];
+        
+        // Add local player stats
+        if (this.localPlayer && this.game.networkManager?.playerId) {
+            const localId = this.game.networkManager.playerId;
+            if (!this.playerStats.has(localId)) {
+                this.updatePlayerStats(localId, {
+                    username: this.localPlayer.getName(),
+                    kills: this.localPlayer.kills || 0,
+                    deaths: this.localPlayer.deaths || 0,
+                    isAlive: this.localPlayer.health > 0
+                });
+            }
+            
+            const localStats = this.playerStats.get(localId);
+            if (localStats) {
+                allStats.push({
+                    ...localStats,
+                    username: this.localPlayer.getName(),
+                    kills: this.localPlayer.kills || 0,
+                    deaths: this.localPlayer.deaths || 0,
+                    isAlive: this.localPlayer.health > 0,
+                    ping: this.game.networkManager?.stats?.getStats().ping || 0
+                });
+            }
+        }
+        
+        // Add remote player stats
+        this.remotePlayers.forEach((remotePlayer, playerId) => {
+            if (!this.playerStats.has(playerId)) {
+                this.updatePlayerStats(playerId, {
+                    username: remotePlayer.username || 'Unknown',
+                    kills: remotePlayer.score || 0,
+                    deaths: remotePlayer.deaths || 0,
+                    isAlive: remotePlayer.isAlive
+                });
+            }
+            
+            const stats = this.playerStats.get(playerId);
+            allStats.push({
+                ...stats,
+                username: remotePlayer.username || 'Unknown',
+                kills: remotePlayer.score || 0,
+                deaths: remotePlayer.deaths || 0,
+                isAlive: remotePlayer.isAlive,
+                ping: stats.ping || 0
+            });
+        });
+        
+        // Calculate K/D ratio and score for each player
+        allStats.forEach(player => {
+            player.kdr = player.deaths > 0 ? (player.kills / player.deaths).toFixed(2) : player.kills.toFixed(2);
+            player.score = player.kills * 15 - player.deaths * 5; // Basic scoring system
+        });
+        
+        // Sort by score (kills weighted more than deaths)
+        allStats.sort((a, b) => b.score - a.score);
+        
+        // Add rank
+        allStats.forEach((player, index) => {
+            player.rank = index + 1;
+        });
+        
+        return allStats;
+    }
+
+    /**
+     * Update ping for a specific player
+     * @param {string} playerId - Player ID
+     * @param {number} ping - Ping value in ms
+     */
+    updatePlayerPing(playerId, ping) {
+        this.updatePlayerStats(playerId, { ping });
+    }
+
+    /**
+     * Initialize player stats from server data
+     * @param {Object} playerData - Player data from server
+     */
+    initializePlayerStats(playerData) {
+        this.updatePlayerStats(playerData.id, {
+            username: playerData.username || 'Unknown',
+            kills: playerData.score || 0,
+            deaths: playerData.deaths || 0,
+            isAlive: playerData.alive !== false,
+            ping: 0
+        });
+    }
+
+    /**
      * Dispose of the player manager
      */
     dispose() {
@@ -376,11 +530,13 @@ export class NetworkPlayerManager {
         this.remotePlayers.forEach(player => player.dispose());
         this.remotePlayers.clear();
         this.playerStates.clear();
+        this.playerStats.clear();
         
         // Clear callbacks
         this.onPlayerJoined = null;
         this.onPlayerLeft = null;
         this.onStateUpdate = null;
+        this.onPlayerStatsUpdated = null;
         
         this.localPlayer = null;
     }

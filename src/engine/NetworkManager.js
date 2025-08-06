@@ -38,6 +38,9 @@ export class NetworkManager extends BaseManager {
         this.onStateUpdate = null;
         this.onError = null;
         
+        // Leaderboard update tracking
+        this.lastLeaderboardUpdate = 0;
+        
         // Initialize components
         this.initializeComponents();
     }
@@ -60,6 +63,12 @@ export class NetworkManager extends BaseManager {
         };
         this.playerManager.onStateUpdate = (data) => {
             if (this.onStateUpdate) this.onStateUpdate(data);
+        };
+        this.playerManager.onPlayerStatsUpdated = (stats) => {
+            // Update leaderboard in UI if available
+            if (this.game.uiManager && this.game.uiManager.updateLeaderboardData) {
+                this.game.uiManager.updateLeaderboardData(stats);
+            }
         };
         
         // Set up player manager settings
@@ -425,6 +434,14 @@ export class NetworkManager extends BaseManager {
     }
 
     /**
+     * Get all player statistics for leaderboard
+     * @returns {Array} Array of player stats sorted by score
+     */
+    getAllPlayerStats() {
+        return this.playerManager.getAllPlayerStats();
+    }
+
+    /**
      * Get player state by ID
      * @param {string} playerId - Player ID
      * @returns {Object|null} Player state or null
@@ -488,6 +505,20 @@ export class NetworkManager extends BaseManager {
         
         // Clean up old pending messages
         this.messageHandler.cleanupPendingMessages();
+        
+        // Periodically update leaderboard (every 2 seconds)
+        this.lastLeaderboardUpdate += deltaTime * 1000; // Convert to milliseconds
+        if (this.lastLeaderboardUpdate >= 2000) {
+            this.lastLeaderboardUpdate = 0;
+            
+            // Update leaderboard with latest player stats
+            if (this.game.uiManager && this.game.uiManager.updateLeaderboardData) {
+                const playerStats = this.getAllPlayerStats();
+                if (playerStats && playerStats.length > 0) {
+                    this.game.uiManager.updateLeaderboardData(playerStats);
+                }
+            }
+        }
     }
 
     /**

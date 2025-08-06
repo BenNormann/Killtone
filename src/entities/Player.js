@@ -44,6 +44,10 @@ export class Player {
         this.health = 100;
         this.maxHealth = 100;
         
+        // Player statistics
+        this.kills = 0;
+        this.deaths = 0;
+        
         // Player name
         this.name = this.loadNameFromStorage() || NameGenerator.generateRandomName();
         
@@ -764,6 +768,9 @@ export class Player {
     onDeath() {
         console.log('Player died');
         
+        // Increment death count
+        this.deaths++;
+        
         // Stop firing
         this.stopFiring();
         
@@ -771,6 +778,47 @@ export class Player {
         if (this.game.stateManager) {
             // Could transition to death/respawn state
         }
+    }
+
+    /**
+     * Record a kill for this player
+     */
+    recordKill() {
+        this.kills++;
+        console.log(`Player kill count: ${this.kills}`);
+        
+        // Update network stats if connected
+        if (this.game.networkManager && this.game.networkManager.playerManager) {
+            this.game.networkManager.playerManager.updatePlayerStats(
+                this.game.networkManager.playerId,
+                { kills: this.kills }
+            );
+        }
+    }
+
+    /**
+     * Record a death for this player
+     */
+    recordDeath() {
+        this.deaths++;
+        console.log(`Player death count: ${this.deaths}`);
+        
+        // Update network stats if connected
+        if (this.game.networkManager && this.game.networkManager.playerManager) {
+            this.game.networkManager.playerManager.updatePlayerStats(
+                this.game.networkManager.playerId,
+                { deaths: this.deaths }
+            );
+        }
+    }
+
+    /**
+     * Handle player death from network
+     */
+    die() {
+        console.log('Player died from network event');
+        this.health = 0;
+        this.onDeath();
     }
 
     /**
