@@ -17,9 +17,9 @@ export class HUDConfig {
         this.HUD_COLOR_SUCCESS = GameConfig.hud.colorSuccess;
         
         // Text properties
-        this.HUD_FONT_SIZE_SMALL = 12;
-        this.HUD_FONT_SIZE_MEDIUM = 16;
-        this.HUD_FONT_SIZE_LARGE = 24;
+        this.HUD_FONT_SIZE_SMALL = 21;  // Was 12, now 21 (1.75x)
+        this.HUD_FONT_SIZE_MEDIUM = 28; // Was 16, now 28 (1.75x)
+        this.HUD_FONT_SIZE_LARGE = 42;  // Was 24, now 42 (1.75x)
         this.HUD_FONT_FAMILY = 'Orbitron, monospace';
         
         // Angled text properties

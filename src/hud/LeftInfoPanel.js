@@ -125,15 +125,15 @@ export class LeftInfoPanel {
         // Clear texture completely transparent
         ctx.clearRect(0, 0, size.width, size.height);
         
-        // Set text properties
+        // Set text properties - use MEDIUM font size consistently
         ctx.font = `${this.config.HUD_FONT_SIZE_MEDIUM}px ${this.config.HUD_FONT_FAMILY}`;
         ctx.fillStyle = this.config.getColorWithAlpha();
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         
-        let y = 20;
-        const lineHeight = 25;
-        const x = 20;
+        let y = 30; // Increased starting Y position for larger font
+        const lineHeight = 35; // Increased line height for larger font
+        const x = 30; // Increased left margin for larger font
         
         // Flow State Section
         if (this.cachedData.flowActive) {
@@ -147,7 +147,7 @@ export class LeftInfoPanel {
         
         // Audio meter visualization
         this.drawAudioMeter(ctx, x, y);
-        y += 40;
+        y += 50; // Increased spacing for larger font
         
         // Performance Section
         ctx.fillStyle = this.config.getColorWithAlpha();
@@ -174,9 +174,9 @@ export class LeftInfoPanel {
      * @param {number} y - Y position
      */
     drawAudioMeter(ctx, x, y) {
-        const barWidth = 15;
-        const barHeight = 20;
-        const barSpacing = 3;
+        const barWidth = 20; // Increased for larger font
+        const barHeight = 25; // Increased for larger font
+        const barSpacing = 4; // Increased spacing for larger font
         const totalWidth = (barWidth + barSpacing) * this.audioMeterBars - barSpacing;
         
         // Draw meter background

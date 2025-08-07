@@ -67,6 +67,42 @@ export class RightInfoPanel {
     }
     
     /**
+     * Update speedometer position to follow the right panel
+     */
+    updateSpeedometerPosition() {
+        if (!this.speedometer || !this.panelMesh) {
+            return;
+        }
+        
+        // Get panel's world position
+        const panelWorldPosition = this.panelMesh.getAbsolutePosition();
+        
+        // Convert 3D world position to screen coordinates
+        const screenPosition = BABYLON.Vector3.Project(
+            panelWorldPosition,
+            BABYLON.Matrix.Identity(),
+            this.scene.getTransformMatrix(),
+            this.camera.viewport.toGlobal(
+                this.scene.getEngine().getRenderWidth(),
+                this.scene.getEngine().getRenderHeight()
+            )
+        );
+        
+        // Convert to normalized screen coordinates (0-1)
+        const normalizedX = (screenPosition.x + 1) / 2;
+        const normalizedY = (1 - screenPosition.y) / 2;
+        
+        // Offset the speedometer to the right side of the panel
+        const offsetX = 1; // Offset to the right of panel center
+        const offsetY = -0.1; // Slight offset down from panel center
+        
+        // Set the speedometer position
+        this.speedometer.setHudPosition(normalizedX + offsetX, normalizedY + offsetY);
+        
+        console.log(`Speedometer positioned at: (${(normalizedX + offsetX).toFixed(3)}, ${(normalizedY + offsetY).toFixed(3)})`);
+    }
+    
+    /**
      * Create the angled info panel mesh
      */
     async createPanel() {
@@ -136,7 +172,7 @@ export class RightInfoPanel {
         ctx.textBaseline = 'top';
         
         let y = 20;
-        const lineHeight = 25;
+        const lineHeight = 35;
         const x = size.width - 20;
         
         // Health Section
@@ -154,10 +190,15 @@ export class RightInfoPanel {
         y += lineHeight;
         
         // Health bar visualization
-        this.drawHealthBar(ctx, x - 200, y, healthPercent);
+        this.drawHealthBar(ctx, x - 180, y, healthPercent);
         y += 35;
         
+        // Speed Section - Draw speedometer gauge aligned to the right
+        this.drawSpeedometerGauge(ctx, x, y, this.cachedData.speed);
+        y += 100 + lineHeight;
+
         // Ammo Section
+        ctx.textAlign = 'right';
         ctx.fillStyle = this.config.getColorWithAlpha();
         if (this.cachedData.maxAmmo > 0) {
             const ammoColor = this.cachedData.currentAmmo <= (this.cachedData.maxAmmo * 0.2) 
@@ -174,13 +215,6 @@ export class RightInfoPanel {
         ctx.fillStyle = this.config.getColorWithAlpha();
         ctx.fillText(`Weapon: ${this.cachedData.weaponName}`, x, y);
         y += lineHeight;
-        
-        // Speed Section
-        const speedColor = this.cachedData.speed > 15 
-            ? this.config.HUD_COLOR_SUCCESS 
-            : this.config.HUD_COLOR;
-        ctx.fillStyle = this.config.getColorWithAlpha(speedColor);
-        ctx.fillText(`Speed: ${this.cachedData.speed.toFixed(1)}`, x, y);
         
         // Update texture
         this.textTexture.update();
@@ -227,12 +261,100 @@ export class RightInfoPanel {
         // Health value overlay
         ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.font = `${this.config.HUD_FONT_SIZE_SMALL}px ${this.config.HUD_FONT_FAMILY}`;
+        ctx.textAlign = 'right';
+    }
+    
+    /**
+     * Draw speedometer gauge visualization (like health bar but circular)
+     * @param {CanvasRenderingContext2D} ctx - Canvas context
+     * @param {number} x - X position
+     * @param {number} y - Y position
+     * @param {number} speed - Current speed (0-1000)
+     */
+    drawSpeedometerGauge(ctx, x, y, speed) {
+        const gaugeRadius = 50;
+        const centerX = x - gaugeRadius; // Use x directly since it's already positioned for right alignment
+        const centerY = y + gaugeRadius;
+        const startAngle = 90; // Start at bottom (6 o'clock position)
+        const endAngle = 420; // Go all the way around to bottom again
+        const arcLength = endAngle - startAngle;
+        
+        // Calculate progress (0-1)
+        const progress = Math.min(1, speed / 1000);
+        const currentAngle = startAngle + (arcLength * progress);
+        
+        // Draw gauge background (outer ring)
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, gaugeRadius, 0, 2 * Math.PI);
+        ctx.strokeStyle = this.config.getColorWithAlpha();
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        
+        // Draw gauge arc (progress indicator)
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, gaugeRadius, 
+            startAngle * (Math.PI / 180), 
+            currentAngle * (Math.PI / 180));
+        
+        // Color based on speed
+        let gaugeColor = this.config.HUD_COLOR;
+        if (progress > 0.8) {
+            gaugeColor = this.config.HUD_COLOR_DANGER;
+        } else if (progress > 0.6) {
+            gaugeColor = this.config.HUD_COLOR_WARNING;
+        } else if (progress > 0.3) {
+            gaugeColor = this.config.HUD_COLOR_SUCCESS;
+        }
+        
+        ctx.strokeStyle = this.config.getColorWithAlpha(gaugeColor);
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        
+        // Draw tick marks
+        const numTicks = 5;
+        for (let i = 0; i <= numTicks; i++) {
+            const angle = startAngle + (arcLength * i / numTicks);
+            const angleRad = angle * (Math.PI / 180);
+            const innerRadius = gaugeRadius - 8;
+            const outerRadius = gaugeRadius - 2;
+            
+            const innerX = centerX + Math.cos(angleRad) * innerRadius;
+            const innerY = centerY + Math.sin(angleRad) * innerRadius;
+            const outerX = centerX + Math.cos(angleRad) * outerRadius;
+            const outerY = centerY + Math.sin(angleRad) * outerRadius;
+            
+            ctx.beginPath();
+            ctx.moveTo(innerX, innerY);
+            ctx.lineTo(outerX, outerY);
+            ctx.strokeStyle = this.config.getColorWithAlpha();
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        
+        // Draw needle
+        const needleLength = gaugeRadius - 5;
+        const needleAngle = currentAngle * (Math.PI / 180);
+        const needleX = centerX + Math.cos(needleAngle) * needleLength;
+        const needleY = centerY + Math.sin(needleAngle) * needleLength;
+        
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(needleX, needleY);
+        ctx.strokeStyle = this.config.getColorWithAlpha(this.config.HUD_COLOR_DANGER);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Draw center dot
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = this.config.getColorWithAlpha();
+        ctx.fill();
+        
+        // Draw speed value text
+        ctx.fillStyle = this.config.getColorWithAlpha();
+        ctx.font = `${this.config.HUD_FONT_SIZE_SMALL}px ${this.config.HUD_FONT_FAMILY}`;
         ctx.textAlign = 'center';
-        ctx.fillText(
-            `${Math.round(currentHealthPercent)}%`, 
-            x + barWidth / 2, 
-            y + (barHeight - this.config.HUD_FONT_SIZE_SMALL) / 2
-        );
+        ctx.fillText(`${Math.round(speed)}`, centerX, centerY + 5);
     }
     
     /**
@@ -350,14 +472,18 @@ export class RightInfoPanel {
     
     /**
      * Get player speed
-     * @returns {number} Current speed magnitude
+     * @returns {number} Current speed magnitude (0-1000 scale)
      */
     getPlayerSpeed() {
         if (this.player && this.player.velocity) {
             // Calculate 2D speed (ignore Y component for ground movement)
             const velocity = this.player.velocity;
-            const speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
-            return speed;
+            const speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z) * 2.5;
+            
+            // Convert to 0-1000 scale where 1000 is full sprint speed
+            // Assuming typical walking speed is around 5-10 units, sprint is around 15-20
+            const normalizedSpeed = Math.min(1000, speed * 100); // Increased scale factor to reach 1000 at sprint speed
+            return normalizedSpeed;
         }
         
         return 0;
