@@ -59,6 +59,14 @@ export class RightInfoPanel {
     }
     
     /**
+     * Update player reference (called by UIManager)
+     * @param {Player} player - Current player instance
+     */
+    updatePlayerReference(player) {
+        this.player = player;
+    }
+    
+    /**
      * Create the angled info panel mesh
      */
     async createPanel() {
@@ -307,12 +315,16 @@ export class RightInfoPanel {
      * @returns {Object} Ammo data with current and max values
      */
     getPlayerAmmo() {
-        if (this.player && this.player.weaponSystem) {
-            const weapon = this.player.weaponSystem.getCurrentWeapon();
+        if (this.player && this.player.currentWeapon) {
+            const weapon = this.player.currentWeapon;
+            
             if (weapon) {
+                const currentAmmo = weapon.getCurrentAmmo ? weapon.getCurrentAmmo() : (weapon.currentAmmo || 0);
+                const maxAmmo = weapon.getMaxAmmo ? weapon.getMaxAmmo() : (weapon.maxAmmo || weapon.magazineSize || 0);
+                
                 return {
-                    current: weapon.currentAmmo || 0,
-                    max: weapon.maxAmmo || 0
+                    current: currentAmmo,
+                    max: maxAmmo
                 };
             }
         }
@@ -325,8 +337,9 @@ export class RightInfoPanel {
      * @returns {string} Weapon name
      */
     getPlayerWeapon() {
-        if (this.player && this.player.weaponSystem) {
-            const weapon = this.player.weaponSystem.getCurrentWeapon();
+        if (this.player && this.player.currentWeapon) {
+            const weapon = this.player.currentWeapon;
+            
             if (weapon && weapon.name) {
                 return weapon.name.toUpperCase();
             }

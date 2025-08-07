@@ -821,6 +821,14 @@ export class UIManager extends BaseManager {
             this.updateLoadingProgress(this.loadingProgress, this.loadingText);
         }
 
+        // Update player references in HUD components
+        if (this.rightInfoPanel && this.rightInfoPanel.updatePlayerReference) {
+            this.rightInfoPanel.updatePlayerReference(player);
+        }
+        if (this.leftInfoPanel && this.leftInfoPanel.updatePlayerReference) {
+            this.leftInfoPanel.updatePlayerReference(player);
+        }
+
         // Create update flags for HUD components
         const now = Date.now();
         const updateFlags = {
