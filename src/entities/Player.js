@@ -433,7 +433,7 @@ export class Player {
     }
 
     /**
-     * Start firing current weapon
+     * Start firing current weapon if able
      */
     startFiring() {
         if (!this.currentWeapon || !this.canFire) return;
@@ -466,7 +466,6 @@ export class Player {
         console.log('Player: Firing weapon from position:', firingPosition.toString());
         console.log('Player: Player position:', this.position.toString());
         console.log('Player: Firing direction:', forward.toString());
-        console.log('Player: Firing offset:', firingOffset);
         
         // Fire weapon
         this.currentWeapon.fire(firingPosition, forward);

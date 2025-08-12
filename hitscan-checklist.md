@@ -2,7 +2,7 @@
 
 ## WeaponBase.js
 - [x] fireProjectile - 08/06/2025
-- [] fireShotgun
+- [x] fireShotgun - 09/12/2025
 - [] exclude nameTag meshes from rayCast
 
 ## Game.js

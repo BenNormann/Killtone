@@ -58,7 +58,7 @@ export class WeaponBase {
     }
 
     /**
-     * Initialize the weapon - now generic for all weapon types
+     * Initialize the weapon - generic for all weapon types
      */
     async initialize(assetManager = null) {
         console.log(`Initializing weapon: ${this.name}`);
@@ -103,6 +103,10 @@ export class WeaponBase {
 
     /**
      * Fire the weapon (generic method handling all weapon types)
+     * @param {BABYLON.Vector3} origin - The starting position of the shot
+     * @param {BABYLON.Vector3} direction - The direction vector of the shot
+     * @param {Object} game - The game instance containing managers and systems
+     * @returns {boolean} - True if the shot was fired successfully, false otherwise
      */
     fire(origin, direction, gameInstance = null) {
         // Use the game instance passed in or fall back to this.game
@@ -213,6 +217,10 @@ export class WeaponBase {
 
     /**
      * Fire shotgun pellets
+     * @param {BABYLON.Vector3} origin - The starting position of the shot
+     * @param {BABYLON.Vector3} direction - The direction vector of the shot
+     * @param {Object} game - The game instance containing managers and systems
+     * @returns {boolean} - True if the shot was fired successfully, false otherwise
      */
     fireShotgun(origin, direction, game) {
         if (!game || !game.projectileManager) {
@@ -229,11 +237,12 @@ export class WeaponBase {
             const spreadDirection = this.calculateShotgunSpread(direction, spreadAngle);
 
             // Create projectile data for this pellet
-            const projectileData = this.createProjectileData(origin, spreadDirection, game);
-            projectileData.damage = this.damage; // Each pellet does full damage
+            //const projectileData = this.createProjectileData(origin, spreadDirection, game);
+            //projectileData.damage = this.damage; // Each pellet does full damage
 
             // Fire the pellet
-            game.projectileManager.fireProjectile(projectileData);
+            //game.projectileManager.fireProjectile(projectileData);
+            this.fireHitscan(origin, spreadDirection, game);
         }
 
         return true;
@@ -316,6 +325,9 @@ export class WeaponBase {
 
     /**
      * Calculate shotgun pellet spread
+     * @param {BABYLON.Vector3} baseDirection - initial vector direction of each shot
+     * @param {Number} spreadAngle - degree at which pellets can diverge from baseDirection
+     * @returns {BABYLON.Vector3} - final direction of individual shotgun pellet
      */
     calculateShotgunSpread(baseDirection, spreadAngle) {
         const spreadRadians = MathUtils.degToRad(spreadAngle);
