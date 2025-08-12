@@ -149,33 +149,15 @@ export class Player {
         this.camera.ellipsoidOffset = new BABYLON.Vector3(0, this.playerHeight / 2, 0);
         
         // Disable default controls - we'll handle input manually
-        this.camera.inputs.clear();
+        //this.camera.inputs.clear();
         
         // Set as active camera
         this.scene.activeCamera = this.camera;
+
+        // Required for Firefox, yet disables the settings menu on Chrome
+        //this.scene.detachControl();
         
         console.log('FPS camera created');
-    }
-
-    /**
-     * Attach camera controls for game mode
-     */
-    attachControls() {
-        if (this.camera && this.game.canvas) {
-            // Use Babylon's built-in pointer lock handling
-            this.camera.attachControl(this.game.canvas, true);
-            console.log('Camera controls attached');
-        }
-    }
-
-    /**
-     * Detach camera controls
-     */
-    detachControls() {
-        if (this.camera) {
-            this.camera.detachControl();
-            console.log('Camera controls detached');
-        }
     }
 
     /**
@@ -352,6 +334,11 @@ export class Player {
         // Apply rotation to camera
         this.camera.rotation.x = this.rotationX;
         this.camera.rotation.y = this.rotationY;
+        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+            console.log("Player: mouse spike x: " + deltaX + ", y: " + deltaY);
+        }
+        //console.log("Player: camera delta x: " + deltaX + ", y: " + deltaY);
+        //console.log("Player: camera rotation x: " + this.camera.rotation.y + ", y: " + this.camera.rotation.x);
     }
 
     /**

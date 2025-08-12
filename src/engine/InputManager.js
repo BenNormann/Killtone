@@ -27,6 +27,8 @@ export class InputManager extends BaseManager {
             y: 0,
             deltaX: 0,
             deltaY: 0,
+            prevDeltaX: 0,
+            prevDeltaY: 0,
             wheel: 0,
             buttons: 0
         };
@@ -427,11 +429,27 @@ export class InputManager extends BaseManager {
         // Update mouse position
         this.mouseState.x = event.clientX;
         this.mouseState.y = event.clientY;
+        this.mouseState.prevDeltaX = this.mouseState.deltaX;
+        this.mouseState.prevDeltaY = this.mouseState.deltaY;
         
         // Calculate delta for pointer locked mode
         if (this.pointerLocked) {
-            this.mouseState.deltaX = event.movementX || 0;
-            this.mouseState.deltaY = event.movementY || 0;
+            /*
+                js pointer lock API will occasionally pass incorrect and overly large 
+                movementX and movementY values that cause the players view to jump.
+                Despite the values being hard coded, we found this to be the easiest way to
+                limit the inconsistencies.
+            */
+            if (Math.abs(event.movementX) > Math.abs(this.mouseState.prevDeltaX + 300)){
+                this.mouseState.deltaX = this.mouseState.prevDeltaX || 0;
+            } else {
+                this.mouseState.deltaX = event.movementX || 0;
+            }
+            if (Math.abs(event.movementY) > Math.abs(this.mouseState.prevDeltaY + 300)){
+                this.mouseState.deltaY = this.mouseState.prevDeltaY || 0;
+            } else {
+                this.mouseState.deltaY = event.movementY || 0;
+            }
             
             // Send mouse movement to game if in game context
             if (this.currentContext === 'game' && this.gameControlsEnabled) {
