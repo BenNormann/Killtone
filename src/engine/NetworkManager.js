@@ -93,6 +93,11 @@ export class NetworkManager extends BaseManager {
         this.messageHandler.registerHandler('playerJoined', (data) => {
             console.log('DEBUG: NetworkManager received playerJoined event:', data);
             this.playerManager.handlePlayerJoined(data);
+            
+            // Also notify the game to set the player ID
+            if (this.game && this.game.handlePlayerJoined) {
+                this.game.handlePlayerJoined(data);
+            }
         });
         this.messageHandler.registerHandler('playerConnected', (data) => {
             console.log('DEBUG: NetworkManager received playerConnected event:', data);
@@ -118,10 +123,9 @@ export class NetworkManager extends BaseManager {
         this.messageHandler.registerHandler('playerDeath', (data) => this.handlePlayerDeath(data));
         this.messageHandler.registerHandler('weaponPickup', (data) => this.handleWeaponPickup(data));
         
-        // Projectile handlers
-        this.messageHandler.registerHandler('projectileCreated', (data) => this.handleProjectileCreated(data));
-        this.messageHandler.registerHandler('projectileUpdated', (data) => this.handleProjectileUpdated(data));
-        this.messageHandler.registerHandler('projectileHit', (data) => this.handleProjectileHit(data));
+        // Weapon attack response handlers
+        this.messageHandler.registerHandler('weaponHit', (data) => this.handleWeaponHit(data));
+        this.messageHandler.registerHandler('weaponMiss', (data) => this.handleWeaponMiss(data));
         
         // Network handlers
         this.messageHandler.registerHandler('ping', (data) => this.handlePing(data));
@@ -160,14 +164,16 @@ export class NetworkManager extends BaseManager {
             this.connection.on('playerDamaged', async (data) => await this.messageHandler.processMessage({ type: 'playerDamaged', data }));
             this.connection.on('playerHealthUpdated', async (data) => await this.messageHandler.processMessage({ type: 'playerHealthUpdated', data }));
             this.connection.on('playerUsernameUpdated', async (data) => await this.messageHandler.processMessage({ type: 'playerUsernameUpdated', data }));
-            
-            // Projectile events
-            this.connection.on('projectileCreated', (data) => {
-                console.log('NetworkManager: Received projectileCreated socket event:', data);
-                this.messageHandler.processMessage({ type: 'projectileCreated', data });
+                        
+            // Weapon attack response events
+            this.connection.on('weaponHit', (data) => {
+                console.log('NetworkManager: Received weaponHit socket event:', data);
+                this.messageHandler.processMessage({ type: 'weaponHit', data });
             });
-            this.connection.on('projectileUpdated', (data) => this.messageHandler.processMessage({ type: 'projectileUpdated', data }));
-            this.connection.on('projectileHit', (data) => this.messageHandler.processMessage({ type: 'projectileHit', data }));
+            this.connection.on('weaponMiss', (data) => {
+                console.log('NetworkManager: Received weaponMiss socket event:', data);
+                this.messageHandler.processMessage({ type: 'weaponMiss', data });
+            });
             
             // Start ping monitoring
             this.stats.startPingMonitoring((pingData) => this.emit('ping', pingData));
@@ -261,6 +267,11 @@ export class NetworkManager extends BaseManager {
         this.isHost = data.isHost || false;
         
         console.log('DEBUG: NetworkManager connection state - isConnected:', this.isConnected, 'playerId:', this.playerId);
+        
+        // Set the player ID on the game instance if available
+        if (this.game && this.game.setPlayerId) {
+            this.game.setPlayerId(data.playerId);
+        }
         
         if (this.onConnected) {
             this.onConnected(data);
@@ -369,37 +380,30 @@ export class NetworkManager extends BaseManager {
     }
 
     /**
-     * Handle projectile created events
-     * @param {Object} data - Projectile created data
+     * Handle weapon hit events from server
+     * @param {Object} data - Weapon hit data
      */
-    handleProjectileCreated(data) {
-        console.log('NetworkManager: handleProjectileCreated called with data:', data);
+    handleWeaponHit(data) {
+        console.log('NetworkManager: handleWeaponHit called with data:', data);
         
-        if (this.game && this.game.handleProjectileCreated) {
-            console.log('NetworkManager: Calling game.handleProjectileCreated');
-            this.game.handleProjectileCreated(data);
+        if (this.game && this.game.handleWeaponHit) {
+            this.game.handleWeaponHit(data);
         } else {
-            console.warn('NetworkManager: game or game.handleProjectileCreated not available');
+            console.warn('NetworkManager: game or game.handleWeaponHit not available');
         }
     }
 
     /**
-     * Handle projectile updated events
-     * @param {Object} data - Projectile updated data
+     * Handle weapon miss events from server
+     * @param {Object} data - Weapon miss data
      */
-    handleProjectileUpdated(data) {
-        if (this.game && this.game.handleProjectileUpdated) {
-            this.game.handleProjectileUpdated(data);
-        }
-    }
-
-    /**
-     * Handle projectile hit events
-     * @param {Object} data - Projectile hit data
-     */
-    handleProjectileHit(data) {
-        if (this.game && this.game.handleProjectileHit) {
-            this.game.handleProjectileHit(data);
+    handleWeaponMiss(data) {
+        console.log('NetworkManager: handleWeaponMiss called with data:', data);
+        
+        if (this.game && this.game.handleWeaponMiss) {
+            this.game.handleWeaponMiss(data);
+        } else {
+            console.warn('NetworkManager: game or game.handleWeaponMiss not available');
         }
     }
 

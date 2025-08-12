@@ -12,6 +12,8 @@ export class Player {
     constructor(game, initialPosition = new BABYLON.Vector3(0, 3.6, 0)) {
         this.game = game;
         this.scene = game.scene;
+
+        this.id = null;
         
         // Camera and movement
         this.camera = null;
@@ -435,7 +437,7 @@ export class Player {
     }
 
     /**
-     * Start firing current weapon
+     * Start firing current weapon if able
      */
     startFiring() {
         if (!this.currentWeapon || !this.canFire) return;
@@ -457,7 +459,7 @@ export class Player {
     fireWeapon() {
         if (!this.currentWeapon || !this.canFire) return;
         
-        // Get camera direction for projectile
+        // Get camera direction for shooting
         const forward = this.camera.getForwardRay().direction;
         
         // Calculate firing position - offset from player position to avoid collision
@@ -468,7 +470,6 @@ export class Player {
         console.log('Player: Firing weapon from position:', firingPosition.toString());
         console.log('Player: Player position:', this.position.toString());
         console.log('Player: Firing direction:', forward.toString());
-        console.log('Player: Firing offset:', firingOffset);
         
         // Fire weapon
         this.currentWeapon.fire(firingPosition, forward);
@@ -874,6 +875,23 @@ export class Player {
      */
     getName() {
         return this.name;
+    }
+
+    /**
+     * Set player ID from server
+     * @param {string} playerId - The player ID from the server
+     */
+    setId(playerId) {
+        this.id = playerId;
+        console.log(`Player: ID set to ${playerId}`);
+    }
+
+    /**
+     * Get player ID
+     * @returns {string} Current player ID
+     */
+    getId() {
+        return this.id;
     }
 
     /**

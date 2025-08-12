@@ -48,6 +48,9 @@ export class Game {
         this.lastFrameTime = 0;
         this.deltaTime = 0;
 
+        // Network state
+        this.pendingPlayerId = null; // Store player ID until player is initialized
+
         // Performance tracking
         this.frameCount = 0;
         this.fps = 0;
@@ -372,6 +375,13 @@ export class Game {
                 this.networkManager.setLocalPlayer(this.player);
             }
 
+            // Set the player ID if it was pending
+            if (this.pendingPlayerId) {
+                this.player.setId(this.pendingPlayerId);
+                this.pendingPlayerId = null; // Clear pending ID after setting
+                console.log('Game: Set player ID from pending:', this.player.id);
+            }
+
             console.log('Player initialized');
 
         } catch (error) {
@@ -448,37 +458,104 @@ export class Game {
         this.inputManager.registerActionHandler('weapon3', (pressed) => {
             if (pressed) this.player.equipWeapon('knife');
         });
+
+        console.log('Player event handlers set up');
     }
 
     /**
-     * Handle projectile created events from network
+     * Handle player joined event from server
+     * @param {Object} data - Player join data containing playerId
      */
-    handleProjectileCreated(data) {
-        console.log('Game: handleProjectileCreated called with data:', data);
+    handlePlayerJoined(data) {
+        console.log('Game: handlePlayerJoined called with data:', data);
         
-        if (this.projectileManager) {
-            console.log('Game: Calling projectileManager.handleServerProjectileCreated');
-            this.projectileManager.handleServerProjectileCreated(data);
+        // Store the player ID for when the player is initialized
+        if (data.playerId) {
+            this.pendingPlayerId = data.playerId;
+            console.log('Game: Stored pending player ID:', data.playerId);
+        }
+        
+        // If player is already initialized, set the ID immediately
+        if (this.player && data.playerId) {
+            this.player.setId(data.playerId);
+            console.log('Game: Set player ID to:', data.playerId);
+        }
+    }
+
+    /**
+     * Set player ID on the Player instance
+     * @param {string} playerId - The player ID from the server
+     */
+    setPlayerId(playerId) {
+        if (this.player) {
+            this.player.setId(playerId);
+            console.log('Game: Set player ID to:', playerId);
         } else {
-            console.warn('Game: projectileManager not available');
+            // Store for later when player is initialized
+            this.pendingPlayerId = playerId;
+            console.log('Game: Stored pending player ID:', playerId);
         }
     }
 
     /**
-     * Handle projectile updated events from network
+     * Get current player ID status
+     * @returns {Object} Status object with playerId and pendingPlayerId
      */
-    handleProjectileUpdated(data) {
-        if (this.projectileManager) {
-            this.projectileManager.handleServerProjectileUpdated(data);
+    getPlayerIdStatus() {
+        return {
+            playerId: this.player ? this.player.getId() : null,
+            pendingPlayerId: this.pendingPlayerId,
+            playerInitialized: !!this.player
+        };
+    }
+
+    /**
+     * Handle weapon hit events from server
+     */
+    handleWeaponHit(data) {
+        console.log('Game: handleWeaponHit called with data:', data);
+        // Create hit effects based on hit type
+        if (data.hitType === 'player') {
+            console.log('Game: hitObject.id: ' + data.hitObject.id + ", player.id: " + this.player.id);
+            if (data.hitObject.id === this.player.id) {
+                this.player.health = data.hitObject.health;
+                console.log('Game: health updated to', this.player.health);
+            }
+            /*
+            // Player hit - create blood effects
+            if (this.particleManager) {
+                this.particleManager.createBloodSplatter(
+                    new BABYLON.Vector3(data.hitPosition.x, data.hitPosition.y, data.hitPosition.z),
+                    new BABYLON.Vector3(0, 1, 0) // Default normal
+                );
+            }*/
+        } else {
+            /*
+            // Map hit - create impact effects
+            if (this.particleManager) {
+                this.particleManager.createHitSpark(
+                    new BABYLON.Vector3(data.hitPosition.x, data.hitPosition.y, data.hitPosition.z),
+                    new BABYLON.Vector3(0, 1, 0) // Default normal
+                );
+            }
+                */
+        }
+        
+        // Play hit sound
+        if (this.audioSystem) {
+            this.audioSystem.playHitSound(data.weaponType, data.hitType);
         }
     }
 
     /**
-     * Handle projectile hit events from network
+     * Handle weapon miss events from server
      */
-    handleProjectileHit(data) {
-        if (this.projectileManager) {
-            this.projectileManager.handleServerProjectileHit(data);
+    handleWeaponMiss(data) {
+        console.log('Game: handleWeaponMiss called with data:', data);
+        
+        // Create miss effects (optional - could show bullet trails)
+        if (this.particleManager) {
+            // Could create bullet trail effects here
         }
     }
 
