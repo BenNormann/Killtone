@@ -223,10 +223,6 @@ export class WeaponBase {
      * @returns {boolean} - True if the shot was fired successfully, false otherwise
      */
     fireShotgun(origin, direction, game) {
-        if (!game || !game.projectileManager) {
-            console.warn(`${this.name}: No projectile manager available for shotgun`);
-            return false;
-        }
 
         const pelletCount = this.pelletCount || 10;
         const spreadAngle = this.spreadAngle || 15;
@@ -236,12 +232,7 @@ export class WeaponBase {
             // Calculate spread for this pellet
             const spreadDirection = this.calculateShotgunSpread(direction, spreadAngle);
 
-            // Create projectile data for this pellet
-            //const projectileData = this.createProjectileData(origin, spreadDirection, game);
-            //projectileData.damage = this.damage; // Each pellet does full damage
-
             // Fire the pellet
-            //game.projectileManager.fireProjectile(projectileData);
             this.fireHitscan(origin, spreadDirection, game);
         }
 

@@ -307,20 +307,6 @@ io.on('connection', (socket) => {
       socket.broadcast.emit('playerMoved', broadcastData);
     }
   });
-  
-  // Handle shooting
-  socket.on('playerShoot', (data) => {
-    const shooter = players.get(socket.id);
-    if (shooter && shooter.alive) {
-      // Broadcast shot to all other players to create their own projectiles
-      socket.broadcast.emit('playerShot', {
-        playerId: socket.id,
-        origin: data.origin,
-        direction: data.direction,
-        weaponType: data.weaponType || 'bulldog' // Forward weapon type with fallback
-      });
-    }
-  });
 
   // Handle weapon attacks with server-side raycast
   socket.on('weaponAttack', (data) => {
@@ -429,69 +415,6 @@ io.on('connection', (socket) => {
       direction: direction,
       weaponType: weaponType
     });
-  });
-  
-  // Handle bullet hits (projectile-based)
-  socket.on('bulletHit', (data) => {
-    const { bulletId, targetPlayerId, damage, shooterId } = data;
-    
-    const shooter = players.get(shooterId);
-    const target = players.get(targetPlayerId);
-    
-    if (!shooter || !target || !target.alive) {
-      return; // Invalid hit
-    }
-    
-    // Prevent self-damage
-    if (shooterId === targetPlayerId) {
-      return;
-    }
-    
-    console.log(`Bullet ${bulletId} hit player ${targetPlayerId} for ${damage} damage`);
-    
-    // Apply damage
-    target.health -= damage;
-    
-    if (target.health <= 0) {
-      target.health = 0;
-      target.alive = false;
-      
-      // Increment killer's score and victim's deaths
-      shooter.score = (shooter.score || 0) + 1;
-      target.deaths = (target.deaths || 0) + 1;
-      
-      // Notify all players about the kill
-      io.emit('playerKilled', {
-        killerId: shooterId,
-        victimId: targetPlayerId,
-        killerScore: shooter.score,
-        victimDeaths: target.deaths
-      });
-      
-      console.log(`Player ${targetPlayerId} killed by ${shooterId}. Killer score: ${shooter.score}, Victim deaths: ${target.deaths}`);
-      
-      // Schedule respawn
-      setTimeout(() => {
-        respawnPlayer(targetPlayerId);
-      }, gameConfig.respawnTime);
-    } else {
-      // Notify target about damage (for their own UI)
-      io.to(targetPlayerId).emit('playerDamaged', {
-        damage: damage,
-        health: target.health,
-        shooterId: shooterId
-      });
-      
-      // CRITICAL FIX: Broadcast health update to ALL OTHER players so they can see the damage
-      socket.broadcast.emit('playerHealthUpdated', {
-        playerId: targetPlayerId,
-        health: target.health,
-        damage: damage,
-        shooterId: shooterId
-      });
-      
-      console.log(`Player ${targetPlayerId} took ${damage} damage (${target.health} HP remaining)`);
-    }
   });
   
   // Handle respawn request
