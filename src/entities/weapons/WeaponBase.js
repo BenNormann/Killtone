@@ -43,12 +43,15 @@ export class WeaponBase {
         this.animationGroups = new Map();
         this.currentAnimation = null;
 
+        this.baseRotation = null;
+        this.basePosition = null;
+
         // Accuracy system integration
         this.accuracySystem = accuracySystem || new AccuracySystem();
         this.accuracySystem.setCurrentWeapon(this.type);
 
         // Recoil pattern for this weapon
-        this.recoilPattern = this.createRecoilPattern();
+        this.recoilPattern = null;
 
         // Events
         this.onFire = null;
@@ -154,7 +157,6 @@ export class WeaponBase {
 
             // Apply recoil effects (not for melee)
             if (this.type !== 'knife') {
-                this.applyRecoil();
                 this.addRecoilToAccuracy();
             }
 
@@ -351,7 +353,7 @@ export class WeaponBase {
         if (!this.model) return;
 
         // For firing, we manually animate the weapon position
-        const originalPosition = this.model.position.clone();
+        const originalPosition = this.basePosition;
         const recoilOffset = new BABYLON.Vector3(0, 0, -0.1); // Pull back slightly
 
         // Quick recoil animation
@@ -489,6 +491,9 @@ export class WeaponBase {
         console.log(`Reloading ${this.name}...`);
 
         this.isReloading = true;
+
+        this.model.rotation = this.baseRotation.clone();
+        this.model.position = this.basePosition.clone();
 
         // Play reload animation
         this.playReloadAnimation();
@@ -636,6 +641,9 @@ export class WeaponBase {
                 this.model.rotation = new BABYLON.Vector3(0, 0, 0);
                 this.model.scaling = new BABYLON.Vector3(1, 1, 1);
 
+                this.baseRotation = new BABYLON.Vector3(0, 0, 0);
+                this.basePosition = new BABYLON.Vector3(0, 0, 0);
+
                 // Also normalize any child meshes that might have transformations
                 result.meshes.forEach(mesh => {
                     if (mesh !== this.model) {
@@ -716,6 +724,7 @@ export class WeaponBase {
                 config.position.y || 0.0,
                 config.position.z || 0.0
             );
+            this.basePosition = this.model.position.clone();
         }
 
         // Apply rotation offset
@@ -725,6 +734,7 @@ export class WeaponBase {
                 config.rotation.y || 0.0,
                 config.rotation.z || 0.0
             );
+            this.baseRotation = this.model.rotation.clone();
         }
 
         // Apply handedness (flip model horizontally if needed)
@@ -815,6 +825,7 @@ export class WeaponBase {
      */
     applyRecoil() {
         if (!this.model) return;
+        console.log("WeaponBase: recoil: " + this.model.rotation);
 
         // Apply recoil rotation to weapon model
         const recoilX = MathUtils.random(-0.5, 0.5) * this.recoilAmount * 0.1;
@@ -826,7 +837,7 @@ export class WeaponBase {
         this.model.rotation.y += recoilY;
         this.model.rotation.z += recoilZ;
 
-        // Gradually return to original position
+        /* // Gradually return to original position
         setTimeout(() => {
             if (this.model) {
                 this.model.rotation.x -= recoilX * 0.8;
@@ -841,19 +852,14 @@ export class WeaponBase {
                 this.model.rotation.y -= recoilY * 0.2;
                 this.model.rotation.z -= recoilZ * 0.2;
             }
+        }, 100); */
+        setTimeout(() => {
+            if (this.model) {
+                this.model.rotation.x -= recoilX;
+                this.model.rotation.y -= recoilY;
+                this.model.rotation.z -= recoilZ;
+            }
         }, 100);
-    }
-
-    /**
-     * Create weapon-specific recoil pattern
-     */
-    createRecoilPattern() {
-        // Base recoil pattern - can be overridden by subclasses
-        return {
-            horizontal: this.recoilAmount * 0.5,
-            vertical: this.recoilAmount,
-            recovery: WeaponConstants.ACCURACY_FACTORS.RECOVERY_RATE
-        };
     }
 
     /**
