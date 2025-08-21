@@ -821,48 +821,6 @@ export class WeaponBase {
     }
 
     /**
-     * Apply visual recoil effects to weapon model
-     */
-    applyRecoil() {
-        if (!this.model) return;
-        console.log("WeaponBase: recoil: " + this.model.rotation);
-
-        // Apply recoil rotation to weapon model
-        const recoilX = MathUtils.random(-0.5, 0.5) * this.recoilAmount * 0.1;
-        const recoilY = MathUtils.random(-0.5, 0.5) * this.recoilAmount * 0.1;
-        const recoilZ = MathUtils.random(0, 1) * this.recoilAmount * 0.05;
-
-        // Apply recoil rotation
-        this.model.rotation.x += recoilX;
-        this.model.rotation.y += recoilY;
-        this.model.rotation.z += recoilZ;
-
-        /* // Gradually return to original position
-        setTimeout(() => {
-            if (this.model) {
-                this.model.rotation.x -= recoilX * 0.8;
-                this.model.rotation.y -= recoilY * 0.8;
-                this.model.rotation.z -= recoilZ * 0.8;
-            }
-        }, 50);
-
-        setTimeout(() => {
-            if (this.model) {
-                this.model.rotation.x -= recoilX * 0.2;
-                this.model.rotation.y -= recoilY * 0.2;
-                this.model.rotation.z -= recoilZ * 0.2;
-            }
-        }, 100); */
-        setTimeout(() => {
-            if (this.model) {
-                this.model.rotation.x -= recoilX;
-                this.model.rotation.y -= recoilY;
-                this.model.rotation.z -= recoilZ;
-            }
-        }, 100);
-    }
-
-    /**
      * Update animations
      */
     updateAnimations(deltaTime) {
